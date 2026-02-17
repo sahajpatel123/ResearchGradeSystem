@@ -1,0 +1,15 @@
+{
+  "description": "GC-2 invalid fixture: Label 'ASSUMED' not in valid set",
+  "status": "INVALID",
+  "error": "Invalid claim label: 'ASSUMED'. Must be one of: DERIVED, COMPUTED, CITED, SPECULATIVE (GC-2)",
+  "claims": [
+    {
+      "claim_id": "claim-invalid-001",
+      "statement": "The system is in equilibrium",
+      "claim_label": "ASSUMED",
+      "step_id": "step-001",
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ]
+}

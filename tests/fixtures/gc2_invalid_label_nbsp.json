@@ -1,0 +1,15 @@
+{
+  "description": "GC-2 wire boundary: Label with NBSP (Non-Breaking Space U+00A0) at end",
+  "status": "INVALID",
+  "error": "Invalid ClaimLabel: 'CITED\\u00a0' contains invisible unicode character (GC-2)",
+  "claims": [
+    {
+      "claim_id": "claim-nbsp-001",
+      "statement": "According to Einstein (1905)",
+      "claim_label": "CITED ",
+      "step_id": "step-001",
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ]
+}

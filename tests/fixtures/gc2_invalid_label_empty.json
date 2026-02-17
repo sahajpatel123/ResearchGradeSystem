@@ -1,0 +1,15 @@
+{
+  "description": "GC-2 invalid fixture: Label is empty string",
+  "status": "INVALID",
+  "error": "Claim label cannot be empty string (GC-2)",
+  "claims": [
+    {
+      "claim_id": "claim-invalid-006",
+      "statement": "The energy is positive",
+      "claim_label": "",
+      "step_id": "step-001",
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ]
+}

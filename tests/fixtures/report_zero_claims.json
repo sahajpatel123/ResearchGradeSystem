@@ -1,0 +1,13 @@
+{
+  "status": "INCOMPLETE",
+  "claims": [],
+  "can_finalize": false,
+  "reasons": [
+    "No claims extracted - cannot finalize",
+    "Checklist:",
+    "  - Provide derivation steps with explicit claims",
+    "  - OR provide equations/identities to verify",
+    "  - OR provide source attributions/citations",
+    "  - OR explicitly state 'no derivation possible yet' with explanation"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "description": "GC-2 valid fixture: All 4 claim labels represented",
+  "status": "INCOMPLETE",
+  "claims": [
+    {
+      "claim_id": "claim-gc2-001",
+      "statement": "The Schrödinger equation is iℏ∂ψ/∂t = Ĥψ",
+      "claim_label": "DERIVED",
+      "step_id": "step-001",
+      "evidence_ids": ["evidence-001"],
+      "claim_span": null
+    },
+    {
+      "claim_id": "claim-gc2-002",
+      "statement": "The numerical integration yields E = 13.6 eV",
+      "claim_label": "COMPUTED",
+      "step_id": "step-002",
+      "evidence_ids": ["evidence-002"],
+      "claim_span": null
+    },
+    {
+      "claim_id": "claim-gc2-003",
+      "statement": "According to Dirac (1928), the relativistic wave equation includes spin",
+      "claim_label": "CITED",
+      "step_id": "step-003",
+      "evidence_ids": ["evidence-003"],
+      "claim_span": null
+    },
+    {
+      "claim_id": "claim-gc2-004",
+      "statement": "This might generalize to higher dimensions",
+      "claim_label": "SPECULATIVE",
+      "step_id": "step-004",
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ]
+}

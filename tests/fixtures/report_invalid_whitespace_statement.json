@@ -1,0 +1,14 @@
+{
+  "status": "INVALID",
+  "claims": [
+    {
+      "claim_id": "claim-invalid-001",
+      "statement": "   ",
+      "claim_label": "DERIVED",
+      "step_id": "step-001",
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ],
+  "error": "Claim statement must be non-empty after trimming whitespace"
+}

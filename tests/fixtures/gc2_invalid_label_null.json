@@ -1,0 +1,15 @@
+{
+  "description": "GC-2 invalid fixture: Label is null",
+  "status": "INVALID",
+  "error": "Claim label cannot be None (GC-2)",
+  "claims": [
+    {
+      "claim_id": "claim-invalid-005",
+      "statement": "The velocity is constant",
+      "claim_label": null,
+      "step_id": "step-001",
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "description": "GC-2 invalid fixture: Label field missing entirely",
+  "status": "INVALID",
+  "error": "Missing required field 'claim_label' (GC-2)",
+  "claims": [
+    {
+      "claim_id": "claim-invalid-008",
+      "statement": "The temperature increases",
+      "step_id": "step-001",
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ]
+}

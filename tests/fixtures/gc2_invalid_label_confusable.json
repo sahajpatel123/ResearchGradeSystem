@@ -1,0 +1,15 @@
+{
+  "description": "GC-2 wire boundary: Label with unicode confusable (Greek Epsilon Ε U+0395 instead of ASCII E)",
+  "status": "INVALID",
+  "error": "Invalid ClaimLabel: 'DΕRIVED' contains non-ASCII characters (GC-2)",
+  "claims": [
+    {
+      "claim_id": "claim-confusable-001",
+      "statement": "The momentum is p = mv",
+      "claim_label": "DΕRIVED",
+      "step_id": "step-001",
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ]
+}

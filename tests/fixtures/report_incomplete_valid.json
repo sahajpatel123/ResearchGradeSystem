@@ -1,0 +1,29 @@
+{
+  "status": "INCOMPLETE",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The energy-momentum relation is E^2 = (pc)^2 + (mc^2)^2",
+      "claim_label": "DERIVED",
+      "step_id": "step-001",
+      "evidence_ids": [],
+      "claim_span": null
+    },
+    {
+      "claim_id": "claim-002",
+      "statement": "In the non-relativistic limit, this reduces to E ≈ mc^2 + p^2/(2m)",
+      "claim_label": "DERIVED",
+      "step_id": "step-002",
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ],
+  "unsupported_claim_rate": 1.0,
+  "can_finalize": false,
+  "reasons": [
+    "Found 2 unsupported non-SPECULATIVE claim(s)",
+    "Unsupported claim rate: 2/2 = 100.00%",
+    "  - [DERIVED] The energy-momentum relation is E^2 = (pc)^2 + (mc^2)^2",
+    "  - [DERIVED] In the non-relativistic limit, this reduces to E ≈ mc^2 + p^2/(2m)"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "description": "GC-2 invalid fixture: Label 'derived' is lowercase (must be DERIVED)",
+  "status": "INVALID",
+  "error": "Claim label must be uppercase: got 'derived', expected 'DERIVED' (GC-2)",
+  "claims": [
+    {
+      "claim_id": "claim-invalid-002",
+      "statement": "The momentum is conserved",
+      "claim_label": "derived",
+      "step_id": "step-001",
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ]
+}

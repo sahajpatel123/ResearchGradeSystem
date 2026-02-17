@@ -1,0 +1,15 @@
+{
+  "description": "GC-2 invalid fixture: Label ' COMPUTED' has leading space",
+  "status": "INVALID",
+  "error": "Claim label has invalid whitespace: ' COMPUTED'. Must be exact: DERIVED, COMPUTED, CITED, SPECULATIVE (GC-2)",
+  "claims": [
+    {
+      "claim_id": "claim-invalid-004",
+      "statement": "The integral evaluates to pi",
+      "claim_label": " COMPUTED",
+      "step_id": "step-001",
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "description": "GC-2 wire boundary: Label with ZWSP (Zero-Width Space U+200B) embedded",
+  "status": "INVALID",
+  "error": "Invalid ClaimLabel: 'DERIVED\\u200b' contains invisible unicode character (GC-2)",
+  "claims": [
+    {
+      "claim_id": "claim-zwsp-001",
+      "statement": "The energy is conserved",
+      "claim_label": "DERIVED​",
+      "step_id": "step-001",
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ]
+}
