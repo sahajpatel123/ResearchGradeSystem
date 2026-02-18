@@ -1,0 +1,32 @@
+{
+  "description": "GC-3 FAIL: Claim not referenced by any step (ORPHAN_CLAIM)",
+  "report_id": "report-gc3-fail-002",
+  "error": "ORPHAN_CLAIM: Claim is not referenced by any step: claim-002",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Momentum is conserved",
+      "claim_label": "DERIVED",
+      "step_id": null,
+      "evidence_ids": [],
+      "claim_span": null
+    },
+    {
+      "claim_id": "claim-002",
+      "statement": "This claim is orphaned",
+      "claim_label": "SPECULATIVE",
+      "step_id": null,
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ]
+}

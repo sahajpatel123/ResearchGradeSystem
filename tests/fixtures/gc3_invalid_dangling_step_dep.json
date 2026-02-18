@@ -1,0 +1,24 @@
+{
+  "description": "GC-3 FAIL: Step depends on non-existent step (DANGLING_STEP_DEP)",
+  "report_id": "report-gc3-fail-008",
+  "error": "DANGLING_STEP_DEP: Step depends on non-existent step_id",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The integral converges",
+      "claim_label": "DERIVED",
+      "step_id": null,
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "UNCHECKED",
+      "depends_on": ["step-999"],
+      "status_reason": null
+    }
+  ]
+}

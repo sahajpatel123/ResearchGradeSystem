@@ -1,0 +1,24 @@
+{
+  "description": "GC-3 FAIL: Step has empty claim_ids (EMPTY_CLAIM_IDS)",
+  "report_id": "report-gc3-fail-004",
+  "error": "EMPTY_CLAIM_IDS: claim_ids cannot be empty",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The velocity is constant",
+      "claim_label": "DERIVED",
+      "step_id": null,
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": [],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ]
+}

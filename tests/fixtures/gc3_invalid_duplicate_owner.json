@@ -1,0 +1,31 @@
+{
+  "description": "GC-3 FAIL: Same claim_id in multiple steps (DUPLICATE_CLAIM_OWNER)",
+  "report_id": "report-gc3-fail-003",
+  "error": "DUPLICATE_CLAIM_OWNER: Claim is owned by multiple steps",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The force is F = ma",
+      "claim_label": "DERIVED",
+      "step_id": null,
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    },
+    {
+      "step_id": "step-002",
+      "claim_ids": ["claim-001"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ]
+}

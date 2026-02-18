@@ -1,0 +1,32 @@
+{
+  "description": "GC-3 FAIL: Duplicate claim_id in claims list (CLAIM_ID_COLLISION)",
+  "report_id": "report-gc3-fail-005",
+  "error": "CLAIM_ID_COLLISION: Duplicate claim_ids in claims list",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "First claim",
+      "claim_label": "DERIVED",
+      "step_id": null,
+      "evidence_ids": [],
+      "claim_span": null
+    },
+    {
+      "claim_id": "claim-001",
+      "statement": "Duplicate claim_id",
+      "claim_label": "COMPUTED",
+      "step_id": null,
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ]
+}

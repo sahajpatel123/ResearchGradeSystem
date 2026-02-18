@@ -1,0 +1,24 @@
+{
+  "description": "GC-3 FAIL: Step references non-existent claim_id (DANGLING_CLAIM_ID)",
+  "report_id": "report-gc3-fail-001",
+  "error": "DANGLING_CLAIM_ID: Step references non-existent claim_id: claim-999",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Energy is conserved",
+      "claim_label": "DERIVED",
+      "step_id": null,
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001", "claim-999"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ]
+}

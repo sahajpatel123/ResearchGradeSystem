@@ -1,0 +1,24 @@
+{
+  "description": "GC-3 FAIL: INDETERMINATE status without status_reason",
+  "report_id": "report-gc3-fail-009",
+  "error": "step_status INDETERMINATE requires non-empty status_reason",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The proof is unclear",
+      "claim_label": "SPECULATIVE",
+      "step_id": null,
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "INDETERMINATE",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "description": "GC-3 FAIL: Duplicate step_id in steps list (STEP_ID_COLLISION)",
+  "report_id": "report-gc3-fail-006",
+  "error": "STEP_ID_COLLISION: Duplicate step_ids in steps list",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The system is stable",
+      "claim_label": "DERIVED",
+      "step_id": null,
+      "evidence_ids": [],
+      "claim_span": null
+    },
+    {
+      "claim_id": "claim-002",
+      "statement": "The equilibrium holds",
+      "claim_label": "DERIVED",
+      "step_id": null,
+      "evidence_ids": [],
+      "claim_span": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    },
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-002"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ]
+}
