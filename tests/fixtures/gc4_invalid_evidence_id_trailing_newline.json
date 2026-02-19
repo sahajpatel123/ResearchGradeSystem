@@ -1,0 +1,33 @@
+{
+  "description": "GC-4 FAIL: evidence_id with trailing newline (whitespace variant rejection)",
+  "report_id": "report-gc4-fail-ws-004",
+  "error": "Invalid evidence_id: has leading/trailing whitespace",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The result follows",
+      "claim_label": "CITED",
+      "step_id": null,
+      "evidence_ids": ["evidence-001\n"],
+      "claim_span": null,
+      "verify_falsify": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evidence-001",
+      "evidence_type": "citation",
+      "content": "Reference",
+      "source": null
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "description": "GC-4 FAIL: Multiple dangling evidence_ids - regression test for ALL evidence_ids checked",
+  "report_id": "report-gc4-fail-regression-001",
+  "error": "DANGLING_EVIDENCE_ID: Both evidence-002 and evidence-999 should fail",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The proof requires multiple steps",
+      "claim_label": "DERIVED",
+      "step_id": null,
+      "evidence_ids": ["evidence-001", "evidence-002", "evidence-999"],
+      "claim_span": null,
+      "verify_falsify": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evidence-001",
+      "evidence_type": "derivation",
+      "content": "First step",
+      "source": null
+    }
+  ]
+}

@@ -24,9 +24,11 @@ def parse_evidence_id(wire: Any) -> str:
     This is the ONLY function that should parse individual evidence_ids from
     external sources (JSON, API responses, etc.).
     
-    Strict rules (GC-4):
-    - Accept ONLY a JSON string with non-empty content after trim
+    Strict rules (GC-4 wire-boundary hardening):
+    - Accept ONLY exact ASCII strings with NO leading/trailing whitespace
+    - NO TRIMMING: Reject whitespace variants deterministically
     - Reject: non-string types, empty strings, whitespace-only strings
+    - Reject: leading/trailing whitespace (space, tab, newline, etc.)
     - Reject: unicode invisibles (ZWSP, NBSP, etc.)
     - Reject: unicode confusables (non-ASCII characters)
     
@@ -34,11 +36,11 @@ def parse_evidence_id(wire: Any) -> str:
         wire: Raw value from external source
         
     Returns:
-        Validated evidence_id string
+        Validated evidence_id string (exact, no normalization)
         
     Raises:
         TypeError: If wire is not a string
-        ValueError: If wire is empty, whitespace-only, or contains invalid characters
+        ValueError: If wire is empty, has whitespace variants, or contains invalid characters
     """
     # Type check: must be string
     if wire is None:
@@ -54,14 +56,9 @@ def parse_evidence_id(wire: Any) -> str:
     if wire == "":
         raise ValueError("Invalid evidence_id: empty string (GC-4)")
     
-    # Whitespace check
-    if not wire.strip():
-        raise ValueError(
-            f"Invalid evidence_id: {repr(wire)} is whitespace-only (GC-4)"
-        )
-    
-    # Check for unicode invisibles (ZWSP, NBSP, etc.)
+    # Check for unicode invisibles FIRST (before whitespace checks)
     # Common invisibles: U+200B (ZWSP), U+00A0 (NBSP), U+FEFF (BOM), U+2060 (WJ)
+    # Note: NBSP is both invisible AND whitespace, so check invisibles first
     invisible_chars = [
         '\u200b',  # ZWSP
         '\u00a0',  # NBSP
@@ -77,6 +74,20 @@ def parse_evidence_id(wire: Any) -> str:
                 f"Invalid evidence_id: {repr(wire)} contains invisible unicode character (GC-4)"
             )
     
+    # Whitespace-only check
+    if not wire.strip():
+        raise ValueError(
+            f"Invalid evidence_id: {repr(wire)} is whitespace-only (GC-4)"
+        )
+    
+    # GC-4 WIRE-BOUNDARY HARDENING: NO TRIMMING
+    # Reject any leading/trailing whitespace variants
+    if wire != wire.strip():
+        raise ValueError(
+            f"Invalid evidence_id: {repr(wire)} has leading/trailing whitespace "
+            f"(GC-4: whitespace variants rejected at wire boundary)"
+        )
+    
     # Check for non-ASCII (catches unicode confusables)
     try:
         wire.encode('ascii')
@@ -85,8 +96,8 @@ def parse_evidence_id(wire: Any) -> str:
             f"Invalid evidence_id: {repr(wire)} contains non-ASCII characters (GC-4)"
         )
     
-    # Return trimmed value
-    return wire.strip()
+    # Return exact value (NO TRIMMING)
+    return wire
 
 
 def parse_evidence_ids(wire: Any) -> list[str]:
