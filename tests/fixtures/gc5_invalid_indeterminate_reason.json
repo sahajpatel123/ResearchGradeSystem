@@ -1,14 +1,14 @@
 {
-  "description": "GC-4 FAIL: Duplicate evidence_ids within claim (EVIDENCE_ID_DUP_IN_CLAIM)",
-  "report_id": "report-gc4-fail-004",
-  "error": "EVIDENCE_ID_DUP_IN_CLAIM: Duplicate evidence_ids within claim",
+  "description": "GC-5 FAIL: Invalid indeterminate_reason (not in tight enum)",
+  "report_id": "report-gc5-fail-014",
+  "error": "INDETERMINATE_REASON_INVALID",
   "claims": [
     {
       "claim_id": "claim-001",
-      "statement": "The calculation is correct",
+      "statement": "Test claim",
       "claim_label": "COMPUTED",
       "step_id": null,
-      "evidence_ids": ["evidence-001", "evidence-001"],
+      "evidence_ids": ["evidence-001"],
       "claim_span": null,
       "verify_falsify": null
     }
@@ -25,18 +25,18 @@
   "evidence": [
     {
       "evidence_id": "evidence-001",
-      "evidence_type": "derivation",
+      "evidence_type": "computation",
       "source": {
-        "kind": "step_id",
-        "value": "step-001"
+        "kind": "tool_run_id",
+        "value": "tool-001"
       },
-      "status": "pass",
-      "status_reason": null,
+      "status": "indeterminate",
+      "status_reason": "invalid_reason",
       "payload_ref": {
         "kind": "log_id",
         "value": "log-001"
       },
-      "notes": "Proof"
+      "notes": null
     }
   ]
 }

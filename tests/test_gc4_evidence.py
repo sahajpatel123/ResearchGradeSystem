@@ -9,7 +9,13 @@ import pytest
 from pathlib import Path
 from src.core.claim import Claim, ClaimLabel
 from src.core.step import DerivationStep, StepStatus
-from src.core.evidence import EvidenceObject
+from src.core.evidence import (
+    EvidenceObject,
+    EvidenceType,
+    EvidenceStatus,
+    EvidenceSource,
+    PayloadRef,
+)
 from src.core.report import ScientificReport
 from src.core.evidence_validators import (
     parse_evidence_id,
@@ -17,39 +23,72 @@ from src.core.evidence_validators import (
     EvidenceValidator,
     validate_evidence_attachment,
 )
+from src.core.gc5_wire_parsers import parse_evidence_object
 
 
 class TestEvidenceObjectSchema:
     """Test EvidenceObject schema validation"""
     
     def test_evidence_creation_valid(self):
-        """GC-4: Valid evidence object creation"""
+        """GC-4: Valid evidence object creation (now GC-5 schema)"""
         evidence = EvidenceObject(
             evidence_id="evidence-001",
-            evidence_type="derivation",
-            content="Proof steps",
+            evidence_type=EvidenceType.DERIVATION,
+            source=EvidenceSource(kind="step_id", value="step-001"),
+            status=EvidenceStatus.PASS,
+            payload_ref=PayloadRef(kind="log_id", value="log-001"),
         )
         assert evidence.evidence_id == "evidence-001"
-        assert evidence.evidence_type == "derivation"
+        assert evidence.evidence_type == EvidenceType.DERIVATION
     
     def test_evidence_id_required(self):
-        """GC-4: evidence_id must be non-empty"""
+        """GC-4: evidence_id must be non-empty (now GC-5 schema)"""
         with pytest.raises(ValueError, match="evidence_id must be non-empty"):
-            EvidenceObject(evidence_id="")
+            EvidenceObject(
+                evidence_id="",
+                evidence_type=EvidenceType.DERIVATION,
+                source=EvidenceSource(kind="step_id", value="step-001"),
+                status=EvidenceStatus.PASS,
+                payload_ref=PayloadRef(kind="log_id", value="log-001"),
+            )
         
-        with pytest.raises(ValueError, match="whitespace-only"):
-            EvidenceObject(evidence_id="   ")
+        with pytest.raises(ValueError, match="evidence_id must be non-empty"):
+            EvidenceObject(
+                evidence_id="   ",
+                evidence_type=EvidenceType.DERIVATION,
+                source=EvidenceSource(kind="step_id", value="step-001"),
+                status=EvidenceStatus.PASS,
+                payload_ref=PayloadRef(kind="log_id", value="log-001"),
+            )
     
     def test_evidence_id_whitespace_variants_rejected(self):
         """GC-4 WIRE-BOUNDARY HARDENING: evidence_id with whitespace variants rejected"""
         with pytest.raises(ValueError, match="leading/trailing whitespace"):
-            EvidenceObject(evidence_id="  evidence-001  ")
+            EvidenceObject(
+                evidence_id="  evidence-001  ",
+                evidence_type=EvidenceType.DERIVATION,
+                source=EvidenceSource(kind="step_id", value="step-001"),
+                status=EvidenceStatus.PASS,
+                payload_ref=PayloadRef(kind="log_id", value="log-001"),
+            )
         
         with pytest.raises(ValueError, match="leading/trailing whitespace"):
-            EvidenceObject(evidence_id=" evidence-001")
+            EvidenceObject(
+                evidence_id=" evidence-001",
+                evidence_type=EvidenceType.DERIVATION,
+                source=EvidenceSource(kind="step_id", value="step-001"),
+                status=EvidenceStatus.PASS,
+                payload_ref=PayloadRef(kind="log_id", value="log-001"),
+            )
         
         with pytest.raises(ValueError, match="leading/trailing whitespace"):
-            EvidenceObject(evidence_id="evidence-001 ")
+            EvidenceObject(
+                evidence_id="evidence-001 ",
+                evidence_type=EvidenceType.DERIVATION,
+                source=EvidenceSource(kind="step_id", value="step-001"),
+                status=EvidenceStatus.PASS,
+                payload_ref=PayloadRef(kind="log_id", value="log-001"),
+            )
 
 
 class TestWireBoundaryParsing:
@@ -176,7 +215,13 @@ class TestEvidenceValidation:
     
     def test_derived_with_evidence_valid(self):
         """GC-4: DERIVED claim with evidence_ids is valid"""
-        evidence = EvidenceObject(evidence_id="evidence-001")
+        evidence = EvidenceObject(
+            evidence_id="evidence-001",
+            evidence_type=EvidenceType.DERIVATION,
+            source=EvidenceSource(kind="step_id", value="step-001"),
+            status=EvidenceStatus.PASS,
+            payload_ref=PayloadRef(kind="log_id", value="log-001"),
+        )
         claim = Claim(
             claim_id="claim-001",
             statement="The theorem holds",
@@ -270,7 +315,13 @@ class TestEvidenceValidation:
     
     def test_evidence_ids_must_resolve(self):
         """GC-4: evidence_ids must resolve to report.evidence (DANGLING_EVIDENCE_ID)"""
-        evidence = EvidenceObject(evidence_id="evidence-001")
+        evidence = EvidenceObject(
+            evidence_id="evidence-001",
+            evidence_type=EvidenceType.DERIVATION,
+            source=EvidenceSource(kind="step_id", value="step-001"),
+            status=EvidenceStatus.PASS,
+            payload_ref=PayloadRef(kind="log_id", value="log-001"),
+        )
         claim = Claim(
             claim_id="claim-001",
             statement="The proof is complete",
@@ -286,7 +337,13 @@ class TestEvidenceValidation:
     
     def test_duplicate_evidence_ids_rejected(self):
         """GC-4: Duplicate evidence_ids within claim rejected (EVIDENCE_ID_DUP_IN_CLAIM)"""
-        evidence = EvidenceObject(evidence_id="evidence-001")
+        evidence = EvidenceObject(
+            evidence_id="evidence-001",
+            evidence_type=EvidenceType.COMPUTATION,
+            source=EvidenceSource(kind="tool_run_id", value="tool-001"),
+            status=EvidenceStatus.PASS,
+            payload_ref=PayloadRef(kind="log_id", value="log-001"),
+        )
         claim = Claim(
             claim_id="claim-001",
             statement="The calculation is correct",
@@ -302,8 +359,20 @@ class TestEvidenceValidation:
     
     def test_multiple_evidence_ids_valid(self):
         """GC-4: Multiple evidence_ids is valid"""
-        evidence1 = EvidenceObject(evidence_id="evidence-001")
-        evidence2 = EvidenceObject(evidence_id="evidence-002")
+        evidence1 = EvidenceObject(
+            evidence_id="evidence-001",
+            evidence_type=EvidenceType.DERIVATION,
+            source=EvidenceSource(kind="step_id", value="step-001"),
+            status=EvidenceStatus.PASS,
+            payload_ref=PayloadRef(kind="log_id", value="log-001"),
+        )
+        evidence2 = EvidenceObject(
+            evidence_id="evidence-002",
+            evidence_type=EvidenceType.DERIVATION,
+            source=EvidenceSource(kind="step_id", value="step-001"),
+            status=EvidenceStatus.PASS,
+            payload_ref=PayloadRef(kind="log_id", value="log-002"),
+        )
         claim = Claim(
             claim_id="claim-001",
             statement="The theorem is proven",
@@ -354,12 +423,7 @@ class TestGC4Fixtures:
         ]
         
         evidence = [
-            EvidenceObject(
-                evidence_id=e["evidence_id"],
-                evidence_type=e.get("evidence_type"),
-                content=e.get("content"),
-                source=e.get("source"),
-            )
+            parse_evidence_object(e)
             for e in data["evidence"]
         ]
         
@@ -395,7 +459,7 @@ class TestGC4Fixtures:
         ]
         
         evidence = [
-            EvidenceObject(evidence_id=e["evidence_id"])
+            parse_evidence_object(e)
             for e in data.get("evidence", [])
         ]
         
@@ -463,7 +527,7 @@ class TestGC4Fixtures:
         ]
         
         evidence = [
-            EvidenceObject(evidence_id=e["evidence_id"])
+            parse_evidence_object(e)
             for e in data["evidence"]
         ]
         
@@ -499,7 +563,7 @@ class TestGC4Fixtures:
         ]
         
         evidence = [
-            EvidenceObject(evidence_id=e["evidence_id"])
+            parse_evidence_object(e)
             for e in data["evidence"]
         ]
         
@@ -636,7 +700,7 @@ class TestGC4Fixtures:
         ]
         
         evidence = [
-            EvidenceObject(evidence_id=e["evidence_id"])
+            parse_evidence_object(e)
             for e in data["evidence"]
         ]
         
@@ -656,7 +720,13 @@ class TestScientificReportEvidence:
     
     def test_report_evidence_list_valid(self):
         """GC-4: Report with evidence list is valid"""
-        evidence = EvidenceObject(evidence_id="evidence-001")
+        evidence = EvidenceObject(
+            evidence_id="evidence-001",
+            evidence_type=EvidenceType.DERIVATION,
+            source=EvidenceSource(kind="step_id", value="step-001"),
+            status=EvidenceStatus.PASS,
+            payload_ref=PayloadRef(kind="log_id", value="log-001"),
+        )
         claim = Claim(
             claim_id="claim-001",
             statement="Test",
@@ -671,8 +741,20 @@ class TestScientificReportEvidence:
     
     def test_report_duplicate_evidence_ids_rejected(self):
         """GC-4: Duplicate evidence_ids in evidence list rejected"""
-        evidence1 = EvidenceObject(evidence_id="evidence-001")
-        evidence2 = EvidenceObject(evidence_id="evidence-001")
+        evidence1 = EvidenceObject(
+            evidence_id="evidence-001",
+            evidence_type=EvidenceType.DERIVATION,
+            source=EvidenceSource(kind="step_id", value="step-001"),
+            status=EvidenceStatus.PASS,
+            payload_ref=PayloadRef(kind="log_id", value="log-001"),
+        )
+        evidence2 = EvidenceObject(
+            evidence_id="evidence-001",
+            evidence_type=EvidenceType.DERIVATION,
+            source=EvidenceSource(kind="step_id", value="step-001"),
+            status=EvidenceStatus.PASS,
+            payload_ref=PayloadRef(kind="log_id", value="log-002"),
+        )
         
         with pytest.raises(ValueError, match="EVIDENCE_ID_COLLISION"):
             report = ScientificReport(

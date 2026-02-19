@@ -1,14 +1,13 @@
 {
-  "description": "GC-4 FAIL: Duplicate evidence_ids within claim (EVIDENCE_ID_DUP_IN_CLAIM)",
-  "report_id": "report-gc4-fail-004",
-  "error": "EVIDENCE_ID_DUP_IN_CLAIM: Duplicate evidence_ids within claim",
+  "description": "GC-5 PASS: Valid indeterminate evidence with status_reason",
+  "report_id": "report-gc5-pass-004",
   "claims": [
     {
       "claim_id": "claim-001",
-      "statement": "The calculation is correct",
+      "statement": "The computation may be correct",
       "claim_label": "COMPUTED",
       "step_id": null,
-      "evidence_ids": ["evidence-001", "evidence-001"],
+      "evidence_ids": ["evidence-001"],
       "claim_span": null,
       "verify_falsify": null
     }
@@ -25,18 +24,18 @@
   "evidence": [
     {
       "evidence_id": "evidence-001",
-      "evidence_type": "derivation",
+      "evidence_type": "computation",
       "source": {
-        "kind": "step_id",
-        "value": "step-001"
+        "kind": "tool_run_id",
+        "value": "tool-run-timeout-001"
       },
-      "status": "pass",
-      "status_reason": null,
+      "status": "indeterminate",
+      "status_reason": "timeout",
       "payload_ref": {
         "kind": "log_id",
-        "value": "log-001"
+        "value": "log-timeout-001"
       },
-      "notes": "Proof"
+      "notes": "Computation timed out after 60 seconds"
     }
   ]
 }

@@ -59,26 +59,62 @@
     {
       "evidence_id": "evidence-001",
       "evidence_type": "derivation",
-      "content": "Mathematical derivation from Hamiltonian formalism",
-      "source": null
+      "source": {
+        "kind": "step_id",
+        "value": "step-001"
+      },
+      "status": "pass",
+      "status_reason": null,
+      "payload_ref": {
+        "kind": "log_id",
+        "value": "log-derivation-001"
+      },
+      "notes": "Mathematical derivation from Hamiltonian formalism"
     },
     {
       "evidence_id": "evidence-002",
-      "evidence_type": "equation",
-      "content": "iℏ∂ψ/∂t = Ĥψ",
-      "source": null
+      "evidence_type": "derivation",
+      "source": {
+        "kind": "step_id",
+        "value": "step-001"
+      },
+      "status": "pass",
+      "status_reason": null,
+      "payload_ref": {
+        "kind": "expression_ref",
+        "value": "expr-schrodinger"
+      },
+      "notes": "Schrödinger equation expression"
     },
     {
       "evidence_id": "evidence-003",
       "evidence_type": "computation",
-      "content": "Python simulation output showing dispersion",
-      "source": "simulation_output.py"
+      "source": {
+        "kind": "tool_run_id",
+        "value": "simulation-output-py"
+      },
+      "status": "pass",
+      "status_reason": null,
+      "payload_ref": {
+        "kind": "snippet_ref",
+        "value": "snippet-simulation-001"
+      },
+      "notes": "Python simulation output showing dispersion"
     },
     {
       "evidence_id": "evidence-004",
       "evidence_type": "citation",
-      "content": "Feynman, R. (1965). Quantum Mechanics and Path Integrals",
-      "source": "Feynman1965"
+      "source": {
+        "kind": "citation_id",
+        "value": "Feynman1965"
+      },
+      "status": "pass",
+      "status_reason": null,
+      "payload_ref": {
+        "kind": "expression_ref",
+        "value": "expr-feynman-cite"
+      },
+      "notes": "Feynman, R. (1965). Quantum Mechanics and Path Integrals"
     }
   ]
 }

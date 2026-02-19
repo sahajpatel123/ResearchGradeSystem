@@ -24,10 +24,19 @@
   ],
   "evidence": [
     {
-      "evidence_id": "evidence-001",
+      "evidence_id": "evidence-001\u200b",
       "evidence_type": "derivation",
-      "content": "Proof steps",
-      "source": null
+      "source": {
+        "kind": "step_id",
+        "value": "step-001"
+      },
+      "status": "pass",
+      "status_reason": null,
+      "payload_ref": {
+        "kind": "log_id",
+        "value": "log-001"
+      },
+      "notes": "Proof"
     }
   ]
 }

@@ -1,14 +1,14 @@
 {
-  "description": "GC-4 FAIL: Claim references non-existent evidence_id (DANGLING_EVIDENCE_ID)",
-  "report_id": "report-gc4-fail-003",
-  "error": "DANGLING_EVIDENCE_ID: Claim references non-existent evidence_id",
+  "description": "GC-5 FAIL: status=indeterminate but status_reason is missing",
+  "report_id": "report-gc5-fail-003",
+  "error": "INDETERMINATE_MISSING_REASON",
   "claims": [
     {
       "claim_id": "claim-001",
-      "statement": "The theorem holds",
-      "claim_label": "DERIVED",
+      "statement": "Test claim",
+      "claim_label": "COMPUTED",
       "step_id": null,
-      "evidence_ids": ["evidence-001", "evidence-999"],
+      "evidence_ids": ["evidence-001"],
       "claim_span": null,
       "verify_falsify": null
     }
@@ -25,18 +25,18 @@
   "evidence": [
     {
       "evidence_id": "evidence-001",
-      "evidence_type": "derivation",
+      "evidence_type": "computation",
       "source": {
-        "kind": "step_id",
-        "value": "step-001"
+        "kind": "tool_run_id",
+        "value": "tool-001"
       },
-      "status": "pass",
+      "status": "indeterminate",
       "status_reason": null,
       "payload_ref": {
         "kind": "log_id",
         "value": "log-001"
       },
-      "notes": "Proof step 1"
+      "notes": null
     }
   ]
 }

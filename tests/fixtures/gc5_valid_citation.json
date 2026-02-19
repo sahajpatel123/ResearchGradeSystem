@@ -1,0 +1,41 @@
+{
+  "description": "GC-5 PASS: Valid citation evidence with citation_id source",
+  "report_id": "report-gc5-pass-003",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "According to Einstein (1905)",
+      "claim_label": "CITED",
+      "step_id": null,
+      "evidence_ids": ["evidence-001"],
+      "claim_span": null,
+      "verify_falsify": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evidence-001",
+      "evidence_type": "citation",
+      "source": {
+        "kind": "citation_id",
+        "value": "einstein-1905-relativity"
+      },
+      "status": "pass",
+      "status_reason": null,
+      "payload_ref": {
+        "kind": "expression_ref",
+        "value": "expr-cite-001"
+      },
+      "notes": "Citation verified in original paper"
+    }
+  ]
+}

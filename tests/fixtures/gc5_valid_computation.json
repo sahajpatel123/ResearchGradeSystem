@@ -1,14 +1,13 @@
 {
-  "description": "GC-4 FAIL: Duplicate evidence_ids within claim (EVIDENCE_ID_DUP_IN_CLAIM)",
-  "report_id": "report-gc4-fail-004",
-  "error": "EVIDENCE_ID_DUP_IN_CLAIM: Duplicate evidence_ids within claim",
+  "description": "GC-5 PASS: Valid computation evidence with tool_run_id source",
+  "report_id": "report-gc5-pass-002",
   "claims": [
     {
       "claim_id": "claim-001",
-      "statement": "The calculation is correct",
+      "statement": "Simulation confirms the result",
       "claim_label": "COMPUTED",
       "step_id": null,
-      "evidence_ids": ["evidence-001", "evidence-001"],
+      "evidence_ids": ["evidence-001"],
       "claim_span": null,
       "verify_falsify": null
     }
@@ -25,18 +24,18 @@
   "evidence": [
     {
       "evidence_id": "evidence-001",
-      "evidence_type": "derivation",
+      "evidence_type": "computation",
       "source": {
-        "kind": "step_id",
-        "value": "step-001"
+        "kind": "tool_run_id",
+        "value": "tool-run-12345"
       },
       "status": "pass",
       "status_reason": null,
       "payload_ref": {
-        "kind": "log_id",
-        "value": "log-001"
+        "kind": "snippet_ref",
+        "value": "snippet-comp-001"
       },
-      "notes": "Proof"
+      "notes": "Numerical simulation passed"
     }
   ]
 }

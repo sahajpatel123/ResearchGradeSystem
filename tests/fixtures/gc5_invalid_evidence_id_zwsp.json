@@ -1,14 +1,14 @@
 {
-  "description": "GC-4 FAIL: Multiple dangling evidence_ids - regression test for ALL evidence_ids checked",
-  "report_id": "report-gc4-fail-regression-001",
-  "error": "DANGLING_EVIDENCE_ID: Both evidence-002 and evidence-999 should fail",
+  "description": "GC-5 FAIL: evidence_id with ZWSP (unicode invisible)",
+  "report_id": "report-gc5-fail-008",
+  "error": "EVIDENCE_ID_INVALID - invisible unicode",
   "claims": [
     {
       "claim_id": "claim-001",
-      "statement": "The proof requires multiple steps",
+      "statement": "Test claim",
       "claim_label": "DERIVED",
       "step_id": null,
-      "evidence_ids": ["evidence-001", "evidence-002", "evidence-999"],
+      "evidence_ids": ["evidence-001\u200b"],
       "claim_span": null,
       "verify_falsify": null
     }
@@ -24,7 +24,7 @@
   ],
   "evidence": [
     {
-      "evidence_id": "evidence-001",
+      "evidence_id": "evidence-001\u200b",
       "evidence_type": "derivation",
       "source": {
         "kind": "step_id",
@@ -36,7 +36,7 @@
         "kind": "log_id",
         "value": "log-001"
       },
-      "notes": "First step"
+      "notes": null
     }
   ]
 }
