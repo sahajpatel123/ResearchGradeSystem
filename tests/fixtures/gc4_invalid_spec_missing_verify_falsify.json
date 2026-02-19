@@ -1,0 +1,26 @@
+{
+  "description": "GC-4 FAIL: SPECULATIVE claim without verify_falsify (SPEC_MISSING_VERIFY_FALSIFY)",
+  "report_id": "report-gc4-fail-002",
+  "error": "SPEC_MISSING_VERIFY_FALSIFY: SPECULATIVE claim must have non-empty verify_falsify",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "This might work in higher dimensions",
+      "claim_label": "SPECULATIVE",
+      "step_id": null,
+      "evidence_ids": [],
+      "claim_span": null,
+      "verify_falsify": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ],
+  "evidence": []
+}

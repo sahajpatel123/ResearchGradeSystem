@@ -1,0 +1,33 @@
+{
+  "description": "GC-4 FAIL: evidence_ids is not a list (EVIDENCE_IDS_WRONG_TYPE)",
+  "report_id": "report-gc4-fail-005",
+  "error": "EVIDENCE_IDS_WRONG_TYPE: evidence_ids must be a list",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The result follows",
+      "claim_label": "DERIVED",
+      "step_id": null,
+      "evidence_ids": "evidence-001",
+      "claim_span": null,
+      "verify_falsify": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evidence-001",
+      "evidence_type": "derivation",
+      "content": "Proof",
+      "source": null
+    }
+  ]
+}

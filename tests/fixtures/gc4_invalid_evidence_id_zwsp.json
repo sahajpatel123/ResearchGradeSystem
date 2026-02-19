@@ -1,0 +1,33 @@
+{
+  "description": "GC-4 FAIL: evidence_id contains ZWSP (wire parsing rejection)",
+  "report_id": "report-gc4-fail-006",
+  "error": "Invalid evidence_id: contains invisible unicode character",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The proof is complete",
+      "claim_label": "DERIVED",
+      "step_id": null,
+      "evidence_ids": ["evidence-001\u200b"],
+      "claim_span": null,
+      "verify_falsify": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evidence-001",
+      "evidence_type": "derivation",
+      "content": "Proof steps",
+      "source": null
+    }
+  ]
+}

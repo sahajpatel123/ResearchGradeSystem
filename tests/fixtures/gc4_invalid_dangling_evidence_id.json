@@ -1,0 +1,33 @@
+{
+  "description": "GC-4 FAIL: Claim references non-existent evidence_id (DANGLING_EVIDENCE_ID)",
+  "report_id": "report-gc4-fail-003",
+  "error": "DANGLING_EVIDENCE_ID: Claim references non-existent evidence_id",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The theorem holds",
+      "claim_label": "DERIVED",
+      "step_id": null,
+      "evidence_ids": ["evidence-001", "evidence-999"],
+      "claim_span": null,
+      "verify_falsify": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evidence-001",
+      "evidence_type": "derivation",
+      "content": "Proof step 1",
+      "source": null
+    }
+  ]
+}

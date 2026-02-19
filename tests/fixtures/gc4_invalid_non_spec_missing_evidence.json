@@ -1,0 +1,26 @@
+{
+  "description": "GC-4 FAIL: Non-SPECULATIVE claim with empty evidence_ids (NON_SPEC_MISSING_EVIDENCE)",
+  "report_id": "report-gc4-fail-001",
+  "error": "NON_SPEC_MISSING_EVIDENCE: DERIVED claim must have ≥1 evidence_id",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Energy is conserved",
+      "claim_label": "DERIVED",
+      "step_id": null,
+      "evidence_ids": [],
+      "claim_span": null,
+      "verify_falsify": null
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "UNCHECKED",
+      "depends_on": [],
+      "status_reason": null
+    }
+  ],
+  "evidence": []
+}

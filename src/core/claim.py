@@ -31,6 +31,7 @@ class Claim:
     step_id: Optional[str] = None
     evidence_ids: list[str] = field(default_factory=list)
     claim_span: Optional[tuple[int, int]] = None
+    verify_falsify: Optional[str] = None
 
     def __post_init__(self):
         if not self.statement or not self.statement.strip():
@@ -42,6 +43,13 @@ class Claim:
         if not isinstance(self.claim_label, ClaimLabel):
             raise TypeError(
                 f"Claim label must be ClaimLabel enum, got {type(self.claim_label).__name__}"
+            )
+        
+        # GC-4: Basic type validation (detailed validation in evidence_validators)
+        if not isinstance(self.evidence_ids, list):
+            raise TypeError(
+                f"Claim {self.claim_id}: evidence_ids must be a list, "
+                f"got {type(self.evidence_ids).__name__}"
             )
 
     @staticmethod

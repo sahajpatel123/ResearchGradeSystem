@@ -1,0 +1,84 @@
+{
+  "description": "GC-4 PASS: Valid report with all 4 claim types and proper evidence",
+  "report_id": "report-gc4-valid-001",
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The Schrödinger equation is iℏ∂ψ/∂t = Ĥψ",
+      "claim_label": "DERIVED",
+      "step_id": null,
+      "evidence_ids": ["evidence-001", "evidence-002"],
+      "claim_span": null,
+      "verify_falsify": null
+    },
+    {
+      "claim_id": "claim-002",
+      "statement": "Numerical simulation confirms wave packet dispersion",
+      "claim_label": "COMPUTED",
+      "step_id": null,
+      "evidence_ids": ["evidence-003"],
+      "claim_span": null,
+      "verify_falsify": null
+    },
+    {
+      "claim_id": "claim-003",
+      "statement": "According to Feynman (1965), path integrals provide equivalent formulation",
+      "claim_label": "CITED",
+      "step_id": null,
+      "evidence_ids": ["evidence-004"],
+      "claim_span": null,
+      "verify_falsify": null
+    },
+    {
+      "claim_id": "claim-004",
+      "statement": "This approach may extend to quantum field theory",
+      "claim_label": "SPECULATIVE",
+      "step_id": null,
+      "evidence_ids": [],
+      "claim_span": null,
+      "verify_falsify": "Could test by attempting canonical quantization of Klein-Gordon field"
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001", "claim-002"],
+      "step_status": "CHECKED",
+      "depends_on": [],
+      "status_reason": null
+    },
+    {
+      "step_id": "step-002",
+      "claim_ids": ["claim-003", "claim-004"],
+      "step_status": "CHECKED",
+      "depends_on": ["step-001"],
+      "status_reason": null
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evidence-001",
+      "evidence_type": "derivation",
+      "content": "Mathematical derivation from Hamiltonian formalism",
+      "source": null
+    },
+    {
+      "evidence_id": "evidence-002",
+      "evidence_type": "equation",
+      "content": "iℏ∂ψ/∂t = Ĥψ",
+      "source": null
+    },
+    {
+      "evidence_id": "evidence-003",
+      "evidence_type": "computation",
+      "content": "Python simulation output showing dispersion",
+      "source": "simulation_output.py"
+    },
+    {
+      "evidence_id": "evidence-004",
+      "evidence_type": "citation",
+      "content": "Feynman, R. (1965). Quantum Mechanics and Path Integrals",
+      "source": "Feynman1965"
+    }
+  ]
+}
