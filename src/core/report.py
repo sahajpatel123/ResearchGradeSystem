@@ -1,7 +1,7 @@
 """
-GC-3/GC-4 ScientificReport Schema
+GC-3/GC-4/GC-6 ScientificReport Schema
 
-Container for claims, derivation steps, and evidence with structural validation.
+Container for claims, derivation steps, evidence, and integrity metrics with structural validation.
 """
 
 from dataclasses import dataclass, field
@@ -9,17 +9,20 @@ from typing import Optional
 from src.core.claim import Claim
 from src.core.step import DerivationStep
 from src.core.evidence import EvidenceObject
+from src.core.integrity_metrics import IntegrityMetrics
 
 
 @dataclass
 class ScientificReport:
     """
-    GC-3/GC-4: Scientific report containing claims, steps, and evidence.
+    GC-3/GC-4/GC-6: Scientific report containing claims, steps, evidence, and integrity metrics.
     
     A report is the top-level container that holds:
     - claims: List of all claims (from GC-1/GC-2)
     - steps: List of derivation steps that reference claims (GC-3)
-    - evidence: List of evidence objects supporting claims (GC-4)
+    - evidence: List of evidence objects supporting claims (GC-4/GC-5)
+    - integrity_metrics: Computed metrics for claim support quality (GC-6)
+    - integrity_warnings: Warning-only signals (e.g., SPECULATIVE_FLOOD_WARNING)
     
     Structural invariants (enforced by validators, not __post_init__):
     - GC-3: Every claim must be referenced by exactly one step (no orphans)
@@ -29,11 +32,15 @@ class ScientificReport:
     - GC-4: Non-SPECULATIVE claims must have ≥1 evidence_id
     - GC-4: SPECULATIVE claims must have verify_falsify
     - GC-4: Every evidence_id must resolve to report.evidence[]
+    - GC-5: All EvidenceObjects must be typed and valid
+    - GC-6: integrity_metrics are COMPUTED-ONLY (never accept from wire without validation)
     """
     claims: list[Claim]
     steps: list[DerivationStep]
     evidence: list[EvidenceObject] = field(default_factory=list)
     report_id: Optional[str] = None
+    integrity_metrics: Optional[IntegrityMetrics] = None
+    integrity_warnings: list[str] = field(default_factory=list)
     
     def __post_init__(self):
         # Basic type validation
@@ -45,6 +52,12 @@ class ScientificReport:
         
         if not isinstance(self.evidence, list):
             raise TypeError(f"evidence must be a list, got {type(self.evidence).__name__}")
+        
+        if not isinstance(self.integrity_warnings, list):
+            raise TypeError(f"integrity_warnings must be a list, got {type(self.integrity_warnings).__name__}")
+        
+        if self.integrity_metrics is not None and not isinstance(self.integrity_metrics, IntegrityMetrics):
+            raise TypeError(f"integrity_metrics must be IntegrityMetrics or None, got {type(self.integrity_metrics).__name__}")
         
         # Check for duplicate claim_ids in claims list
         claim_ids = [c.claim_id for c in self.claims]

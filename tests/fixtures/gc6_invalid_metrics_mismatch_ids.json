@@ -1,0 +1,24 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Unsupported claim",
+      "claim_label": "DERIVED",
+      "evidence_ids": []
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "CHECKED"
+    }
+  ],
+  "evidence": [],
+  "integrity_metrics": {
+    "unsupported_non_spec_claims": 1,
+    "total_non_spec_claims": 1,
+    "unsupported_claim_rate": 1.0,
+    "unsupported_claim_ids": ["claim-999"]
+  }
+}

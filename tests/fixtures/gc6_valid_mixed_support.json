@@ -1,0 +1,50 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "This claim is supported",
+      "claim_label": "DERIVED",
+      "evidence_ids": ["evidence-001"]
+    },
+    {
+      "claim_id": "claim-002",
+      "statement": "This claim is unsupported - no evidence",
+      "claim_label": "COMPUTED",
+      "evidence_ids": []
+    },
+    {
+      "claim_id": "claim-003",
+      "statement": "This claim is unsupported - dangling evidence",
+      "claim_label": "DERIVED",
+      "evidence_ids": ["evidence-999"]
+    },
+    {
+      "claim_id": "claim-004",
+      "statement": "Speculative claim - not counted",
+      "claim_label": "SPECULATIVE",
+      "verify_falsify": "Test this hypothesis"
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001", "claim-002", "claim-003", "claim-004"],
+      "step_status": "CHECKED"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evidence-001",
+      "evidence_type": "derivation",
+      "source": {
+        "kind": "step_id",
+        "value": "step-001"
+      },
+      "status": "pass",
+      "payload_ref": {
+        "kind": "log_id",
+        "value": "log-001"
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "This is a speculative claim",
+      "claim_label": "SPECULATIVE",
+      "verify_falsify": "Run experiment to verify"
+    },
+    {
+      "claim_id": "claim-002",
+      "statement": "Another speculative claim",
+      "claim_label": "SPECULATIVE",
+      "verify_falsify": "Test this hypothesis"
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001", "claim-002"],
+      "step_status": "CHECKED"
+    }
+  ],
+  "evidence": []
+}

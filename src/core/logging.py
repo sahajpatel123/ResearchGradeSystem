@@ -14,7 +14,7 @@ class ClaimLogger:
 
     def compute_input_hash(self, input_text: str) -> str:
         return hashlib.sha256(input_text.encode('utf-8')).hexdigest()
-
+ 
     def log_extraction(
         self,
         input_text: str,

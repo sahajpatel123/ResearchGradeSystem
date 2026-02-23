@@ -1,0 +1,38 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Supported claim",
+      "claim_label": "DERIVED",
+      "evidence_ids": ["evidence-001"]
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "CHECKED"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evidence-001",
+      "evidence_type": "derivation",
+      "source": {
+        "kind": "step_id",
+        "value": "step-001"
+      },
+      "status": "pass",
+      "payload_ref": {
+        "kind": "log_id",
+        "value": "log-001"
+      }
+    }
+  ],
+  "integrity_metrics": {
+    "unsupported_non_spec_claims": 0,
+    "total_non_spec_claims": 5,
+    "unsupported_claim_rate": 0.0,
+    "unsupported_claim_ids": []
+  }
+}

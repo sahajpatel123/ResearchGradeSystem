@@ -1,0 +1,44 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Unsupported claim",
+      "claim_label": "DERIVED",
+      "evidence_ids": []
+    },
+    {
+      "claim_id": "claim-002",
+      "statement": "Supported claim",
+      "claim_label": "COMPUTED",
+      "evidence_ids": ["evidence-001"]
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001", "claim-002"],
+      "step_status": "CHECKED"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evidence-001",
+      "evidence_type": "computation",
+      "source": {
+        "kind": "tool_run_id",
+        "value": "tool-001"
+      },
+      "status": "pass",
+      "payload_ref": {
+        "kind": "log_id",
+        "value": "log-001"
+      }
+    }
+  ],
+  "integrity_metrics": {
+    "unsupported_non_spec_claims": 1,
+    "total_non_spec_claims": 2,
+    "unsupported_claim_rate": 0.75,
+    "unsupported_claim_ids": ["claim-001"]
+  }
+}

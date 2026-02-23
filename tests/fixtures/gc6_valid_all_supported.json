@@ -1,0 +1,57 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The theorem holds for all positive integers",
+      "claim_label": "DERIVED",
+      "evidence_ids": ["evidence-001"]
+    },
+    {
+      "claim_id": "claim-002",
+      "statement": "The computation yields 42",
+      "claim_label": "COMPUTED",
+      "evidence_ids": ["evidence-002"]
+    },
+    {
+      "claim_id": "claim-003",
+      "statement": "This is a speculative claim",
+      "claim_label": "SPECULATIVE",
+      "verify_falsify": "Run experiment X to verify"
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001", "claim-002", "claim-003"],
+      "step_status": "CHECKED"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evidence-001",
+      "evidence_type": "derivation",
+      "source": {
+        "kind": "step_id",
+        "value": "step-001"
+      },
+      "status": "pass",
+      "payload_ref": {
+        "kind": "log_id",
+        "value": "log-001"
+      }
+    },
+    {
+      "evidence_id": "evidence-002",
+      "evidence_type": "computation",
+      "source": {
+        "kind": "tool_run_id",
+        "value": "tool-001"
+      },
+      "status": "pass",
+      "payload_ref": {
+        "kind": "log_id",
+        "value": "log-002"
+      }
+    }
+  ]
+}
