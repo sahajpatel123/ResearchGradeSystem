@@ -1,0 +1,18 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-​001",
+      "statement": "This claim_id contains ZWSP (U+200B) - should fail",
+      "claim_label": "DERIVED",
+      "evidence_ids": []
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-​001"],
+      "step_status": "CHECKED"
+    }
+  ],
+  "evidence": []
+}

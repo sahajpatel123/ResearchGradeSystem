@@ -141,6 +141,101 @@ class TestIntegrityMetricsSchema:
             )
 
 
+class TestComputeOnInvalid:
+    """Test compute_integrity_metrics works even when GC-4/GC-5 fail (GC-6.1)"""
+    
+    def test_gc6_computes_when_report_invalid_gc4_missing_evidence(self):
+        """GC-6.1: Compute metrics even when GC-4 would fail (missing evidence)"""
+        claims = [
+            Claim(claim_id="claim-001", statement="Test", claim_label=ClaimLabel.DERIVED, evidence_ids=[])
+        ]
+        evidence_by_id = {}
+        
+        # Should compute successfully even though GC-4 would fail
+        metrics = compute_integrity_metrics(claims, evidence_by_id)
+        
+        assert metrics.unsupported_non_spec_claims == 1
+        assert metrics.total_non_spec_claims == 1
+        assert metrics.unsupported_claim_rate == 1.0
+        assert metrics.unsupported_claim_ids == ["claim-001"]
+    
+    def test_gc6_computes_when_evidence_objects_gc5_invalid(self):
+        """GC-6.1: Compute metrics even when evidence objects are GC-5 invalid"""
+        claims = [
+            Claim(claim_id="claim-001", statement="Test", claim_label=ClaimLabel.DERIVED, evidence_ids=["evidence-001"])
+        ]
+        # Evidence exists but might be GC-5 invalid - compute still works
+        evidence_by_id = {"evidence-001": "malformed"}  # Not an EvidenceObject
+        
+        metrics = compute_integrity_metrics(claims, evidence_by_id)
+        
+        # Claim is supported (evidence_id resolves), even if evidence is malformed
+        assert metrics.unsupported_non_spec_claims == 0
+        assert metrics.total_non_spec_claims == 1
+        assert metrics.unsupported_claim_rate == 0.0
+    
+    def test_gc6_never_throws_on_malformed_report_shapes(self):
+        """GC-6.1: Never crash on malformed report shapes"""
+        # Test 1: None claims
+        metrics = compute_integrity_metrics(None, None)
+        assert metrics.unsupported_non_spec_claims == 0
+        assert metrics.total_non_spec_claims == 0
+        assert metrics.unsupported_claim_rate == 0.0
+        assert any("claims was None" in note for note in metrics.diagnostics_notes)
+        
+        # Test 2: Wrong type claims
+        metrics = compute_integrity_metrics("not a list", {})
+        assert metrics.unsupported_non_spec_claims == 0
+        assert metrics.total_non_spec_claims == 0
+        assert any("claims wrong type" in note for note in metrics.diagnostics_notes)
+        
+        # Test 3: None evidence_by_id
+        claims = [Claim(claim_id="c1", statement="Test", claim_label=ClaimLabel.DERIVED, evidence_ids=[])]
+        metrics = compute_integrity_metrics(claims, None)
+        assert metrics.unsupported_non_spec_claims == 1
+        assert any("evidence_by_id was None" in note for note in metrics.diagnostics_notes)
+        
+        # Test 4: Wrong type evidence_by_id
+        metrics = compute_integrity_metrics(claims, "not a dict")
+        assert metrics.unsupported_non_spec_claims == 1
+        assert any("evidence_by_id wrong type" in note for note in metrics.diagnostics_notes)
+    
+    def test_gc6_handles_malformed_claim_objects(self):
+        """GC-6.1: Handle malformed claim objects gracefully"""
+        claims = [
+            Claim(claim_id="claim-001", statement="Valid", claim_label=ClaimLabel.DERIVED, evidence_ids=[]),
+            "not a claim object",  # Malformed
+            Claim(claim_id="claim-002", statement="Valid", claim_label=ClaimLabel.COMPUTED, evidence_ids=[]),
+        ]
+        
+        metrics = compute_integrity_metrics(claims, {})
+        
+        # Should count only valid claims
+        assert metrics.unsupported_non_spec_claims == 2
+        assert metrics.total_non_spec_claims == 2
+        assert metrics.unsupported_claim_ids == ["claim-001", "claim-002"]
+        assert any("not a Claim object" in note for note in metrics.diagnostics_notes)
+    
+    def test_gc6_handles_malformed_evidence_ids(self):
+        """GC-6.1: Handle malformed evidence_ids gracefully"""
+        # Create a valid claim first, then mutate it to bypass validation
+        # (This simulates wire data that bypassed Claim construction)
+        
+        # Test 1: evidence_ids is not a list
+        claim1 = Claim(claim_id="claim-001", statement="Test", claim_label=ClaimLabel.DERIVED, evidence_ids=[])
+        claim1.evidence_ids = "not-a-list"  # Mutate after construction
+        metrics = compute_integrity_metrics([claim1], {})
+        assert metrics.unsupported_non_spec_claims == 1
+        assert any("evidence_ids wrong type" in note for note in metrics.diagnostics_notes)
+        
+        # Test 2: evidence_ids contains non-string
+        claim2 = Claim(claim_id="claim-002", statement="Test", claim_label=ClaimLabel.DERIVED, evidence_ids=[])
+        claim2.evidence_ids = [123, "valid"]  # Mutate after construction
+        metrics = compute_integrity_metrics([claim2], {})
+        assert metrics.unsupported_non_spec_claims == 1
+        assert any("non-string evidence_id" in note for note in metrics.diagnostics_notes)
+
+
 class TestComputeIntegrityMetrics:
     """Test compute_integrity_metrics function"""
     
@@ -577,9 +672,9 @@ class TestFinalization:
 class TestGC6Fixtures:
     """Test GC-6 fixtures"""
     
-    def test_gc6_valid_all_supported_fixture(self):
-        """GC-6: All supported fixture passes"""
-        fixture_path = Path(__file__).parent / "fixtures" / "gc6_valid_all_supported.json"
+    def test_gc6_report_valid_all_supported_fixture(self):
+        """GC-6: All supported fixture passes full validation"""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc6_report_valid_all_supported.json"
         with open(fixture_path, 'r') as f:
             data = json.load(f)
         
@@ -614,9 +709,9 @@ class TestGC6Fixtures:
         assert report.integrity_metrics.total_non_spec_claims == 2  # 2 non-SPECULATIVE
         assert report.integrity_metrics.unsupported_claim_rate == 0.0
     
-    def test_gc6_valid_mixed_support_fixture(self):
-        """GC-6: Mixed support fixture computes correct metrics"""
-        fixture_path = Path(__file__).parent / "fixtures" / "gc6_valid_mixed_support.json"
+    def test_gc6_metrics_only_mixed_support_fixture(self):
+        """GC-6: Mixed support fixture (metrics-only, may fail GC-4)"""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc6_metrics_only_mixed_support.json"
         with open(fixture_path, 'r') as f:
             data = json.load(f)
         
@@ -653,9 +748,9 @@ class TestGC6Fixtures:
         assert abs(report.integrity_metrics.unsupported_claim_rate - 2/3) < 1e-9
         assert report.integrity_metrics.unsupported_claim_ids == ["claim-002", "claim-003"]
     
-    def test_gc6_valid_zero_total_fixture(self):
-        """GC-6: Zero total fixture sets rate to 0.0"""
-        fixture_path = Path(__file__).parent / "fixtures" / "gc6_valid_zero_total.json"
+    def test_gc6_report_valid_zero_total_fixture(self):
+        """GC-6: Zero total fixture passes full validation"""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc6_report_valid_zero_total.json"
         with open(fixture_path, 'r') as f:
             data = json.load(f)
         

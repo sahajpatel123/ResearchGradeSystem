@@ -17,13 +17,13 @@ from src.core.evidence import EvidenceObject
 
 def validate_and_compute_integrity_metrics(
     report: ScientificReport,
-    evidence_by_id: dict[str, EvidenceObject]
+    evidence_by_id: Optional[dict[str, EvidenceObject]] = None
 ) -> tuple[bool, list[str]]:
     """
     GC-6: Validate and compute integrity metrics for a report.
     
     This enforces the COMPUTED-ONLY policy:
-    1. Recompute metrics from claims and evidence
+    1. Recompute metrics from claims and evidence (DEFENSIVE - never crashes)
     2. If report.integrity_metrics is present:
        - Compare with computed metrics
        - FAIL on mismatch (INTEGRITY_METRICS_MISMATCH)
@@ -33,19 +33,15 @@ def validate_and_compute_integrity_metrics(
     
     Args:
         report: ScientificReport to validate
-        evidence_by_id: Map of evidence_id -> EvidenceObject (GC-5 validated)
+        evidence_by_id: Map of evidence_id -> EvidenceObject (may be None/malformed)
     
     Returns:
         (is_valid, errors) tuple
     """
     errors = []
     
-    # Compute ground truth metrics
-    try:
-        computed_metrics = compute_integrity_metrics(report.claims, evidence_by_id)
-    except Exception as e:
-        errors.append(f"GC-6: Failed to compute integrity metrics: {e}")
-        return False, errors
+    # Compute ground truth metrics (DEFENSIVE - never crashes, even on malformed reports)
+    computed_metrics = compute_integrity_metrics(report.claims, evidence_by_id)
     
     # If metrics present on wire, validate against computed
     if report.integrity_metrics is not None:
