@@ -1,0 +1,28 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Standalone claim",
+      "claim_label": "SPECULATIVE",
+      "verify_falsify": "Verify externally"
+    }
+  ],
+  "steps": [],
+  "evidence": [],
+  "coverage_metrics": {
+    "checked_steps": [],
+    "unchecked_steps": [],
+    "failed_steps": [],
+    "checked_count": 0,
+    "unchecked_count": 0,
+    "failed_count": 0,
+    "total_steps": 0,
+    "verification_progress_ratio": 0.0,
+    "verified_work_pct": 0.0
+  },
+  "_test_metadata": {
+    "category": "FAIL",
+    "error_category": "COVERAGE_NOTE_MISSING_ZERO_STEPS",
+    "purpose": "total_steps == 0 but coverage_note is missing (REQUIRED)"
+  }
+}

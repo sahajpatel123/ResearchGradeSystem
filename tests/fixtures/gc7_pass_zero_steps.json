@@ -1,0 +1,28 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Standalone claim with no derivation steps",
+      "claim_label": "SPECULATIVE",
+      "verify_falsify": "Verify by checking external source"
+    }
+  ],
+  "steps": [],
+  "evidence": [],
+  "_test_metadata": {
+    "category": "PASS",
+    "purpose": "Zero-step edge case - all counts 0, ratios 0.0, coverage_note REQUIRED",
+    "expected_coverage": {
+      "checked_steps": [],
+      "unchecked_steps": [],
+      "failed_steps": [],
+      "checked_count": 0,
+      "unchecked_count": 0,
+      "failed_count": 0,
+      "total_steps": 0,
+      "verification_progress_ratio": 0.0,
+      "verified_work_pct": 0.0,
+      "coverage_note": "No derivation steps present; coverage set to 0.0"
+    }
+  }
+}

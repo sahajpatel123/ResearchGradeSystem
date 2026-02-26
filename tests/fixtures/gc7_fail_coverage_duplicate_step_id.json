@@ -1,0 +1,42 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Test claim",
+      "claim_label": "DERIVED",
+      "evidence_ids": ["ev-001"]
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "checked"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "ev-001",
+      "evidence_type": "DERIVATION",
+      "source": {"kind": "STEP_ID", "value": "step-001"},
+      "status": "VALID",
+      "payload_ref": {"kind": "STEP_ID", "value": "step-001"}
+    }
+  ],
+  "coverage_metrics": {
+    "checked_steps": ["step-001", "step-001"],
+    "unchecked_steps": [],
+    "failed_steps": [],
+    "checked_count": 2,
+    "unchecked_count": 0,
+    "failed_count": 0,
+    "total_steps": 2,
+    "verification_progress_ratio": 1.0,
+    "verified_work_pct": 1.0
+  },
+  "_test_metadata": {
+    "category": "FAIL",
+    "error_category": "COVERAGE_BUCKET_DUPLICATE_STEP_ID",
+    "purpose": "checked_steps contains duplicate step_id 'step-001'"
+  }
+}

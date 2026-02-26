@@ -1,0 +1,31 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Test claim",
+      "claim_label": "DERIVED",
+      "evidence_ids": ["ev-001"]
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "done"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "ev-001",
+      "evidence_type": "DERIVATION",
+      "source": {"kind": "STEP_ID", "value": "step-001"},
+      "status": "VALID",
+      "payload_ref": {"kind": "STEP_ID", "value": "step-001"}
+    }
+  ],
+  "_test_metadata": {
+    "category": "FAIL",
+    "error_category": "STEP_STATUS_INVALID",
+    "purpose": "Invalid step_status token 'done' (not in {unchecked, checked, failed, indeterminate})"
+  }
+}

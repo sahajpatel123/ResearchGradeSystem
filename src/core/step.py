@@ -12,17 +12,17 @@ from uuid import uuid4
 
 class StepStatus(Enum):
     """
-    GC-3: Step status tracking.
+    GC-7: Step status tracking (wire format: lowercase).
     
-    - UNCHECKED: Step not yet verified
-    - CHECKED: Step verified and valid
-    - FAILED: Step verification failed
-    - INDETERMINATE: Step verification inconclusive (requires status_reason)
+    - unchecked: Step not yet verified
+    - checked: Step verified and valid
+    - failed: Step verification failed
+    - indeterminate: Step verification inconclusive (requires status_reason)
     """
-    UNCHECKED = "UNCHECKED"
-    CHECKED = "CHECKED"
-    FAILED = "FAILED"
-    INDETERMINATE = "INDETERMINATE"
+    UNCHECKED = "unchecked"
+    CHECKED = "checked"
+    FAILED = "failed"
+    INDETERMINATE = "indeterminate"
 
 
 @dataclass
@@ -70,12 +70,19 @@ class DerivationStep:
                 f"got {type(self.step_status).__name__}"
             )
         
-        # INDETERMINATE requires status_reason
+        # GC-7: INDETERMINATE requires status_reason
         if self.step_status == StepStatus.INDETERMINATE:
             if not self.status_reason or not self.status_reason.strip():
                 raise ValueError(
-                    f"Step {self.step_id}: step_status INDETERMINATE requires non-empty status_reason (GC-3)"
+                    f"Step {self.step_id}: step_status INDETERMINATE requires non-empty status_reason (GC-7: INDETERMINATE_MISSING_REASON)"
                 )
+        
+        # GC-7: status_reason rejected for non-indeterminate (strict policy)
+        if self.step_status != StepStatus.INDETERMINATE and self.status_reason:
+            raise ValueError(
+                f"Step {self.step_id}: status_reason present when step_status is {self.step_status.value} "
+                f"(GC-7: STATUS_REASON_PRESENT_WHEN_NOT_INDETERMINATE)"
+            )
         
         # Validate depends_on is a list
         if not isinstance(self.depends_on, list):

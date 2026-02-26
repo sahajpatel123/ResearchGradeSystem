@@ -1,7 +1,7 @@
 """
-GC-3/GC-4/GC-6 ScientificReport Schema
+GC-3/GC-4/GC-6/GC-7 ScientificReport Schema
 
-Container for claims, derivation steps, evidence, and integrity metrics with structural validation.
+Container for claims, derivation steps, evidence, integrity metrics, and coverage metrics with structural validation.
 """
 
 from dataclasses import dataclass, field
@@ -10,18 +10,20 @@ from src.core.claim import Claim
 from src.core.step import DerivationStep
 from src.core.evidence import EvidenceObject
 from src.core.integrity_metrics import IntegrityMetrics
+from src.core.coverage_metrics import CoverageMetrics
 
 
 @dataclass
 class ScientificReport:
     """
-    GC-3/GC-4/GC-6: Scientific report containing claims, steps, evidence, and integrity metrics.
+    GC-3/GC-4/GC-6/GC-7: Scientific report containing claims, steps, evidence, integrity metrics, and coverage metrics.
     
     A report is the top-level container that holds:
     - claims: List of all claims (from GC-1/GC-2)
     - steps: List of derivation steps that reference claims (GC-3)
     - evidence: List of evidence objects supporting claims (GC-4/GC-5)
     - integrity_metrics: Computed metrics for claim support quality (GC-6)
+    - coverage_metrics: Computed metrics for step verification coverage (GC-7)
     - integrity_warnings: Warning-only signals (e.g., SPECULATIVE_FLOOD_WARNING)
     
     Structural invariants (enforced by validators, not __post_init__):
@@ -34,12 +36,14 @@ class ScientificReport:
     - GC-4: Every evidence_id must resolve to report.evidence[]
     - GC-5: All EvidenceObjects must be typed and valid
     - GC-6: integrity_metrics are COMPUTED-ONLY (never accept from wire without validation)
+    - GC-7: coverage_metrics are COMPUTED-ONLY (never accept from wire without validation)
     """
     claims: list[Claim]
     steps: list[DerivationStep]
     evidence: list[EvidenceObject] = field(default_factory=list)
     report_id: Optional[str] = None
     integrity_metrics: Optional[IntegrityMetrics] = None
+    coverage_metrics: Optional[CoverageMetrics] = None
     integrity_warnings: list[str] = field(default_factory=list)
     
     def __post_init__(self):
@@ -58,6 +62,9 @@ class ScientificReport:
         
         if self.integrity_metrics is not None and not isinstance(self.integrity_metrics, IntegrityMetrics):
             raise TypeError(f"integrity_metrics must be IntegrityMetrics or None, got {type(self.integrity_metrics).__name__}")
+        
+        if self.coverage_metrics is not None and not isinstance(self.coverage_metrics, CoverageMetrics):
+            raise TypeError(f"coverage_metrics must be CoverageMetrics or None, got {type(self.coverage_metrics).__name__}")
         
         # Check for duplicate claim_ids in claims list
         claim_ids = [c.claim_id for c in self.claims]
