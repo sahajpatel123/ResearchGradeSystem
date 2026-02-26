@@ -1,9 +1,61 @@
 # GC-7 IMPLEMENTATION: Step Status + Coverage Bookkeeping
 
-**Status:** ✅ COMPLETE  
-**Tests:** 383 passing (350 original + 33 GC-7)  
-**Fixtures:** 3 PASS + 11 FAIL  
-**Error Categories:** 12 deterministic categories
+**Status:** ✅ HARD FROZEN (GC-7.1 PATCH APPLIED)  
+**Tests:** 388 passing (350 original + 38 GC-7)  
+**Fixtures:** 4 PASS + 12 FAIL  
+**Error Categories:** 13 deterministic categories
+
+---
+
+## GC-7.1 PATCH (APPLIED)
+
+**Date:** Applied before hard freeze  
+**Scope:** Tiny patch - status_reason policy correction + consistency fixes
+
+### Changes Applied:
+
+1. **Status Reason Policy Correction (SUBSTANTIVE FIX)**
+   - **Old policy (too strict):** status_reason rejected when step_status != indeterminate
+   - **New policy (final):**
+     - `indeterminate` → status_reason REQUIRED (non-empty / non-whitespace)
+     - `failed` → status_reason OPTIONAL but ALLOWED
+     - `checked` / `unchecked` → status_reason NOT ALLOWED (fail-closed)
+   - **Error category renamed:**
+     - FROM: `STATUS_REASON_PRESENT_WHEN_NOT_INDETERMINATE`
+     - TO: `STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED`
+
+2. **Documentation Consistency (ERROR CATEGORY COUNT)**
+   - **Fixed:** Error category count corrected from 12 to 13
+   - **Reason:** Original count was off by one
+   - All docs/checklists/tests now aligned with correct count
+
+3. **Validation Order Confirmation (GC-3 → GC-7)**
+   - **Confirmed:** GC-3 runs before GC-7 in strict report validation
+   - **Sequence:** 
+     1. GC-3 (step structure, unique step_ids, claim mapping)
+     2. GC-7 (coverage compute + computed-only mismatch enforcement)
+   - **Rationale:** GC-7 depends on structurally valid steps; running GC-7 first produces noisy/misleading coverage errors
+   - **Test added:** `test_validation_order_gc3_before_gc7()`
+
+### Files Changed (GC-7.1):
+- `src/core/step.py` - Updated status_reason validation logic
+- `src/core/gc7_validators.py` - Updated validator for new policy
+- `tests/fixtures/gc7_fail_status_reason_when_not_indeterminate.json` - Updated error category name
+- `tests/fixtures/gc7_pass_failed_with_reason.json` - NEW: PASS fixture for failed with reason
+- `tests/fixtures/gc7_fail_unchecked_with_reason.json` - NEW: FAIL fixture for unchecked with reason
+- `tests/test_gc7_coverage_metrics.py` - Updated tests for new policy (4 new/updated tests)
+- `GC7_IMPLEMENTATION.md` - This file (patch notes added)
+
+### Test Results (GC-7.1):
+```
+$ pytest tests/test_gc7_coverage_metrics.py -v
+38 passed in 0.06s
+
+$ pytest tests/ -v
+388 passed in 0.19s
+```
+
+**GC-7 is now HARD FROZEN.**
 
 ---
 
@@ -17,7 +69,8 @@ Step-level verification bookkeeping with deterministic computation and tamper-re
 ## 2) Acceptance Checklist:
 - ✅ StepStatus enum with exactly 4 values: unchecked, checked, failed, indeterminate
 - ✅ status_reason REQUIRED iff step_status == indeterminate
-- ✅ status_reason rejected (FAIL) when step_status != indeterminate
+- ✅ status_reason ALLOWED (optional) for failed steps (GC-7.1 patch)
+- ✅ status_reason NOT ALLOWED for checked/unchecked (fail-closed) (GC-7.1 patch)
 - ✅ CoverageMetrics dataclass with all 10 required fields
 - ✅ compute_coverage_metrics() builds buckets from step_status only
 - ✅ verification_progress_ratio = checked_count / (checked_count + unchecked_count)
@@ -27,10 +80,11 @@ Step-level verification bookkeeping with deterministic computation and tamper-re
 - ✅ Coverage metrics computed-only: wire-provided metrics trigger MISMATCH on any difference
 - ✅ All bucket step_ids sorted lexicographically, no duplicates
 - ✅ Strict wire parsers: no trimming, reject whitespace variants, non-ASCII, invisibles
-- ✅ 12 error categories implemented with deterministic triggers
-- ✅ 3 PASS fixtures (mixed-status, zero-step, all-checked)
-- ✅ 11 FAIL fixtures covering all error categories
-- ✅ 33 tests validating all computation rules and error categories
+- ✅ 13 error categories implemented with deterministic triggers (GC-7.1 count fix)
+- ✅ 4 PASS fixtures (mixed-status, zero-step, all-checked, failed-with-reason) (GC-7.1)
+- ✅ 12 FAIL fixtures covering all error categories (GC-7.1)
+- ✅ 38 tests validating all computation rules and error categories (GC-7.1)
+- ✅ GC-3 → GC-7 validation order confirmed and tested (GC-7.1)
 
 ---
 
@@ -228,9 +282,10 @@ failed_steps.sort(key=lambda x: x.step_id)
 **Trigger:** step_status == indeterminate but status_reason is whitespace-only  
 **Examples:** status_reason="   ", status_reason="\t\n"
 
-#### STATUS_REASON_PRESENT_WHEN_NOT_INDETERMINATE
-**Trigger:** step_status != indeterminate but status_reason is present (strict policy)  
-**Examples:** step_status=checked with status_reason="Should not be here"
+#### STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED
+**Trigger:** step_status in {checked, unchecked} but status_reason is present (fail-closed)  
+**Examples:** step_status=checked with status_reason="Should not be here"  
+**Note (GC-7.1):** Failed steps MAY include status_reason (optional)
 
 ### Coverage/Bookkeeping Error Categories
 
@@ -330,7 +385,7 @@ All parsers follow reject-only posture:
 
 ## 10) Fixtures Added:
 
-### PASS Fixtures (3)
+### PASS Fixtures (4)
 
 #### gc7_pass_mixed_status.json
 - **Purpose:** Mixed-status derivation with all 4 step statuses
@@ -349,7 +404,13 @@ All parsers follow reject-only posture:
 - **Expected:** checked_count=3, unchecked_count=0, failed_count=0, total_steps=3
 - **Ratios:** verification_progress_ratio=1.0, verified_work_pct=1.0
 
-### FAIL Fixtures (11)
+#### gc7_pass_failed_with_reason.json (GC-7.1)
+- **Purpose:** Failed step with status_reason (allowed - optional for failed)
+- **Steps:** S1=failed with status_reason="Verification failed due to missing data"
+- **Expected:** checked_count=0, unchecked_count=0, failed_count=1, total_steps=1
+- **Ratios:** verification_progress_ratio=0.0, verified_work_pct=0.0
+
+### FAIL Fixtures (12)
 
 #### gc7_fail_invalid_step_status.json
 - **Error:** STEP_STATUS_INVALID
@@ -364,8 +425,12 @@ All parsers follow reject-only posture:
 - **Reason:** step_status=indeterminate, status_reason="   "
 
 #### gc7_fail_status_reason_when_not_indeterminate.json
-- **Error:** STATUS_REASON_PRESENT_WHEN_NOT_INDETERMINATE
+- **Error:** STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED (GC-7.1 renamed)
 - **Reason:** step_status=checked, status_reason="Should not be present"
+
+#### gc7_fail_unchecked_with_reason.json (GC-7.1)
+- **Error:** STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED
+- **Reason:** step_status=unchecked, status_reason="This should not be allowed"
 
 #### gc7_fail_coverage_count_mismatch.json
 - **Error:** COVERAGE_COUNT_MISMATCH
@@ -410,9 +475,11 @@ All parsers follow reject-only posture:
 - `test_parse_step_status_rejects_whitespace_variants` - " checked" rejected
 - `test_parse_step_status_rejects_invalid_tokens` - "done", "complete" rejected
 
-### TestStatusReasonValidation (3 tests)
+### TestStatusReasonValidation (5 tests) (GC-7.1: updated from 3 to 5)
 - `test_indeterminate_requires_reason_non_empty` - Indeterminate requires status_reason
-- `test_status_reason_rejected_for_non_indeterminate` - Strict policy enforced
+- `test_failed_status_reason_allowed` - Failed steps MAY include status_reason (GC-7.1)
+- `test_checked_status_reason_rejected` - Checked steps cannot have status_reason (GC-7.1)
+- `test_unchecked_status_reason_rejected` - Unchecked steps cannot have status_reason (GC-7.1)
 - `test_parse_status_reason_rejects_whitespace_only` - "   " rejected
 
 ### TestCoverageComputation (6 tests)
@@ -428,45 +495,58 @@ All parsers follow reject-only posture:
 - `test_coverage_rejects_nan_inf` - NaN/Infinity rejected
 - `test_partition_consistency_enforced` - All steps accounted for
 
-### TestGC7Fixtures (16 tests)
-- 3 PASS fixture tests (mixed-status, zero-steps, all-checked)
-- 11 FAIL fixture tests (all error categories)
+### TestGC7Fixtures (19 tests) (GC-7.1: updated from 16 to 19)
+- 4 PASS fixture tests (mixed-status, zero-steps, all-checked, failed-with-reason) (GC-7.1)
+- 12 FAIL fixture tests (all error categories) (GC-7.1)
 - Each test validates expected behavior and error messages
 
-### TestValidationOrder (2 tests)
+### TestValidationOrder (3 tests) (GC-7.1: updated from 2 to 3)
 - `test_validation_order_parse_compute_validate` - Validation flow correct
+- `test_validation_order_gc3_before_gc7` - GC-3 runs before GC-7 (structural before coverage) (GC-7.1)
 - `test_finalization_blocked_on_gc7_errors` - FINAL blocked on GC-7 errors (placeholder)
 
-**Total:** 33 tests, all passing
+**Total:** 38 tests, all passing (GC-7.1: updated from 33 to 38)
 
 ---
 
 ## 12) Validation Order + Finalization:
 
-### Explicit Order
-1. **Parse step objects** - validate_step_object() for each step
-   - Parse step_id (via parse_step_id)
-   - Parse step_status (via parse_step_status)
-   - Parse status_reason (via parse_status_reason, required if indeterminate)
-   - Validate claim_ids and depends_on
-2. **Compute coverage metrics** - compute_coverage_metrics(report.steps)
-   - Build buckets from step_status
-   - Compute counts and ratios
-   - Generate coverage_note if total_steps==0
-3. **Validate wire coverage** - validate_coverage_metrics_match()
-   - If wire provides coverage, recompute and check for mismatches
-   - Validate types, counts, ratios, buckets, partition
-   - FAIL on any mismatch (computed-only enforcement)
-4. **Continue report validation** - GC-3, GC-4, GC-5, GC-6 validation
+### Explicit Order (GC-7.1: GC-3 → GC-7 confirmed)
+
+**CRITICAL:** GC-3 MUST run before GC-7 in report validation sequence.
+
+**Sequence:**
+1. **GC-3 Structural Validation** (FIRST)
+   - Validate unique step_ids, claim_ids, evidence_ids
+   - Validate claim_ids references in steps
+   - Validate step structure
+   - **Rationale:** GC-7 depends on structurally valid steps; running GC-7 first produces noisy/misleading coverage errors
+
+2. **GC-7 Step Status & Coverage Validation** (AFTER GC-3)
+   - Parse step objects (validate_step_object() for each step)
+     - Parse step_id (via parse_step_id)
+     - Parse step_status (via parse_step_status)
+     - Parse status_reason (via parse_status_reason, required if indeterminate, optional for failed, disallowed for checked/unchecked)
+     - Validate claim_ids and depends_on
+   - Compute coverage metrics (compute_coverage_metrics(report.steps))
+     - Build buckets from step_status
+     - Compute counts and ratios
+     - Generate coverage_note if total_steps==0
+   - Validate wire coverage (validate_coverage_metrics_match())
+     - If wire provides coverage, recompute and check for mismatches
+     - Validate types, counts, ratios, buckets, partition
+     - FAIL on any mismatch (computed-only enforcement)
+
+3. **Continue report validation** - GC-4, GC-5, GC-6 validation
 
 ### FINAL Blocked on GC-7 Errors
 **Policy:** FINAL status MUST be blocked if any GC-7 validation error exists
 
-**Blocking Errors:**
+**Blocking Errors (13 total):**
 - STEP_STATUS_INVALID
 - INDETERMINATE_MISSING_REASON
 - INDETERMINATE_REASON_EMPTY
-- STATUS_REASON_PRESENT_WHEN_NOT_INDETERMINATE
+- STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED (GC-7.1 renamed)
 - COVERAGE_METRICS_MISMATCH
 - COVERAGE_BUCKET_GHOST_STEP_ID
 - COVERAGE_BUCKET_DUPLICATE_STEP_ID
@@ -506,48 +586,54 @@ All parsers follow reject-only posture:
 ## Test Results
 
 ```bash
+# GC-7.1 PATCH TEST RESULTS
 $ pytest tests/test_gc7_coverage_metrics.py -v
 ============================================================================ test session starts ============================================================================
-collected 33 items
+collected 38 items
 
-tests/test_gc7_coverage_metrics.py::TestStepStatusEnum::test_step_status_enum_only_allows_four_values PASSED                                                          [  3%]
-tests/test_gc7_coverage_metrics.py::TestStepStatusEnum::test_parse_step_status_accepts_exact_tokens_only PASSED                                                       [  6%]
-tests/test_gc7_coverage_metrics.py::TestStepStatusEnum::test_parse_step_status_rejects_case_variants PASSED                                                           [  9%]
-tests/test_gc7_coverage_metrics.py::TestStepStatusEnum::test_parse_step_status_rejects_whitespace_variants PASSED                                                     [ 12%]
-tests/test_gc7_coverage_metrics.py::TestStepStatusEnum::test_parse_step_status_rejects_invalid_tokens PASSED                                                          [ 15%]
-tests/test_gc7_coverage_metrics.py::TestStatusReasonValidation::test_indeterminate_requires_reason_non_empty PASSED                                                   [ 18%]
-tests/test_gc7_coverage_metrics.py::TestStatusReasonValidation::test_status_reason_rejected_for_non_indeterminate PASSED                                              [ 21%]
-tests/test_gc7_coverage_metrics.py::TestStatusReasonValidation::test_parse_status_reason_rejects_whitespace_only PASSED                                               [ 24%]
-tests/test_gc7_coverage_metrics.py::TestCoverageComputation::test_coverage_computed_from_step_statuses PASSED                                                         [ 27%]
-tests/test_gc7_coverage_metrics.py::TestCoverageComputation::test_indeterminate_counts_as_unchecked_for_progress_ratio PASSED                                         [ 30%]
-tests/test_gc7_coverage_metrics.py::TestCoverageComputation::test_verified_work_pct_uses_total_steps_denominator PASSED                                               [ 33%]
+tests/test_gc7_coverage_metrics.py::TestStepStatusEnum::test_step_status_enum_only_allows_four_values PASSED                                                          [  2%]
+tests/test_gc7_coverage_metrics.py::TestStepStatusEnum::test_parse_step_status_accepts_exact_tokens_only PASSED                                                       [  5%]
+tests/test_gc7_coverage_metrics.py::TestStepStatusEnum::test_parse_step_status_rejects_case_variants PASSED                                                           [  7%]
+tests/test_gc7_coverage_metrics.py::TestStepStatusEnum::test_parse_step_status_rejects_whitespace_variants PASSED                                                     [ 10%]
+tests/test_gc7_coverage_metrics.py::TestStepStatusEnum::test_parse_step_status_rejects_invalid_tokens PASSED                                                          [ 13%]
+tests/test_gc7_coverage_metrics.py::TestStatusReasonValidation::test_indeterminate_requires_reason_non_empty PASSED                                                   [ 15%]
+tests/test_gc7_coverage_metrics.py::TestStatusReasonValidation::test_failed_status_reason_allowed PASSED                                                              [ 18%]
+tests/test_gc7_coverage_metrics.py::TestStatusReasonValidation::test_checked_status_reason_rejected PASSED                                                            [ 21%]
+tests/test_gc7_coverage_metrics.py::TestStatusReasonValidation::test_unchecked_status_reason_rejected PASSED                                                          [ 23%]
+tests/test_gc7_coverage_metrics.py::TestStatusReasonValidation::test_parse_status_reason_rejects_whitespace_only PASSED                                               [ 26%]
+tests/test_gc7_coverage_metrics.py::TestCoverageComputation::test_coverage_computed_from_step_statuses PASSED                                                         [ 28%]
+tests/test_gc7_coverage_metrics.py::TestCoverageComputation::test_indeterminate_counts_as_unchecked_for_progress_ratio PASSED                                         [ 31%]
+tests/test_gc7_coverage_metrics.py::TestCoverageComputation::test_verified_work_pct_uses_total_steps_denominator PASSED                                               [ 34%]
 tests/test_gc7_coverage_metrics.py::TestCoverageComputation::test_zero_step_coverage_is_zero_with_note PASSED                                                         [ 36%]
 tests/test_gc7_coverage_metrics.py::TestCoverageComputation::test_coverage_buckets_sorted_deterministically PASSED                                                    [ 39%]
 tests/test_gc7_coverage_metrics.py::TestCoverageComputation::test_all_failed_steps_gives_zero_progress_ratio PASSED                                                   [ 42%]
-tests/test_gc7_coverage_metrics.py::TestCoverageMetricsMismatch::test_coverage_metrics_mismatch_fails PASSED                                                          [ 45%]
-tests/test_gc7_coverage_metrics.py::TestCoverageMetricsMismatch::test_coverage_rejects_nan_inf PASSED                                                                 [ 48%]
-tests/test_gc7_coverage_metrics.py::TestCoverageMetricsMismatch::test_partition_consistency_enforced PASSED                                                           [ 51%]
-tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_pass_mixed_status PASSED                                                                            [ 54%]
-tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_pass_zero_steps PASSED                                                                              [ 57%]
-tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_pass_all_checked PASSED                                                                             [ 60%]
-tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_invalid_step_status PASSED                                                                     [ 63%]
-tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_indeterminate_missing_reason PASSED                                                            [ 66%]
-tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_indeterminate_whitespace_reason PASSED                                                         [ 69%]
-tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_status_reason_when_not_indeterminate PASSED                                                    [ 72%]
-tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_coverage_count_mismatch PASSED                                                                 [ 75%]
+tests/test_gc7_coverage_metrics.py::TestCoverageMetricsMismatch::test_coverage_metrics_mismatch_fails PASSED                                                          [ 44%]
+tests/test_gc7_coverage_metrics.py::TestCoverageMetricsMismatch::test_coverage_rejects_nan_inf PASSED                                                                 [ 47%]
+tests/test_gc7_coverage_metrics.py::TestCoverageMetricsMismatch::test_partition_consistency_enforced PASSED                                                           [ 50%]
+tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_pass_mixed_status PASSED                                                                            [ 52%]
+tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_pass_zero_steps PASSED                                                                              [ 55%]
+tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_pass_all_checked PASSED                                                                             [ 57%]
+tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_invalid_step_status PASSED                                                                     [ 60%]
+tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_indeterminate_missing_reason PASSED                                                            [ 63%]
+tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_indeterminate_whitespace_reason PASSED                                                         [ 65%]
+tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_status_reason_when_not_indeterminate PASSED                                                    [ 68%]
+tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_unchecked_with_reason PASSED                                                                   [ 71%]
+tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_pass_failed_with_reason PASSED                                                                      [ 73%]
+tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_coverage_count_mismatch PASSED                                                                 [ 76%]
 tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_coverage_ratio_mismatch PASSED                                                                 [ 78%]
 tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_coverage_wrong_type PASSED                                                                     [ 81%]
 tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_coverage_ghost_step_id PASSED                                                                  [ 84%]
-tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_coverage_duplicate_step_id PASSED                                                              [ 87%]
-tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_coverage_partition_mismatch PASSED                                                             [ 90%]
-tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_coverage_note_missing_zero_steps PASSED                                                        [ 93%]
-tests/test_gc7_coverage_metrics.py::TestValidationOrder::test_validation_order_parse_compute_validate PASSED                                                          [ 96%]
+tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_coverage_duplicate_step_id PASSED                                                              [ 86%]
+tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_coverage_partition_mismatch PASSED                                                             [ 89%]
+tests/test_gc7_coverage_metrics.py::TestGC7Fixtures::test_fixture_fail_coverage_note_missing_zero_steps PASSED                                                        [ 92%]
+tests/test_gc7_coverage_metrics.py::TestValidationOrder::test_validation_order_parse_compute_validate PASSED                                                          [ 94%]
+tests/test_gc7_coverage_metrics.py::TestValidationOrder::test_validation_order_gc3_before_gc7 PASSED                                                                  [ 97%]
 tests/test_gc7_coverage_metrics.py::TestValidationOrder::test_finalization_blocked_on_gc7_errors PASSED                                                               [100%]
 
-============================================================================ 33 passed in 0.07s =============================================================================
+============================================================================ 38 passed in 0.06s =============================================================================
 
 $ pytest tests/ -v --tb=line 2>&1 | tail -3
-============================= 383 passed in 0.46s ==============================
+============================= 388 passed in 0.19s ==============================
 ```
 
 ---

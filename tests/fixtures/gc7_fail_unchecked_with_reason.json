@@ -11,8 +11,8 @@
     {
       "step_id": "step-001",
       "claim_ids": ["claim-001"],
-      "step_status": "checked",
-      "status_reason": "This should not be present"
+      "step_status": "unchecked",
+      "status_reason": "This should not be allowed"
     }
   ],
   "evidence": [
@@ -27,6 +27,6 @@
   "_test_metadata": {
     "category": "FAIL",
     "error_category": "STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED",
-    "purpose": "status_reason present when step_status is checked (not allowed for checked/unchecked)"
+    "purpose": "status_reason present when step_status is unchecked (not allowed)"
   }
 }

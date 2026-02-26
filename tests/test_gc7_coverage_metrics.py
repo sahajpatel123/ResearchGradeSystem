@@ -104,29 +104,43 @@ class TestStatusReasonValidation:
                 status_reason="   "
             )
     
-    def test_status_reason_rejected_for_non_indeterminate(self):
-        """status_reason rejected when step_status != indeterminate (strict policy)."""
-        with pytest.raises(ValueError, match="STATUS_REASON_PRESENT_WHEN_NOT_INDETERMINATE"):
+    def test_failed_status_reason_allowed(self):
+        """Failed steps MAY include status_reason (optional)."""
+        # Should NOT raise - failed steps can have status_reason
+        step = DerivationStep(
+            step_id="step-001",
+            claim_ids=["claim-001"],
+            step_status=StepStatus.FAILED,
+            status_reason="Verification failed due to missing data"
+        )
+        assert step.status_reason == "Verification failed due to missing data"
+        
+        # Also OK without status_reason
+        step_no_reason = DerivationStep(
+            step_id="step-002",
+            claim_ids=["claim-001"],
+            step_status=StepStatus.FAILED,
+            status_reason=None
+        )
+        assert step_no_reason.status_reason is None
+    
+    def test_checked_status_reason_rejected(self):
+        """Checked steps cannot have status_reason (fail-closed)."""
+        with pytest.raises(ValueError, match="STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED"):
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
                 step_status=StepStatus.CHECKED,
                 status_reason="Should not be present"
             )
-        
-        with pytest.raises(ValueError, match="STATUS_REASON_PRESENT_WHEN_NOT_INDETERMINATE"):
+    
+    def test_unchecked_status_reason_rejected(self):
+        """Unchecked steps cannot have status_reason (fail-closed)."""
+        with pytest.raises(ValueError, match="STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED"):
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
                 step_status=StepStatus.UNCHECKED,
-                status_reason="Should not be present"
-            )
-        
-        with pytest.raises(ValueError, match="STATUS_REASON_PRESENT_WHEN_NOT_INDETERMINATE"):
-            DerivationStep(
-                step_id="step-001",
-                claim_ids=["claim-001"],
-                step_status=StepStatus.FAILED,
                 status_reason="Should not be present"
             )
     
@@ -432,19 +446,50 @@ class TestGC7Fixtures:
             )
     
     def test_fixture_fail_status_reason_when_not_indeterminate(self):
-        """FAIL fixture: status_reason present for non-indeterminate status."""
+        """FAIL fixture: status_reason present for checked status (not allowed)."""
         fixture_path = Path(__file__).parent / "fixtures" / "gc7_fail_status_reason_when_not_indeterminate.json"
         with open(fixture_path, 'r') as f:
             data = json.load(f)
         
         step_data = data["steps"][0]
-        with pytest.raises(ValueError, match="STATUS_REASON_PRESENT_WHEN_NOT_INDETERMINATE"):
+        with pytest.raises(ValueError, match="STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED"):
             DerivationStep(
                 step_id=step_data["step_id"],
                 claim_ids=step_data["claim_ids"],
                 step_status=StepStatus.CHECKED,
                 status_reason=step_data.get("status_reason"),
             )
+    
+    def test_fixture_fail_unchecked_with_reason(self):
+        """FAIL fixture: status_reason present for unchecked status (not allowed)."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc7_fail_unchecked_with_reason.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        step_data = data["steps"][0]
+        with pytest.raises(ValueError, match="STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED"):
+            DerivationStep(
+                step_id=step_data["step_id"],
+                claim_ids=step_data["claim_ids"],
+                step_status=StepStatus.UNCHECKED,
+                status_reason=step_data.get("status_reason"),
+            )
+    
+    def test_fixture_pass_failed_with_reason(self):
+        """PASS fixture: failed step with status_reason (allowed)."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc7_pass_failed_with_reason.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        step_data = data["steps"][0]
+        # Should NOT raise - failed steps can have status_reason
+        step = DerivationStep(
+            step_id=step_data["step_id"],
+            claim_ids=step_data["claim_ids"],
+            step_status=StepStatus.FAILED,
+            status_reason=step_data.get("status_reason"),
+        )
+        assert step.status_reason == "Verification failed due to missing data"
     
     def test_fixture_fail_coverage_count_mismatch(self):
         """FAIL fixture: wire-provided count mismatches computed."""
@@ -591,6 +636,30 @@ class TestValidationOrder:
         assert len(errors) == 0
         assert computed.checked_count == 1
         assert computed.total_steps == 1
+    
+    def test_validation_order_gc3_before_gc7(self):
+        """GC-3 validation must run before GC-7 (structural validation before coverage)."""
+        # GC-7 depends on structurally valid steps (unique step_ids, valid claim_ids)
+        # Running GC-7 first can produce noisy/misleading coverage errors
+        
+        # Test: GC-3 catches duplicate step_ids before GC-7 runs
+        from src.core.report import ScientificReport
+        
+        # This should fail GC-3 validation (duplicate step_ids)
+        with pytest.raises(ValueError, match="Duplicate step_ids"):
+            report = ScientificReport(
+                claims=[
+                    Claim(claim_id="c1", statement="Test", claim_label=ClaimLabel.SPECULATIVE)
+                ],
+                steps=[
+                    DerivationStep(step_id="step-001", claim_ids=["c1"], step_status=StepStatus.CHECKED),
+                    DerivationStep(step_id="step-001", claim_ids=["c1"], step_status=StepStatus.UNCHECKED),  # Duplicate
+                ],
+                evidence=[]
+            )
+        
+        # GC-3 should catch this before GC-7 coverage computation runs
+        # This ensures clean error messages (structural errors first, then coverage errors)
     
     def test_finalization_blocked_on_gc7_errors(self):
         """FINAL must be blocked if any GC-7 validation error exists."""

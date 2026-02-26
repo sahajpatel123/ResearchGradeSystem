@@ -45,16 +45,19 @@ def validate_step_object(step_dict: dict[str, Any]) -> DerivationStep:
         # Parse step_status
         step_status = parse_step_status(step_dict.get("step_status", "unchecked"))
         
-        # Parse status_reason (required if indeterminate)
+        # Parse status_reason (required if indeterminate, optional for failed, disallowed for checked/unchecked)
         status_reason_wire = step_dict.get("status_reason")
         if step_status == StepStatus.INDETERMINATE:
             status_reason = parse_status_reason(status_reason_wire, required=True)
+        elif step_status == StepStatus.FAILED:
+            # Failed steps MAY include status_reason (optional)
+            status_reason = parse_status_reason(status_reason_wire, required=False) if status_reason_wire is not None else None
         else:
-            # Strict policy: reject status_reason for non-indeterminate
+            # Checked/unchecked: status_reason NOT ALLOWED (fail-closed)
             if status_reason_wire is not None:
                 raise GC7ValidationError(
-                    f"Step {step_id}: status_reason present when step_status is {step_status.value} "
-                    f"(GC-7: STATUS_REASON_PRESENT_WHEN_NOT_INDETERMINATE)"
+                    f"Step {step_id}: status_reason not allowed for step_status {step_status.value} "
+                    f"(GC-7: STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED)"
                 )
             status_reason = None
         

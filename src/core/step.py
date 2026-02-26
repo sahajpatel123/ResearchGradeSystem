@@ -77,11 +77,12 @@ class DerivationStep:
                     f"Step {self.step_id}: step_status INDETERMINATE requires non-empty status_reason (GC-7: INDETERMINATE_MISSING_REASON)"
                 )
         
-        # GC-7: status_reason rejected for non-indeterminate (strict policy)
-        if self.step_status != StepStatus.INDETERMINATE and self.status_reason:
+        # GC-7: status_reason NOT ALLOWED for checked/unchecked (fail-closed)
+        # Note: failed steps MAY include status_reason (optional)
+        if self.step_status in {StepStatus.CHECKED, StepStatus.UNCHECKED} and self.status_reason:
             raise ValueError(
-                f"Step {self.step_id}: status_reason present when step_status is {self.step_status.value} "
-                f"(GC-7: STATUS_REASON_PRESENT_WHEN_NOT_INDETERMINATE)"
+                f"Step {self.step_id}: status_reason not allowed for step_status {self.step_status.value} "
+                f"(GC-7: STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED)"
             )
         
         # Validate depends_on is a list
