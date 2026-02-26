@@ -71,14 +71,39 @@ class DerivationStep:
             )
         
         # GC-7: INDETERMINATE requires status_reason
+        # GC-7.1a: Distinguish between missing (None) and empty-when-present
         if self.step_status == StepStatus.INDETERMINATE:
-            if not self.status_reason or not self.status_reason.strip():
+            if self.status_reason is None:
                 raise ValueError(
-                    f"Step {self.step_id}: step_status INDETERMINATE requires non-empty status_reason (GC-7: INDETERMINATE_MISSING_REASON)"
+                    f"Step {self.step_id}: step_status INDETERMINATE requires status_reason (GC-7: INDETERMINATE_MISSING_REASON)"
+                )
+            # Check for empty/whitespace/invisible-only (GC-7.1a: STATUS_REASON_EMPTY_WHEN_PRESENT)
+            trimmed = self.status_reason.strip()
+            # Check for invisible-only content after ASCII whitespace trim
+            if trimmed:
+                invisible_chars = {'\u200b', '\u00a0', '\ufeff', '\u2060', '\u200c', '\u200d'}
+                if all(c in invisible_chars for c in trimmed):
+                    trimmed = ""
+            if not trimmed:
+                raise ValueError(
+                    f"Step {self.step_id}: status_reason is empty, whitespace-only, or invisible-only (GC-7: STATUS_REASON_EMPTY_WHEN_PRESENT)"
+                )
+        
+        # GC-7.1a: FAILED steps MAY include status_reason (optional), but if present must be non-empty
+        if self.step_status == StepStatus.FAILED and self.status_reason is not None:
+            # Check for empty/whitespace/invisible-only (GC-7.1a: STATUS_REASON_EMPTY_WHEN_PRESENT)
+            trimmed = self.status_reason.strip()
+            # Check for invisible-only content after ASCII whitespace trim
+            if trimmed:
+                invisible_chars = {'\u200b', '\u00a0', '\ufeff', '\u2060', '\u200c', '\u200d'}
+                if all(c in invisible_chars for c in trimmed):
+                    trimmed = ""
+            if not trimmed:
+                raise ValueError(
+                    f"Step {self.step_id}: status_reason is empty, whitespace-only, or invisible-only (GC-7: STATUS_REASON_EMPTY_WHEN_PRESENT)"
                 )
         
         # GC-7: status_reason NOT ALLOWED for checked/unchecked (fail-closed)
-        # Note: failed steps MAY include status_reason (optional)
         if self.step_status in {StepStatus.CHECKED, StepStatus.UNCHECKED} and self.status_reason:
             raise ValueError(
                 f"Step {self.step_id}: status_reason not allowed for step_status {self.step_status.value} "

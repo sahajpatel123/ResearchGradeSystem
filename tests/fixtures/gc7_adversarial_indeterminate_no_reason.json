@@ -11,8 +11,7 @@
     {
       "step_id": "step-001",
       "claim_ids": ["claim-001"],
-      "step_status": "indeterminate",
-      "status_reason": "   "
+      "step_status": "indeterminate"
     }
   ],
   "evidence": [
@@ -26,7 +25,11 @@
   ],
   "_test_metadata": {
     "category": "FAIL",
-    "error_category": "STATUS_REASON_EMPTY_WHEN_PRESENT",
-    "purpose": "step_status=indeterminate with whitespace-only status_reason (GC-7.1a: generic empty-when-present)"
+    "adversarial_type": "GC-7.1_DELTA",
+    "attack_vector": "indeterminate_without_status_reason",
+    "purpose": "Indeterminate step without status_reason (required field missing)",
+    "expected_outcome": "FAIL - indeterminate REQUIRES status_reason",
+    "error_category": "INDETERMINATE_MISSING_REASON",
+    "rationale": "GC-7.1 policy: indeterminate → status_reason REQUIRED (non-empty)"
   }
 }

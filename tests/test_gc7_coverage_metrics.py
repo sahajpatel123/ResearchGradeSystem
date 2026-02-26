@@ -79,7 +79,8 @@ class TestStatusReasonValidation:
     """Test status_reason validation rules."""
     
     def test_indeterminate_requires_reason_non_empty(self):
-        """step_status=indeterminate requires non-empty status_reason."""
+        """Indeterminate step_status requires non-empty status_reason."""
+        # Missing reason (None)
         with pytest.raises(ValueError, match="INDETERMINATE_MISSING_REASON"):
             DerivationStep(
                 step_id="step-001",
@@ -88,7 +89,8 @@ class TestStatusReasonValidation:
                 status_reason=None
             )
         
-        with pytest.raises(ValueError, match="INDETERMINATE_MISSING_REASON"):
+        # Empty string - GC-7.1a: STATUS_REASON_EMPTY_WHEN_PRESENT
+        with pytest.raises(ValueError, match="STATUS_REASON_EMPTY_WHEN_PRESENT"):
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
@@ -96,7 +98,8 @@ class TestStatusReasonValidation:
                 status_reason=""
             )
         
-        with pytest.raises(ValueError, match="INDETERMINATE_MISSING_REASON"):
+        # Whitespace-only - GC-7.1a: STATUS_REASON_EMPTY_WHEN_PRESENT
+        with pytest.raises(ValueError, match="STATUS_REASON_EMPTY_WHEN_PRESENT"):
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
@@ -146,11 +149,78 @@ class TestStatusReasonValidation:
     
     def test_parse_status_reason_rejects_whitespace_only(self):
         """parse_status_reason rejects whitespace-only strings."""
-        with pytest.raises(ValueError, match="INDETERMINATE_REASON_EMPTY"):
+        # GC-7.1a: STATUS_REASON_EMPTY_WHEN_PRESENT for empty/whitespace/invisible-only
+        with pytest.raises(ValueError, match="STATUS_REASON_EMPTY_WHEN_PRESENT"):
             parse_status_reason("   ", required=True)
         
-        with pytest.raises(ValueError, match="INDETERMINATE_REASON_EMPTY"):
+        with pytest.raises(ValueError, match="STATUS_REASON_EMPTY_WHEN_PRESENT"):
             parse_status_reason("\t\n", required=True)
+    
+    def test_failed_whitespace_reason_fails_with_status_reason_empty_when_present(self):
+        """Failed step with whitespace-only status_reason fails with STATUS_REASON_EMPTY_WHEN_PRESENT (GC-7.1a)."""
+        with pytest.raises(ValueError, match="STATUS_REASON_EMPTY_WHEN_PRESENT"):
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["claim-001"],
+                step_status=StepStatus.FAILED,
+                status_reason="   "
+            )
+        
+        with pytest.raises(ValueError, match="STATUS_REASON_EMPTY_WHEN_PRESENT"):
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["claim-001"],
+                step_status=StepStatus.FAILED,
+                status_reason=""
+            )
+    
+    def test_indeterminate_whitespace_reason_fails_with_status_reason_empty_when_present(self):
+        """Indeterminate step with whitespace-only status_reason fails with STATUS_REASON_EMPTY_WHEN_PRESENT (GC-7.1a)."""
+        with pytest.raises(ValueError, match="STATUS_REASON_EMPTY_WHEN_PRESENT"):
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["claim-001"],
+                step_status=StepStatus.INDETERMINATE,
+                status_reason="   "
+            )
+        
+        with pytest.raises(ValueError, match="STATUS_REASON_EMPTY_WHEN_PRESENT"):
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["claim-001"],
+                step_status=StepStatus.INDETERMINATE,
+                status_reason="\t\n"
+            )
+    
+    def test_indeterminate_missing_reason_fails_with_indeterminate_missing_reason(self):
+        """Indeterminate step without status_reason fails with INDETERMINATE_MISSING_REASON (GC-7.1a)."""
+        with pytest.raises(ValueError, match="INDETERMINATE_MISSING_REASON"):
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["claim-001"],
+                step_status=StepStatus.INDETERMINATE,
+                status_reason=None
+            )
+    
+    def test_invisible_only_reason_fails_with_status_reason_empty_when_present(self):
+        """Invisible-only status_reason fails with STATUS_REASON_EMPTY_WHEN_PRESENT (GC-7.1a: Option A)."""
+        # ZWSP (U+200B) only
+        with pytest.raises(ValueError, match="STATUS_REASON_EMPTY_WHEN_PRESENT"):
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["claim-001"],
+                step_status=StepStatus.INDETERMINATE,
+                status_reason="\u200b\u200b\u200b"
+            )
+        
+        # NBSP (U+00A0) only
+        with pytest.raises(ValueError, match="STATUS_REASON_EMPTY_WHEN_PRESENT"):
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["claim-001"],
+                step_status=StepStatus.FAILED,
+                status_reason="\u00a0\u00a0"
+            )
 
 
 class TestCoverageComputation:
@@ -431,13 +501,13 @@ class TestGC7Fixtures:
             )
     
     def test_fixture_fail_indeterminate_whitespace_reason(self):
-        """FAIL fixture: indeterminate with whitespace-only status_reason."""
+        """FAIL fixture: indeterminate with whitespace-only status_reason (GC-7.1a: STATUS_REASON_EMPTY_WHEN_PRESENT)."""
         fixture_path = Path(__file__).parent / "fixtures" / "gc7_fail_indeterminate_whitespace_reason.json"
         with open(fixture_path, 'r') as f:
             data = json.load(f)
         
         step_data = data["steps"][0]
-        with pytest.raises(ValueError, match="INDETERMINATE_MISSING_REASON"):
+        with pytest.raises(ValueError, match="STATUS_REASON_EMPTY_WHEN_PRESENT"):
             DerivationStep(
                 step_id=step_data["step_id"],
                 claim_ids=step_data["claim_ids"],
@@ -666,3 +736,188 @@ class TestValidationOrder:
         # This is a policy test - GC-7 errors should prevent finalization
         # Implementation will be in report validation integration
         pass  # Placeholder for finalization integration test
+
+
+class TestGC7AdversarialDelta:
+    """GC-7.1 adversarial delta suite - CI enforcement (GC-7.1a)."""
+    
+    def test_gc7_adversarial_delta_fixtures_all_run(self):
+        """CI enforcement: All GC-7.1 adversarial delta fixtures execute in CI (GC-7.1a)."""
+        # This test ensures adversarial delta fixtures are not just documented but actually run
+        
+        # PASS fixtures (2)
+        pass_fixtures = [
+            "gc7_adversarial_failed_valid_reason.json",
+            "gc7_adversarial_failed_reason_coverage.json",
+        ]
+        
+        # FAIL fixtures (6)
+        fail_fixtures = [
+            ("gc7_adversarial_failed_whitespace_reason.json", "STATUS_REASON_EMPTY_WHEN_PRESENT"),
+            ("gc7_adversarial_checked_with_reason.json", "STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED"),
+            ("gc7_adversarial_unchecked_with_reason.json", "STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED"),
+            ("gc7_adversarial_indeterminate_no_reason.json", "INDETERMINATE_MISSING_REASON"),
+            ("gc7_adversarial_indeterminate_invisible_reason.json", "STATUS_REASON_EMPTY_WHEN_PRESENT"),
+            ("gc7_adversarial_parser_drift_trimming.json", "STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED"),
+        ]
+        
+        # Test PASS fixtures
+        for fixture_name in pass_fixtures:
+            fixture_path = Path(__file__).parent / "fixtures" / fixture_name
+            assert fixture_path.exists(), f"PASS fixture missing: {fixture_name}"
+            
+            with open(fixture_path, 'r') as f:
+                data = json.load(f)
+            
+            # Verify fixture metadata
+            assert data["_test_metadata"]["category"] == "PASS", f"{fixture_name} should be PASS"
+            assert data["_test_metadata"]["adversarial_type"] == "GC-7.1_DELTA"
+        
+        # Test FAIL fixtures
+        for fixture_name, expected_error in fail_fixtures:
+            fixture_path = Path(__file__).parent / "fixtures" / fixture_name
+            assert fixture_path.exists(), f"FAIL fixture missing: {fixture_name}"
+            
+            with open(fixture_path, 'r') as f:
+                data = json.load(f)
+            
+            # Verify fixture metadata
+            assert data["_test_metadata"]["category"] == "FAIL", f"{fixture_name} should be FAIL"
+            assert data["_test_metadata"]["adversarial_type"] == "GC-7.1_DELTA"
+            assert data["_test_metadata"]["error_category"] == expected_error, \
+                f"{fixture_name} should have error category {expected_error}"
+    
+    def test_adversarial_failed_valid_reason(self):
+        """PASS: Failed step with valid status_reason (GC-7.1 policy allows optional reason on failed)."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc7_adversarial_failed_valid_reason.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        step_data = data["steps"][0]
+        # Should NOT raise - failed steps can have status_reason
+        step = DerivationStep(
+            step_id=step_data["step_id"],
+            claim_ids=step_data["claim_ids"],
+            step_status=StepStatus.FAILED,
+            status_reason=step_data.get("status_reason"),
+        )
+        assert step.status_reason == "Verification failed: missing required data source"
+    
+    def test_adversarial_failed_whitespace_reason(self):
+        """FAIL: Failed step with whitespace-only status_reason (STATUS_REASON_EMPTY_WHEN_PRESENT)."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc7_adversarial_failed_whitespace_reason.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        step_data = data["steps"][0]
+        with pytest.raises(ValueError, match="STATUS_REASON_EMPTY_WHEN_PRESENT"):
+            DerivationStep(
+                step_id=step_data["step_id"],
+                claim_ids=step_data["claim_ids"],
+                step_status=StepStatus.FAILED,
+                status_reason=step_data.get("status_reason"),
+            )
+    
+    def test_adversarial_checked_with_reason(self):
+        """FAIL: Checked step with status_reason (STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED)."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc7_adversarial_checked_with_reason.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        step_data = data["steps"][0]
+        with pytest.raises(ValueError, match="STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED"):
+            DerivationStep(
+                step_id=step_data["step_id"],
+                claim_ids=step_data["claim_ids"],
+                step_status=StepStatus.CHECKED,
+                status_reason=step_data.get("status_reason"),
+            )
+    
+    def test_adversarial_unchecked_with_reason(self):
+        """FAIL: Unchecked step with status_reason (STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED)."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc7_adversarial_unchecked_with_reason.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        step_data = data["steps"][0]
+        with pytest.raises(ValueError, match="STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED"):
+            DerivationStep(
+                step_id=step_data["step_id"],
+                claim_ids=step_data["claim_ids"],
+                step_status=StepStatus.UNCHECKED,
+                status_reason=step_data.get("status_reason"),
+            )
+    
+    def test_adversarial_indeterminate_no_reason(self):
+        """FAIL: Indeterminate without status_reason (INDETERMINATE_MISSING_REASON)."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc7_adversarial_indeterminate_no_reason.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        step_data = data["steps"][0]
+        with pytest.raises(ValueError, match="INDETERMINATE_MISSING_REASON"):
+            DerivationStep(
+                step_id=step_data["step_id"],
+                claim_ids=step_data["claim_ids"],
+                step_status=StepStatus.INDETERMINATE,
+                status_reason=step_data.get("status_reason"),
+            )
+    
+    def test_adversarial_indeterminate_invisible_reason(self):
+        """FAIL: Indeterminate with invisible-only status_reason (STATUS_REASON_EMPTY_WHEN_PRESENT - Option A)."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc7_adversarial_indeterminate_invisible_reason.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        step_data = data["steps"][0]
+        with pytest.raises(ValueError, match="STATUS_REASON_EMPTY_WHEN_PRESENT"):
+            DerivationStep(
+                step_id=step_data["step_id"],
+                claim_ids=step_data["claim_ids"],
+                step_status=StepStatus.INDETERMINATE,
+                status_reason=step_data.get("status_reason"),
+            )
+    
+    def test_adversarial_failed_reason_coverage(self):
+        """PASS: Coverage computation with failed step containing status_reason."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc7_adversarial_failed_reason_coverage.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        steps = []
+        for s in data["steps"]:
+            step_status = parse_step_status(s["step_status"])
+            status_reason = s.get("status_reason")
+            steps.append(DerivationStep(
+                step_id=s["step_id"],
+                claim_ids=s["claim_ids"],
+                step_status=step_status,
+                status_reason=status_reason,
+            ))
+        
+        metrics = compute_coverage_metrics(steps)
+        
+        # Verify coverage computed correctly with failed step reason
+        assert metrics.checked_count == 1
+        assert metrics.unchecked_count == 1
+        assert metrics.failed_count == 1
+        assert metrics.total_steps == 3
+        assert len(metrics.failed_steps) == 1
+        assert metrics.failed_steps[0].step_id == "step-002"
+        assert metrics.failed_steps[0].reason == "Computation error: division by zero"
+    
+    def test_adversarial_parser_drift_trimming(self):
+        """FAIL: Wire parser drift - checked with whitespace-only status_reason (field presence check)."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc7_adversarial_parser_drift_trimming.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        step_data = data["steps"][0]
+        # Must reject field presence BEFORE content validation
+        with pytest.raises(ValueError, match="STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED"):
+            DerivationStep(
+                step_id=step_data["step_id"],
+                claim_ids=step_data["claim_ids"],
+                step_status=StepStatus.CHECKED,
+                status_reason=step_data.get("status_reason"),
+            )

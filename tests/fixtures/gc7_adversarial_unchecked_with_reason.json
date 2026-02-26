@@ -11,8 +11,8 @@
     {
       "step_id": "step-001",
       "claim_ids": ["claim-001"],
-      "step_status": "indeterminate",
-      "status_reason": "   "
+      "step_status": "unchecked",
+      "status_reason": "Adversarial: trying to add reason to unchecked step"
     }
   ],
   "evidence": [
@@ -26,7 +26,11 @@
   ],
   "_test_metadata": {
     "category": "FAIL",
-    "error_category": "STATUS_REASON_EMPTY_WHEN_PRESENT",
-    "purpose": "step_status=indeterminate with whitespace-only status_reason (GC-7.1a: generic empty-when-present)"
+    "adversarial_type": "GC-7.1_DELTA",
+    "attack_vector": "unchecked_step_with_status_reason",
+    "purpose": "Unchecked step with status_reason (not allowed - fail-closed)",
+    "expected_outcome": "FAIL - unchecked steps cannot have status_reason",
+    "error_category": "STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED",
+    "rationale": "GC-7.1 policy: status_reason NOT ALLOWED for checked/unchecked (fail-closed)"
   }
 }

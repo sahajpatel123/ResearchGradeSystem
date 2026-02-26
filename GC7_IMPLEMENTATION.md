@@ -59,6 +59,99 @@ $ pytest tests/ -v
 
 ---
 
+## GC-7.1a PATCH (APPLIED)
+
+**Date:** Applied after GC-7.1  
+**Scope:** Tiny patch - error category semantics fix + CI enforcement
+
+### Changes Applied:
+
+1. **Error Category Semantics Fix (SUBSTANTIVE)**
+   - **Problem:** Failed step with whitespace-only status_reason was failing with `INDETERMINATE_REASON_EMPTY` (semantically incorrect)
+   - **Solution:** Introduced new error category taxonomy:
+     - `INDETERMINATE_MISSING_REASON` - only when step_status == indeterminate and reason is None/null/absent
+     - `STATUS_REASON_EMPTY_WHEN_PRESENT` - when status_reason field is present but empty/whitespace-only/invisible-only (applies to failed and indeterminate)
+     - `STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED` - when checked/unchecked includes a reason field
+   - **Rationale:** Generic empty-when-present category is semantically correct for any step_status
+
+2. **Invisible-Only Reason Behavior (FROZEN)**
+   - **Decision:** Option A - treat invisible-only as empty (STATUS_REASON_EMPTY_WHEN_PRESENT)
+   - **Invisible characters detected:** ZWSP (\u200b), NBSP (\u00a0), BOM (\ufeff), WJ (\u2060), ZWNJ (\u200c), ZWJ (\u200d)
+   - **Rationale:** Consistency with whitespace-only behavior (fail-closed)
+   - **Implementation:** Parser checks for invisible-only content after ASCII whitespace trim
+
+3. **CI Enforcement for Adversarial Delta Fixtures (REQUIRED)**
+   - **Problem:** AG adversarial delta fixtures were documented but not executed in CI
+   - **Solution:** Added comprehensive test class `TestGC7AdversarialDelta` with 9 tests
+   - **Coverage:** All 8 adversarial delta fixtures now execute in default CI test command
+   - **Tests added:**
+     - `test_gc7_adversarial_delta_fixtures_all_run()` - Verifies all fixtures exist and have correct metadata
+     - `test_adversarial_failed_valid_reason()` - PASS: failed with valid reason
+     - `test_adversarial_failed_whitespace_reason()` - FAIL: failed with whitespace-only reason
+     - `test_adversarial_checked_with_reason()` - FAIL: checked with reason
+     - `test_adversarial_unchecked_with_reason()` - FAIL: unchecked with reason
+     - `test_adversarial_indeterminate_no_reason()` - FAIL: indeterminate without reason
+     - `test_adversarial_indeterminate_invisible_reason()` - FAIL: indeterminate with invisible-only reason
+     - `test_adversarial_failed_reason_coverage()` - PASS: coverage computation with failed reason
+     - `test_adversarial_parser_drift_trimming()` - FAIL: wire parser drift via whitespace trimming
+
+### Files Changed (GC-7.1a):
+- `src/core/step.py` - Updated validation to distinguish INDETERMINATE_MISSING_REASON vs STATUS_REASON_EMPTY_WHEN_PRESENT
+- `src/core/gc7_wire_parsers.py` - Added invisible character detection, updated error categories
+- `tests/fixtures/gc7_fail_indeterminate_whitespace_reason.json` - Updated error category
+- `tests/fixtures/gc7_adversarial_failed_whitespace_reason.json` - Updated error category
+- `tests/fixtures/gc7_adversarial_indeterminate_invisible_reason.json` - Updated error category, added frozen behavior note
+- `tests/test_gc7_coverage_metrics.py` - Added 5 new tests, updated existing tests for new error categories
+- `tests/test_gc3_structure.py` - Updated 2 tests to match new error messages
+- `GC7_IMPLEMENTATION.md` - This file (GC-7.1a patch notes added)
+
+### Test Results (GC-7.1a):
+```
+$ pytest tests/test_gc7_coverage_metrics.py -v
+51 passed in 0.04s (up from 38)
+
+$ pytest tests/ -v
+401 passed in 0.22s (up from 388)
+```
+
+### New Tests (GC-7.1a):
+- `test_failed_whitespace_reason_fails_with_status_reason_empty_when_present()` - Failed + whitespace → STATUS_REASON_EMPTY_WHEN_PRESENT
+- `test_indeterminate_whitespace_reason_fails_with_status_reason_empty_when_present()` - Indeterminate + whitespace → STATUS_REASON_EMPTY_WHEN_PRESENT
+- `test_indeterminate_missing_reason_fails_with_indeterminate_missing_reason()` - Indeterminate + None → INDETERMINATE_MISSING_REASON
+- `test_invisible_only_reason_fails_with_status_reason_empty_when_present()` - Invisible-only → STATUS_REASON_EMPTY_WHEN_PRESENT (Option A frozen)
+- `TestGC7AdversarialDelta` class (9 tests) - CI enforcement for all adversarial delta fixtures
+
+### Error Category Taxonomy (Final - GC-7.1a):
+
+**Step-Level (4):**
+1. `STEP_STATUS_INVALID` - step_status is not a valid token
+2. `INDETERMINATE_MISSING_REASON` - step_status == indeterminate and status_reason is None/null
+3. `STATUS_REASON_EMPTY_WHEN_PRESENT` - status_reason field present but empty/whitespace-only/invisible-only (any step_status)
+4. `STATUS_REASON_NOT_ALLOWED_FOR_CHECKED_OR_UNCHECKED` - checked/unchecked with status_reason field
+
+**Coverage/Bookkeeping (9):**
+5. `COVERAGE_METRICS_MISMATCH`
+6. `COVERAGE_BUCKET_GHOST_STEP_ID`
+7. `COVERAGE_BUCKET_DUPLICATE_STEP_ID`
+8. `COVERAGE_PARTITION_MISMATCH`
+9. `COVERAGE_COUNT_MISMATCH`
+10. `COVERAGE_RATIO_MISMATCH`
+11. `COVERAGE_NOTE_MISSING_ZERO_STEPS`
+12. `COVERAGE_INVALID_NUMBER`
+13. `COVERAGE_WRONG_TYPE`
+
+**Total: 13 error categories** (unchanged count, semantics clarified)
+
+### Updated Counts (GC-7.1a):
+- GC-7 tests: **51** (was 38)
+- Total tests: **401** (was 388)
+- New tests: **13** (5 status_reason validation + 8 adversarial delta + 1 CI enforcement harness)
+- Adversarial delta fixtures: **8** (2 PASS + 6 FAIL)
+
+**GC-7.1 + GC-7.1a implementation is now HARD FROZEN.**
+
+---
+
 ## 1) Current Item:
 **GC-7 Step Status + Coverage Bookkeeping (Computed-Only, Fail-Closed)**
 

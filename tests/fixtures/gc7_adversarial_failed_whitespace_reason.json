@@ -1,0 +1,37 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Test claim with failed step",
+      "claim_label": "DERIVED",
+      "evidence_ids": ["ev-001"]
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "failed",
+      "status_reason": "   "
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "ev-001",
+      "evidence_type": "DERIVATION",
+      "source": {"kind": "STEP_ID", "value": "step-001"},
+      "status": "VALID",
+      "payload_ref": {"kind": "STEP_ID", "value": "step-001"}
+    }
+  ],
+  "_test_metadata": {
+    "category": "FAIL",
+    "adversarial_type": "GC-7.1_DELTA",
+    "attack_vector": "failed_step_whitespace_only_reason",
+    "purpose": "Failed step with whitespace-only status_reason",
+    "policy_decision": "FAIL - status_reason is optional for failed, but if present must be non-empty after trim",
+    "expected_outcome": "FAIL - parse_status_reason should reject whitespace-only even when optional=True",
+    "error_category": "STATUS_REASON_EMPTY_WHEN_PRESENT",
+    "rationale": "Fail-closed: if status_reason is provided, it must have semantic content (non-whitespace). GC-7.1a: generic empty-when-present category for any step_status."
+  }
+}

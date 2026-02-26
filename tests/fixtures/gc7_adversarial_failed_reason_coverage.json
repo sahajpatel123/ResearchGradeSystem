@@ -1,0 +1,82 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "First claim",
+      "claim_label": "DERIVED",
+      "evidence_ids": ["ev-001"]
+    },
+    {
+      "claim_id": "claim-002",
+      "statement": "Second claim",
+      "claim_label": "COMPUTED",
+      "evidence_ids": ["ev-002"]
+    },
+    {
+      "claim_id": "claim-003",
+      "statement": "Third claim",
+      "claim_label": "DERIVED",
+      "evidence_ids": ["ev-003"]
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "step_status": "checked"
+    },
+    {
+      "step_id": "step-002",
+      "claim_ids": ["claim-002"],
+      "step_status": "failed",
+      "status_reason": "Computation error: division by zero"
+    },
+    {
+      "step_id": "step-003",
+      "claim_ids": ["claim-003"],
+      "step_status": "unchecked"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "ev-001",
+      "evidence_type": "DERIVATION",
+      "source": {"kind": "STEP_ID", "value": "step-001"},
+      "status": "VALID",
+      "payload_ref": {"kind": "STEP_ID", "value": "step-001"}
+    },
+    {
+      "evidence_id": "ev-002",
+      "evidence_type": "COMPUTATION",
+      "source": {"kind": "TOOL_RUN_ID", "value": "tool-001"},
+      "status": "VALID",
+      "payload_ref": {"kind": "TOOL_RUN_ID", "value": "tool-001"}
+    },
+    {
+      "evidence_id": "ev-003",
+      "evidence_type": "DERIVATION",
+      "source": {"kind": "STEP_ID", "value": "step-003"},
+      "status": "VALID",
+      "payload_ref": {"kind": "STEP_ID", "value": "step-003"}
+    }
+  ],
+  "_test_metadata": {
+    "category": "PASS",
+    "adversarial_type": "GC-7.1_DELTA",
+    "attack_vector": "failed_reason_in_coverage_bucket",
+    "purpose": "Failed step with status_reason - verify coverage computes correctly with reason in bucket",
+    "expected_outcome": "PASS - coverage metrics should include failed step with reason in failed_steps bucket",
+    "expected_coverage": {
+      "checked_steps": ["step-001"],
+      "unchecked_steps": [{"step_id": "step-003", "kind": "unchecked"}],
+      "failed_steps": [{"step_id": "step-002", "reason": "Computation error: division by zero"}],
+      "checked_count": 1,
+      "unchecked_count": 1,
+      "failed_count": 1,
+      "total_steps": 3,
+      "verification_progress_ratio": 0.5,
+      "verified_work_pct": 0.3333333333333333
+    },
+    "rationale": "Coverage computation must handle failed steps with optional status_reason correctly"
+  }
+}

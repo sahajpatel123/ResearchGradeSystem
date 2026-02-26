@@ -60,7 +60,7 @@ class TestDerivationStepSchema:
     
     def test_indeterminate_requires_reason(self):
         """GC-3: INDETERMINATE status requires non-empty status_reason"""
-        with pytest.raises(ValueError, match="requires non-empty status_reason"):
+        with pytest.raises(ValueError, match="INDETERMINATE_MISSING_REASON"):
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
@@ -68,7 +68,7 @@ class TestDerivationStepSchema:
                 status_reason=None,
             )
         
-        with pytest.raises(ValueError, match="requires non-empty status_reason"):
+        with pytest.raises(ValueError, match="STATUS_REASON_EMPTY_WHEN_PRESENT"):
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
@@ -503,7 +503,7 @@ class TestGC3Fixtures:
         with open(fixture_path, 'r') as f:
             data = json.load(f)
         
-        with pytest.raises(ValueError, match="requires non-empty status_reason"):
+        with pytest.raises(ValueError, match="INDETERMINATE_MISSING_REASON"):
             steps = [
                 DerivationStep(
                     step_id=s["step_id"],

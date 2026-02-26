@@ -67,6 +67,10 @@ def parse_status_reason(wire: Any, required: bool = False) -> Optional[str]:
     - Reject whitespace-only or invisible-only strings
     - No trimming for storage (store as-is if valid)
     
+    Error category taxonomy (GC-7.1a):
+    - INDETERMINATE_MISSING_REASON: only when step_status == indeterminate and reason is None/null
+    - STATUS_REASON_EMPTY_WHEN_PRESENT: when field is present but empty/whitespace-only/invisible-only
+    
     Args:
         wire: Value from wire
         required: If True, None/null triggers error
@@ -76,7 +80,7 @@ def parse_status_reason(wire: Any, required: bool = False) -> Optional[str]:
     
     Raises:
         TypeError: If not a string or null
-        ValueError: If required but missing, or if empty/whitespace-only
+        ValueError: If required but missing, or if empty/whitespace-only/invisible-only
     """
     # None/null handling
     if wire is None:
@@ -93,14 +97,22 @@ def parse_status_reason(wire: Any, required: bool = False) -> Optional[str]:
         )
     
     # Empty check (after trim for emptiness only)
-    if wire.strip() == "":
-        if required:
-            raise ValueError(
-                "Invalid status_reason: empty or whitespace-only when required (GC-7: INDETERMINATE_REASON_EMPTY)"
-            )
-        # If not required but provided as empty, treat as invalid
+    # GC-7.1a: Treat invisible-only strings as empty (Option A - consistency with whitespace-only)
+    # Invisible characters: ZWSP (\u200b), NBSP (\u00a0), BOM (\ufeff), WJ (\u2060), ZWNJ (\u200c), ZWJ (\u200d)
+    trimmed = wire.strip()
+    
+    # Check for invisible-only content after ASCII whitespace trim
+    # If trimmed is non-empty but contains only invisible Unicode, treat as empty
+    if trimmed:
+        invisible_chars = {'\u200b', '\u00a0', '\ufeff', '\u2060', '\u200c', '\u200d'}
+        if all(c in invisible_chars for c in trimmed):
+            trimmed = ""
+    
+    if trimmed == "":
+        # GC-7.1a: Use STATUS_REASON_EMPTY_WHEN_PRESENT for empty/whitespace/invisible-only
+        # This applies to both required (indeterminate) and optional (failed) cases
         raise ValueError(
-            "Invalid status_reason: empty or whitespace-only string (GC-7: INDETERMINATE_REASON_EMPTY)"
+            "Invalid status_reason: empty, whitespace-only, or invisible-only string (GC-7: STATUS_REASON_EMPTY_WHEN_PRESENT)"
         )
     
     # Return as-is (no normalization trimming)
