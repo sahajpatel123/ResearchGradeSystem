@@ -1,0 +1,55 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "This claim references non-existent evidence (GC-4 FAIL)",
+      "claim_label": "DERIVED",
+      "evidence_ids": ["evidence-DOES-NOT-EXIST"]
+    },
+    {
+      "claim_id": "claim-002",
+      "statement": "This claim has valid evidence",
+      "claim_label": "COMPUTED",
+      "evidence_ids": ["evidence-001"]
+    },
+    {
+      "claim_id": "claim-003",
+      "statement": "Speculative claim (not counted in GC-6)",
+      "claim_label": "SPECULATIVE"
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001", "claim-002", "claim-003"],
+      "step_status": "CHECKED"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evidence-001",
+      "evidence_type": "DERIVATION",
+      "source": {
+        "kind": "STEP_ID",
+        "value": "step-001"
+      },
+      "status": "VALID",
+      "payload_ref": {
+        "kind": "STEP_ID",
+        "value": "step-001"
+      }
+    }
+  ],
+  "_test_metadata": {
+    "category": "metrics_only",
+    "gc4_status": "FAIL",
+    "gc4_reason": "claim-001 has dangling evidence_id",
+    "gc6_expected_metrics": {
+      "unsupported_non_spec_claims": 1,
+      "total_non_spec_claims": 2,
+      "unsupported_claim_rate": 0.5,
+      "unsupported_claim_ids": ["claim-001"]
+    },
+    "purpose": "Verify compute_integrity_metrics works even when GC-4 fails (dangling evidence_id)"
+  }
+}

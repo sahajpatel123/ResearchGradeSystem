@@ -1,0 +1,41 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Non-SPEC claim with empty evidence_ids (unsupported)",
+      "claim_label": "DERIVED",
+      "evidence_ids": []
+    },
+    {
+      "claim_id": "claim-002",
+      "statement": "Non-SPEC claim with empty evidence_ids (unsupported)",
+      "claim_label": "COMPUTED",
+      "evidence_ids": []
+    },
+    {
+      "claim_id": "claim-003",
+      "statement": "Speculative claim (not counted)",
+      "claim_label": "SPECULATIVE"
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001", "claim-002", "claim-003"],
+      "step_status": "CHECKED"
+    }
+  ],
+  "evidence": [],
+  "_test_metadata": {
+    "category": "metrics_only",
+    "gc4_status": "FAIL",
+    "gc4_reason": "Non-SPEC claims must have ≥1 evidence_id",
+    "gc6_expected_metrics": {
+      "unsupported_non_spec_claims": 2,
+      "total_non_spec_claims": 2,
+      "unsupported_claim_rate": 1.0,
+      "unsupported_claim_ids": ["claim-001", "claim-002"]
+    },
+    "purpose": "Verify compute_integrity_metrics works when all non-SPEC claims have empty evidence_ids"
+  }
+}

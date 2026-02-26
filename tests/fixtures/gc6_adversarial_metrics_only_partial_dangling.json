@@ -1,0 +1,63 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Claim with mix of valid and dangling evidence_ids",
+      "claim_label": "DERIVED",
+      "evidence_ids": ["evidence-001", "evidence-DANGLING", "evidence-002"]
+    },
+    {
+      "claim_id": "claim-002",
+      "statement": "Claim with all valid evidence",
+      "claim_label": "COMPUTED",
+      "evidence_ids": ["evidence-001"]
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001", "claim-002"],
+      "step_status": "CHECKED"
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "evidence-001",
+      "evidence_type": "DERIVATION",
+      "source": {
+        "kind": "STEP_ID",
+        "value": "step-001"
+      },
+      "status": "VALID",
+      "payload_ref": {
+        "kind": "STEP_ID",
+        "value": "step-001"
+      }
+    },
+    {
+      "evidence_id": "evidence-002",
+      "evidence_type": "COMPUTATION",
+      "source": {
+        "kind": "TOOL_RUN_ID",
+        "value": "tool-run-001"
+      },
+      "status": "VALID",
+      "payload_ref": {
+        "kind": "TOOL_RUN_ID",
+        "value": "tool-run-001"
+      }
+    }
+  ],
+  "_test_metadata": {
+    "category": "metrics_only",
+    "gc4_status": "FAIL",
+    "gc4_reason": "claim-001 has dangling evidence_id (evidence-DANGLING)",
+    "gc6_expected_metrics": {
+      "unsupported_non_spec_claims": 1,
+      "total_non_spec_claims": 2,
+      "unsupported_claim_rate": 0.5,
+      "unsupported_claim_ids": ["claim-001"]
+    },
+    "purpose": "Verify Option A strict: ANY dangling evidence_id makes claim unsupported (even if some are valid)"
+  }
+}

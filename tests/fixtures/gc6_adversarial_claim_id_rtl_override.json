@@ -1,0 +1,25 @@
+{
+  "claims": [
+    {
+      "claim_id": "‮claim-001",
+      "statement": "This claim_id starts with RTL Override (U+202E) to reverse visual display",
+      "claim_label": "DERIVED",
+      "evidence_ids": []
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["‮claim-001"],
+      "step_status": "CHECKED"
+    }
+  ],
+  "evidence": [],
+  "_test_metadata": {
+    "category": "FAIL",
+    "expected_failure": "parse_claim_id",
+    "failure_reason": "non-ASCII control character (RTL Override U+202E)",
+    "attack_type": "visual_spoofing",
+    "purpose": "Verify parse_claim_id rejects RTL override and other Unicode control characters"
+  }
+}
