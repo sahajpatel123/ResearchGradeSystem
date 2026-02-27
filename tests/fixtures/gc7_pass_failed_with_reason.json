@@ -4,24 +4,35 @@
       "claim_id": "claim-001",
       "statement": "Test claim with failed step",
       "claim_label": "DERIVED",
-      "evidence_ids": ["ev-001"]
+      "evidence_ids": [
+        "ev-001"
+      ]
     }
   ],
   "steps": [
     {
       "step_id": "step-001",
-      "claim_ids": ["claim-001"],
+      "claim_ids": [
+        "claim-001"
+      ],
       "step_status": "failed",
-      "status_reason": "Verification failed due to missing data"
+      "status_reason": "Verification failed due to missing data",
+      "statement": "Attempted derivation for step step-001"
     }
   ],
   "evidence": [
     {
       "evidence_id": "ev-001",
       "evidence_type": "DERIVATION",
-      "source": {"kind": "STEP_ID", "value": "step-001"},
+      "source": {
+        "kind": "STEP_ID",
+        "value": "step-001"
+      },
       "status": "VALID",
-      "payload_ref": {"kind": "STEP_ID", "value": "step-001"}
+      "payload_ref": {
+        "kind": "STEP_ID",
+        "value": "step-001"
+      }
     }
   ],
   "_test_metadata": {
@@ -30,7 +41,12 @@
     "expected_coverage": {
       "checked_steps": [],
       "unchecked_steps": [],
-      "failed_steps": [{"step_id": "step-001", "reason": "Verification failed due to missing data"}],
+      "failed_steps": [
+        {
+          "step_id": "step-001",
+          "reason": "Verification failed due to missing data"
+        }
+      ],
       "checked_count": 0,
       "unchecked_count": 0,
       "failed_count": 1,

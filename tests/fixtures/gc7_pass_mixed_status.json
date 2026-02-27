@@ -4,90 +4,147 @@
       "claim_id": "claim-001",
       "statement": "Claim for checked step",
       "claim_label": "DERIVED",
-      "evidence_ids": ["ev-001"]
+      "evidence_ids": [
+        "ev-001"
+      ]
     },
     {
       "claim_id": "claim-002",
       "statement": "Claim for unchecked step",
       "claim_label": "COMPUTED",
-      "evidence_ids": ["ev-002"]
+      "evidence_ids": [
+        "ev-002"
+      ]
     },
     {
       "claim_id": "claim-003",
       "statement": "Claim for indeterminate step",
       "claim_label": "DERIVED",
-      "evidence_ids": ["ev-003"]
+      "evidence_ids": [
+        "ev-003"
+      ]
     },
     {
       "claim_id": "claim-004",
       "statement": "Claim for failed step",
       "claim_label": "COMPUTED",
-      "evidence_ids": ["ev-004"]
+      "evidence_ids": [
+        "ev-004"
+      ]
     }
   ],
   "steps": [
     {
       "step_id": "step-001",
-      "claim_ids": ["claim-001"],
-      "step_status": "checked"
+      "claim_ids": [
+        "claim-001"
+      ],
+      "step_status": "checked",
+      "statement": "Derivation step step-001 in progress"
     },
     {
       "step_id": "step-002",
-      "claim_ids": ["claim-002"],
-      "step_status": "unchecked"
+      "claim_ids": [
+        "claim-002"
+      ],
+      "step_status": "unchecked",
+      "statement": "Derivation step step-002 in progress"
     },
     {
       "step_id": "step-003",
-      "claim_ids": ["claim-003"],
+      "claim_ids": [
+        "claim-003"
+      ],
       "step_status": "indeterminate",
-      "status_reason": "Requires additional verification data"
+      "status_reason": "Requires additional verification data",
+      "statement": "Derivation step step-003 in progress"
     },
     {
       "step_id": "step-004",
-      "claim_ids": ["claim-004"],
-      "step_status": "failed"
+      "claim_ids": [
+        "claim-004"
+      ],
+      "step_status": "failed",
+      "statement": "Derivation step step-004 in progress"
     }
   ],
   "evidence": [
     {
       "evidence_id": "ev-001",
       "evidence_type": "DERIVATION",
-      "source": {"kind": "STEP_ID", "value": "step-001"},
+      "source": {
+        "kind": "STEP_ID",
+        "value": "step-001"
+      },
       "status": "VALID",
-      "payload_ref": {"kind": "STEP_ID", "value": "step-001"}
+      "payload_ref": {
+        "kind": "STEP_ID",
+        "value": "step-001"
+      }
     },
     {
       "evidence_id": "ev-002",
       "evidence_type": "COMPUTATION",
-      "source": {"kind": "TOOL_RUN_ID", "value": "tool-001"},
+      "source": {
+        "kind": "TOOL_RUN_ID",
+        "value": "tool-001"
+      },
       "status": "VALID",
-      "payload_ref": {"kind": "TOOL_RUN_ID", "value": "tool-001"}
+      "payload_ref": {
+        "kind": "TOOL_RUN_ID",
+        "value": "tool-001"
+      }
     },
     {
       "evidence_id": "ev-003",
       "evidence_type": "DERIVATION",
-      "source": {"kind": "STEP_ID", "value": "step-003"},
+      "source": {
+        "kind": "STEP_ID",
+        "value": "step-003"
+      },
       "status": "VALID",
-      "payload_ref": {"kind": "STEP_ID", "value": "step-003"}
+      "payload_ref": {
+        "kind": "STEP_ID",
+        "value": "step-003"
+      }
     },
     {
       "evidence_id": "ev-004",
       "evidence_type": "COMPUTATION",
-      "source": {"kind": "TOOL_RUN_ID", "value": "tool-002"},
+      "source": {
+        "kind": "TOOL_RUN_ID",
+        "value": "tool-002"
+      },
       "status": "VALID",
-      "payload_ref": {"kind": "TOOL_RUN_ID", "value": "tool-002"}
+      "payload_ref": {
+        "kind": "TOOL_RUN_ID",
+        "value": "tool-002"
+      }
     }
   ],
   "_test_metadata": {
     "category": "PASS",
     "purpose": "Mixed-status derivation with all 4 step statuses",
     "expected_coverage": {
-      "checked_steps": ["step-001"],
-      "unchecked_steps": [
-        {"step_id": "step-002", "kind": "unchecked"},
-        {"step_id": "step-003", "kind": "indeterminate", "reason": "Requires additional verification data"}
+      "checked_steps": [
+        "step-001"
       ],
-      "failed_steps": [{"step_id": "step-004"}],
+      "unchecked_steps": [
+        {
+          "step_id": "step-002",
+          "kind": "unchecked"
+        },
+        {
+          "step_id": "step-003",
+          "kind": "indeterminate",
+          "reason": "Requires additional verification data"
+        }
+      ],
+      "failed_steps": [
+        {
+          "step_id": "step-004"
+        }
+      ],
       "checked_count": 1,
       "unchecked_count": 2,
       "failed_count": 1,

@@ -23,9 +23,10 @@ class TestDerivationStepSchema:
     def test_step_creation_valid(self):
         """GC-3: Valid step creation with non-empty claim_ids"""
         step = DerivationStep(
-            step_id="step-001",
-            claim_ids=["claim-001"],
-            step_status=StepStatus.UNCHECKED,
+                step_id="step-001",
+                claim_ids=["claim-001"],
+                statement="Test derivation step",
+                step_status=StepStatus.UNCHECKED,
         )
         assert step.step_id == "step-001"
         assert step.claim_ids == ["claim-001"]
@@ -46,6 +47,7 @@ class TestDerivationStepSchema:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001", "claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.UNCHECKED,
             )
     
@@ -55,6 +57,7 @@ class TestDerivationStepSchema:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status="UNCHECKED",  # String instead of enum
             )
     
@@ -64,6 +67,7 @@ class TestDerivationStepSchema:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.INDETERMINATE,
                 status_reason=None,
             )
@@ -72,6 +76,7 @@ class TestDerivationStepSchema:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.INDETERMINATE,
                 status_reason="   ",  # Whitespace only
             )
@@ -79,9 +84,10 @@ class TestDerivationStepSchema:
     def test_indeterminate_with_reason_valid(self):
         """GC-3: INDETERMINATE with valid reason is accepted"""
         step = DerivationStep(
-            step_id="step-001",
-            claim_ids=["claim-001"],
-            step_status=StepStatus.INDETERMINATE,
+                step_id="step-001",
+                claim_ids=["claim-001"],
+                statement="Test derivation step",
+                step_status=StepStatus.INDETERMINATE,
             status_reason="Insufficient evidence to determine validity",
         )
         assert step.step_status == StepStatus.INDETERMINATE
@@ -285,9 +291,10 @@ class TestGC3Fixtures:
         
         steps = [
             DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
+                    step_id=s["step_id"],
+                    claim_ids=s["claim_ids"],
+                    statement=s["statement"],
+                    step_status=StepStatus[s["step_status"]],
                 depends_on=s.get("depends_on", []),
                 status_reason=s.get("status_reason"),
             )
@@ -317,9 +324,10 @@ class TestGC3Fixtures:
         
         steps = [
             DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
+                    step_id=s["step_id"],
+                    claim_ids=s["claim_ids"],
+                    statement=s["statement"],
+                    step_status=StepStatus[s["step_status"]],
             )
             for s in data["steps"]
         ]
@@ -347,9 +355,10 @@ class TestGC3Fixtures:
         
         steps = [
             DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
+                    step_id=s["step_id"],
+                    claim_ids=s["claim_ids"],
+                    statement=s["statement"],
+                    step_status=StepStatus[s["step_status"]],
             )
             for s in data["steps"]
         ]
@@ -377,9 +386,10 @@ class TestGC3Fixtures:
         
         steps = [
             DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
+                    step_id=s["step_id"],
+                    claim_ids=s["claim_ids"],
+                    statement=s["statement"],
+                    step_status=StepStatus[s["step_status"]],
             )
             for s in data["steps"]
         ]
@@ -401,6 +411,7 @@ class TestGC3Fixtures:
                 DerivationStep(
                     step_id=s["step_id"],
                     claim_ids=s["claim_ids"],
+                    statement=s["statement"],
                     step_status=StepStatus[s["step_status"]],
                 )
                 for s in data["steps"]
@@ -440,9 +451,10 @@ class TestGC3Fixtures:
         
         steps = [
             DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
+                    step_id=s["step_id"],
+                    claim_ids=s["claim_ids"],
+                    statement=s["statement"],
+                    step_status=StepStatus[s["step_status"]],
             )
             for s in data["steps"]
         ]
@@ -461,6 +473,7 @@ class TestGC3Fixtures:
                 DerivationStep(
                     step_id=s["step_id"],
                     claim_ids=s["claim_ids"],
+                    statement=s["statement"],
                     step_status=StepStatus[s["step_status"]],
                 )
                 for s in data["steps"]
@@ -483,9 +496,10 @@ class TestGC3Fixtures:
         
         steps = [
             DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
+                    step_id=s["step_id"],
+                    claim_ids=s["claim_ids"],
+                    statement=s["statement"],
+                    step_status=StepStatus[s["step_status"]],
                 depends_on=s.get("depends_on", []),
             )
             for s in data["steps"]
@@ -508,6 +522,7 @@ class TestGC3Fixtures:
                 DerivationStep(
                     step_id=s["step_id"],
                     claim_ids=s["claim_ids"],
+                    statement=s["statement"],
                     step_status=StepStatus[s["step_status"]],
                     status_reason=s.get("status_reason"),
                 )

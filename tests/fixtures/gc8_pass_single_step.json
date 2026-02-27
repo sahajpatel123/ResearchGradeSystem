@@ -1,0 +1,27 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The quadratic formula solves ax^2 + bx + c = 0",
+      "claim_label": "DERIVED"
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "statement": "Apply the quadratic formula to derive the roots of the equation",
+      "step_status": "checked"
+    }
+  ],
+  "evidence": [],
+  "_test_metadata": {
+    "category": "PASS",
+    "purpose": "GC-8: Valid single step with non-empty statement and claim_ids",
+    "gc8_validation": {
+      "statement_valid": true,
+      "claim_ids_non_empty": true,
+      "expected_warnings": []
+    }
+  }
+}

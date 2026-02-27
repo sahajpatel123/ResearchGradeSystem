@@ -1,0 +1,32 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The sum of angles in a triangle is 180 degrees",
+      "claim_label": "DERIVED"
+    },
+    {
+      "claim_id": "claim-002",
+      "statement": "The exterior angle equals the sum of opposite interior angles",
+      "claim_label": "DERIVED"
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001", "claim-002"],
+      "statement": "Use parallel line properties to prove both the angle sum theorem and exterior angle theorem simultaneously",
+      "step_status": "checked"
+    }
+  ],
+  "evidence": [],
+  "_test_metadata": {
+    "category": "PASS",
+    "purpose": "GC-8: Valid step with multiple claim_ids (multi-claim step)",
+    "gc8_validation": {
+      "statement_valid": true,
+      "claim_ids_count": 2,
+      "expected_warnings": []
+    }
+  }
+}

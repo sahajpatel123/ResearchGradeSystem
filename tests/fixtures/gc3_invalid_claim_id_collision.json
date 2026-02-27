@@ -23,10 +23,13 @@
   "steps": [
     {
       "step_id": "step-001",
-      "claim_ids": ["claim-001"],
+      "claim_ids": [
+        "claim-001"
+      ],
       "step_status": "UNCHECKED",
       "depends_on": [],
-      "status_reason": null
+      "status_reason": null,
+      "statement": "Derivation step step-001 in progress"
     }
   ]
 }

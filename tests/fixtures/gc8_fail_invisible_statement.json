@@ -1,0 +1,27 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Test claim",
+      "claim_label": "DERIVED"
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "statement": "\u200b\u200b\u200b",
+      "step_status": "unchecked"
+    }
+  ],
+  "evidence": [],
+  "_test_metadata": {
+    "category": "FAIL",
+    "error_category": "DERIVATION_STEP_EMPTY_STATEMENT",
+    "purpose": "GC-8: Step with invisible-only statement (ZWSP x3)",
+    "gc8_validation": {
+      "expected_error": "statement is invisible-only",
+      "invisible_chars": "U+200B (ZERO WIDTH SPACE) x3"
+    }
+  }
+}

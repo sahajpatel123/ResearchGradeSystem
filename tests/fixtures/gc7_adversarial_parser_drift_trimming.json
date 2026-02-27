@@ -4,24 +4,35 @@
       "claim_id": "claim-001",
       "statement": "Test claim",
       "claim_label": "DERIVED",
-      "evidence_ids": ["ev-001"]
+      "evidence_ids": [
+        "ev-001"
+      ]
     }
   ],
   "steps": [
     {
       "step_id": "step-001",
-      "claim_ids": ["claim-001"],
+      "claim_ids": [
+        "claim-001"
+      ],
       "step_status": "checked",
-      "status_reason": "  \t\n  "
+      "status_reason": "  \t\n  ",
+      "statement": "Derivation step step-001 in progress"
     }
   ],
   "evidence": [
     {
       "evidence_id": "ev-001",
       "evidence_type": "DERIVATION",
-      "source": {"kind": "STEP_ID", "value": "step-001"},
+      "source": {
+        "kind": "STEP_ID",
+        "value": "step-001"
+      },
       "status": "VALID",
-      "payload_ref": {"kind": "STEP_ID", "value": "step-001"}
+      "payload_ref": {
+        "kind": "STEP_ID",
+        "value": "step-001"
+      }
     }
   ],
   "_test_metadata": {

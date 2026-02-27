@@ -4,66 +4,103 @@
       "claim_id": "claim-001",
       "statement": "First checked claim",
       "claim_label": "DERIVED",
-      "evidence_ids": ["ev-001"]
+      "evidence_ids": [
+        "ev-001"
+      ]
     },
     {
       "claim_id": "claim-002",
       "statement": "Second checked claim",
       "claim_label": "COMPUTED",
-      "evidence_ids": ["ev-002"]
+      "evidence_ids": [
+        "ev-002"
+      ]
     },
     {
       "claim_id": "claim-003",
       "statement": "Third checked claim",
       "claim_label": "DERIVED",
-      "evidence_ids": ["ev-003"]
+      "evidence_ids": [
+        "ev-003"
+      ]
     }
   ],
   "steps": [
     {
       "step_id": "step-001",
-      "claim_ids": ["claim-001"],
-      "step_status": "checked"
+      "claim_ids": [
+        "claim-001"
+      ],
+      "step_status": "checked",
+      "statement": "Verified derivation for step step-001"
     },
     {
       "step_id": "step-002",
-      "claim_ids": ["claim-002"],
-      "step_status": "checked"
+      "claim_ids": [
+        "claim-002"
+      ],
+      "step_status": "checked",
+      "statement": "Verified derivation for step step-002"
     },
     {
       "step_id": "step-003",
-      "claim_ids": ["claim-003"],
-      "step_status": "checked"
+      "claim_ids": [
+        "claim-003"
+      ],
+      "step_status": "checked",
+      "statement": "Verified derivation for step step-003"
     }
   ],
   "evidence": [
     {
       "evidence_id": "ev-001",
       "evidence_type": "DERIVATION",
-      "source": {"kind": "STEP_ID", "value": "step-001"},
+      "source": {
+        "kind": "STEP_ID",
+        "value": "step-001"
+      },
       "status": "VALID",
-      "payload_ref": {"kind": "STEP_ID", "value": "step-001"}
+      "payload_ref": {
+        "kind": "STEP_ID",
+        "value": "step-001"
+      }
     },
     {
       "evidence_id": "ev-002",
       "evidence_type": "COMPUTATION",
-      "source": {"kind": "TOOL_RUN_ID", "value": "tool-001"},
+      "source": {
+        "kind": "TOOL_RUN_ID",
+        "value": "tool-001"
+      },
       "status": "VALID",
-      "payload_ref": {"kind": "TOOL_RUN_ID", "value": "tool-001"}
+      "payload_ref": {
+        "kind": "TOOL_RUN_ID",
+        "value": "tool-001"
+      }
     },
     {
       "evidence_id": "ev-003",
       "evidence_type": "DERIVATION",
-      "source": {"kind": "STEP_ID", "value": "step-003"},
+      "source": {
+        "kind": "STEP_ID",
+        "value": "step-003"
+      },
       "status": "VALID",
-      "payload_ref": {"kind": "STEP_ID", "value": "step-003"}
+      "payload_ref": {
+        "kind": "STEP_ID",
+        "value": "step-003"
+      }
     }
   ],
   "_test_metadata": {
     "category": "PASS",
     "purpose": "All steps checked - progress ratio and verified work % both 1.0",
     "expected_coverage": {
-      "checked_steps": ["step-001", "step-002", "step-003"],
+      "checked_steps": [
+        "step-001",
+        "step-002",
+        "step-003"
+      ],
       "unchecked_steps": [],
       "failed_steps": [],
       "checked_count": 3,

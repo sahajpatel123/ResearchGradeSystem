@@ -4,24 +4,35 @@
       "claim_id": "claim-001",
       "statement": "Test claim with failed step",
       "claim_label": "DERIVED",
-      "evidence_ids": ["ev-001"]
+      "evidence_ids": [
+        "ev-001"
+      ]
     }
   ],
   "steps": [
     {
       "step_id": "step-001",
-      "claim_ids": ["claim-001"],
+      "claim_ids": [
+        "claim-001"
+      ],
       "step_status": "failed",
-      "status_reason": "   "
+      "status_reason": "   ",
+      "statement": "Attempted derivation for step step-001"
     }
   ],
   "evidence": [
     {
       "evidence_id": "ev-001",
       "evidence_type": "DERIVATION",
-      "source": {"kind": "STEP_ID", "value": "step-001"},
+      "source": {
+        "kind": "STEP_ID",
+        "value": "step-001"
+      },
       "status": "VALID",
-      "payload_ref": {"kind": "STEP_ID", "value": "step-001"}
+      "payload_ref": {
+        "kind": "STEP_ID",
+        "value": "step-001"
+      }
     }
   ],
   "_test_metadata": {

@@ -1,0 +1,26 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "Test claim",
+      "claim_label": "DERIVED"
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": [],
+      "statement": "Valid statement but empty claim_ids list",
+      "step_status": "unchecked"
+    }
+  ],
+  "evidence": [],
+  "_test_metadata": {
+    "category": "FAIL",
+    "error_category": "EMPTY_CLAIM_IDS",
+    "purpose": "GC-8: Step with empty claim_ids list (structural check)",
+    "gc8_validation": {
+      "expected_error": "claim_ids is empty list"
+    }
+  }
+}

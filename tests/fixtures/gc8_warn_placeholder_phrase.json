@@ -1,0 +1,29 @@
+{
+  "claims": [
+    {
+      "claim_id": "claim-001",
+      "statement": "The integral evaluates to pi/4",
+      "claim_label": "DERIVED"
+    }
+  ],
+  "steps": [
+    {
+      "step_id": "step-001",
+      "claim_ids": ["claim-001"],
+      "statement": "Using standard methods, we obtain the result",
+      "step_status": "checked"
+    }
+  ],
+  "evidence": [],
+  "_test_metadata": {
+    "category": "PASS",
+    "purpose": "GC-8: Structurally valid step with placeholder phrase (PASS + warning)",
+    "gc8_validation": {
+      "statement_valid": true,
+      "claim_ids_non_empty": true,
+      "expected_warnings": ["DERIVATION_STEP_FAKE_PLACEHOLDER_WARNING"],
+      "placeholder_phrase_detected": "using standard methods",
+      "validation_outcome": "PASS with warning (warning-only, does not block validation)"
+    }
+  }
+}

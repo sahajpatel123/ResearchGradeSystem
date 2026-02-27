@@ -85,6 +85,7 @@ class TestStatusReasonValidation:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.INDETERMINATE,
                 status_reason=None
             )
@@ -94,6 +95,7 @@ class TestStatusReasonValidation:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.INDETERMINATE,
                 status_reason=""
             )
@@ -103,6 +105,7 @@ class TestStatusReasonValidation:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.INDETERMINATE,
                 status_reason="   "
             )
@@ -111,18 +114,20 @@ class TestStatusReasonValidation:
         """Failed steps MAY include status_reason (optional)."""
         # Should NOT raise - failed steps can have status_reason
         step = DerivationStep(
-            step_id="step-001",
-            claim_ids=["claim-001"],
-            step_status=StepStatus.FAILED,
+                step_id="step-001",
+                claim_ids=["claim-001"],
+                statement="Test derivation step",
+                step_status=StepStatus.FAILED,
             status_reason="Verification failed due to missing data"
         )
         assert step.status_reason == "Verification failed due to missing data"
         
         # Also OK without status_reason
         step_no_reason = DerivationStep(
-            step_id="step-002",
-            claim_ids=["claim-001"],
-            step_status=StepStatus.FAILED,
+                step_id="step-002",
+                claim_ids=["claim-001"],
+                statement="Test derivation step",
+                step_status=StepStatus.FAILED,
             status_reason=None
         )
         assert step_no_reason.status_reason is None
@@ -133,6 +138,7 @@ class TestStatusReasonValidation:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.CHECKED,
                 status_reason="Should not be present"
             )
@@ -143,6 +149,7 @@ class TestStatusReasonValidation:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.UNCHECKED,
                 status_reason="Should not be present"
             )
@@ -162,6 +169,7 @@ class TestStatusReasonValidation:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.FAILED,
                 status_reason="   "
             )
@@ -170,6 +178,7 @@ class TestStatusReasonValidation:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.FAILED,
                 status_reason=""
             )
@@ -180,6 +189,7 @@ class TestStatusReasonValidation:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.INDETERMINATE,
                 status_reason="   "
             )
@@ -188,6 +198,7 @@ class TestStatusReasonValidation:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.INDETERMINATE,
                 status_reason="\t\n"
             )
@@ -198,6 +209,7 @@ class TestStatusReasonValidation:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.INDETERMINATE,
                 status_reason=None
             )
@@ -209,6 +221,7 @@ class TestStatusReasonValidation:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.INDETERMINATE,
                 status_reason="\u200b\u200b\u200b"
             )
@@ -218,6 +231,7 @@ class TestStatusReasonValidation:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=["claim-001"],
+                statement="Test derivation step",
                 step_status=StepStatus.FAILED,
                 status_reason="\u00a0\u00a0"
             )
@@ -229,10 +243,26 @@ class TestCoverageComputation:
     def test_coverage_computed_from_step_statuses(self):
         """Coverage metrics computed from step_status only (single source of truth)."""
         steps = [
-            DerivationStep(step_id="step-001", claim_ids=["c1"], step_status=StepStatus.CHECKED),
-            DerivationStep(step_id="step-002", claim_ids=["c2"], step_status=StepStatus.UNCHECKED),
-            DerivationStep(step_id="step-003", claim_ids=["c3"], step_status=StepStatus.INDETERMINATE, status_reason="Needs data"),
-            DerivationStep(step_id="step-004", claim_ids=["c4"], step_status=StepStatus.FAILED),
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["c1"],
+                statement="Test derivation step",
+                step_status=StepStatus.CHECKED),
+            DerivationStep(
+                step_id="step-002",
+                claim_ids=["c2"],
+                statement="Test derivation step",
+                step_status=StepStatus.UNCHECKED),
+            DerivationStep(
+                step_id="step-003",
+                claim_ids=["c3"],
+                statement="Test derivation step",
+                step_status=StepStatus.INDETERMINATE, status_reason="Needs data"),
+            DerivationStep(
+                step_id="step-004",
+                claim_ids=["c4"],
+                statement="Test derivation step",
+                step_status=StepStatus.FAILED),
         ]
         
         metrics = compute_coverage_metrics(steps)
@@ -255,9 +285,21 @@ class TestCoverageComputation:
     def test_indeterminate_counts_as_unchecked_for_progress_ratio(self):
         """indeterminate counts as unchecked for verification_progress_ratio."""
         steps = [
-            DerivationStep(step_id="step-001", claim_ids=["c1"], step_status=StepStatus.CHECKED),
-            DerivationStep(step_id="step-002", claim_ids=["c2"], step_status=StepStatus.UNCHECKED),
-            DerivationStep(step_id="step-003", claim_ids=["c3"], step_status=StepStatus.INDETERMINATE, status_reason="Needs data"),
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["c1"],
+                statement="Test derivation step",
+                step_status=StepStatus.CHECKED),
+            DerivationStep(
+                step_id="step-002",
+                claim_ids=["c2"],
+                statement="Test derivation step",
+                step_status=StepStatus.UNCHECKED),
+            DerivationStep(
+                step_id="step-003",
+                claim_ids=["c3"],
+                statement="Test derivation step",
+                step_status=StepStatus.INDETERMINATE, status_reason="Needs data"),
         ]
         
         metrics = compute_coverage_metrics(steps)
@@ -270,9 +312,21 @@ class TestCoverageComputation:
     def test_verified_work_pct_uses_total_steps_denominator(self):
         """verified_work_pct = checked / total_steps (different from progress ratio)."""
         steps = [
-            DerivationStep(step_id="step-001", claim_ids=["c1"], step_status=StepStatus.CHECKED),
-            DerivationStep(step_id="step-002", claim_ids=["c2"], step_status=StepStatus.UNCHECKED),
-            DerivationStep(step_id="step-003", claim_ids=["c3"], step_status=StepStatus.FAILED),
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["c1"],
+                statement="Test derivation step",
+                step_status=StepStatus.CHECKED),
+            DerivationStep(
+                step_id="step-002",
+                claim_ids=["c2"],
+                statement="Test derivation step",
+                step_status=StepStatus.UNCHECKED),
+            DerivationStep(
+                step_id="step-003",
+                claim_ids=["c3"],
+                statement="Test derivation step",
+                step_status=StepStatus.FAILED),
         ]
         
         metrics = compute_coverage_metrics(steps)
@@ -301,9 +355,21 @@ class TestCoverageComputation:
     def test_coverage_buckets_sorted_deterministically(self):
         """Coverage buckets are sorted lexicographically for determinism."""
         steps = [
-            DerivationStep(step_id="step-003", claim_ids=["c3"], step_status=StepStatus.CHECKED),
-            DerivationStep(step_id="step-001", claim_ids=["c1"], step_status=StepStatus.CHECKED),
-            DerivationStep(step_id="step-002", claim_ids=["c2"], step_status=StepStatus.CHECKED),
+            DerivationStep(
+                step_id="step-003",
+                claim_ids=["c3"],
+                statement="Test derivation step",
+                step_status=StepStatus.CHECKED),
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["c1"],
+                statement="Test derivation step",
+                step_status=StepStatus.CHECKED),
+            DerivationStep(
+                step_id="step-002",
+                claim_ids=["c2"],
+                statement="Test derivation step",
+                step_status=StepStatus.CHECKED),
         ]
         
         metrics = compute_coverage_metrics(steps)
@@ -314,8 +380,16 @@ class TestCoverageComputation:
     def test_all_failed_steps_gives_zero_progress_ratio(self):
         """All failed steps: verification_progress_ratio = 0.0 (denom = 0)."""
         steps = [
-            DerivationStep(step_id="step-001", claim_ids=["c1"], step_status=StepStatus.FAILED),
-            DerivationStep(step_id="step-002", claim_ids=["c2"], step_status=StepStatus.FAILED),
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["c1"],
+                statement="Test derivation step",
+                step_status=StepStatus.FAILED),
+            DerivationStep(
+                step_id="step-002",
+                claim_ids=["c2"],
+                statement="Test derivation step",
+                step_status=StepStatus.FAILED),
         ]
         
         metrics = compute_coverage_metrics(steps)
@@ -333,7 +407,11 @@ class TestCoverageMetricsMismatch:
     def test_coverage_metrics_mismatch_fails(self):
         """Wire-provided coverage metrics trigger FAIL on any mismatch."""
         steps = [
-            DerivationStep(step_id="step-001", claim_ids=["c1"], step_status=StepStatus.CHECKED),
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["c1"],
+                statement="Test derivation step",
+                step_status=StepStatus.CHECKED),
         ]
         
         # Wire provides wrong checked_count
@@ -357,7 +435,11 @@ class TestCoverageMetricsMismatch:
     def test_coverage_rejects_nan_inf(self):
         """Wire-provided coverage metrics reject NaN/Infinity."""
         steps = [
-            DerivationStep(step_id="step-001", claim_ids=["c1"], step_status=StepStatus.CHECKED),
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["c1"],
+                statement="Test derivation step",
+                step_status=StepStatus.CHECKED),
         ]
         
         import math
@@ -381,8 +463,16 @@ class TestCoverageMetricsMismatch:
     def test_partition_consistency_enforced(self):
         """Partition consistency: all steps accounted for, no overlaps, no duplicates."""
         steps = [
-            DerivationStep(step_id="step-001", claim_ids=["c1"], step_status=StepStatus.CHECKED),
-            DerivationStep(step_id="step-002", claim_ids=["c2"], step_status=StepStatus.UNCHECKED),
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["c1"],
+                statement="Test derivation step",
+                step_status=StepStatus.CHECKED),
+            DerivationStep(
+                step_id="step-002",
+                claim_ids=["c2"],
+                statement="Test derivation step",
+                step_status=StepStatus.UNCHECKED),
         ]
         
         # Wire omits step-002 (partition incomplete)
@@ -421,6 +511,7 @@ class TestGC7Fixtures:
             steps.append(DerivationStep(
                 step_id=s["step_id"],
                 claim_ids=s["claim_ids"],
+                statement=s["statement"],
                 step_status=step_status,
                 status_reason=status_reason,
             ))
@@ -467,6 +558,7 @@ class TestGC7Fixtures:
             steps.append(DerivationStep(
                 step_id=s["step_id"],
                 claim_ids=s["claim_ids"],
+                statement=s["statement"],
                 step_status=step_status,
             ))
         
@@ -496,6 +588,7 @@ class TestGC7Fixtures:
             DerivationStep(
                 step_id=step_data["step_id"],
                 claim_ids=step_data["claim_ids"],
+                statement=step_data["statement"],
                 step_status=StepStatus.INDETERMINATE,
                 status_reason=step_data.get("status_reason"),
             )
@@ -511,6 +604,7 @@ class TestGC7Fixtures:
             DerivationStep(
                 step_id=step_data["step_id"],
                 claim_ids=step_data["claim_ids"],
+                statement=step_data["statement"],
                 step_status=StepStatus.INDETERMINATE,
                 status_reason=step_data.get("status_reason"),
             )
@@ -526,6 +620,7 @@ class TestGC7Fixtures:
             DerivationStep(
                 step_id=step_data["step_id"],
                 claim_ids=step_data["claim_ids"],
+                statement=step_data["statement"],
                 step_status=StepStatus.CHECKED,
                 status_reason=step_data.get("status_reason"),
             )
@@ -541,6 +636,7 @@ class TestGC7Fixtures:
             DerivationStep(
                 step_id=step_data["step_id"],
                 claim_ids=step_data["claim_ids"],
+                statement=step_data["statement"],
                 step_status=StepStatus.UNCHECKED,
                 status_reason=step_data.get("status_reason"),
             )
@@ -554,9 +650,10 @@ class TestGC7Fixtures:
         step_data = data["steps"][0]
         # Should NOT raise - failed steps can have status_reason
         step = DerivationStep(
-            step_id=step_data["step_id"],
-            claim_ids=step_data["claim_ids"],
-            step_status=StepStatus.FAILED,
+                step_id=step_data["step_id"],
+                claim_ids=step_data["claim_ids"],
+                statement=step_data["statement"],
+                step_status=StepStatus.FAILED,
             status_reason=step_data.get("status_reason"),
         )
         assert step.status_reason == "Verification failed due to missing data"
@@ -666,6 +763,7 @@ class TestGC7Fixtures:
             DerivationStep(
                 step_id=s["step_id"],
                 claim_ids=s["claim_ids"],
+                statement=s["statement"],
                 step_status=parse_step_status(s["step_status"]),
             )
             for s in data["steps"]
@@ -697,7 +795,11 @@ class TestValidationOrder:
         """Validation order: 1) Parse steps, 2) Compute coverage, 3) Validate wire coverage."""
         # This test verifies the validation flow works correctly
         steps = [
-            DerivationStep(step_id="step-001", claim_ids=["c1"], step_status=StepStatus.CHECKED),
+            DerivationStep(
+                step_id="step-001",
+                claim_ids=["c1"],
+                statement="Test derivation step",
+                step_status=StepStatus.CHECKED),
         ]
         
         # No wire coverage provided - should compute and return
@@ -722,8 +824,16 @@ class TestValidationOrder:
                     Claim(claim_id="c1", statement="Test", claim_label=ClaimLabel.SPECULATIVE)
                 ],
                 steps=[
-                    DerivationStep(step_id="step-001", claim_ids=["c1"], step_status=StepStatus.CHECKED),
-                    DerivationStep(step_id="step-001", claim_ids=["c1"], step_status=StepStatus.UNCHECKED),  # Duplicate
+                    DerivationStep(
+                step_id="step-001",
+                claim_ids=["c1"],
+                statement="Test derivation step",
+                step_status=StepStatus.CHECKED),
+                    DerivationStep(
+                step_id="step-001",
+                claim_ids=["c1"],
+                statement="Test derivation step",
+                step_status=StepStatus.UNCHECKED),  # Duplicate
                 ],
                 evidence=[]
             )
@@ -796,9 +906,10 @@ class TestGC7AdversarialDelta:
         step_data = data["steps"][0]
         # Should NOT raise - failed steps can have status_reason
         step = DerivationStep(
-            step_id=step_data["step_id"],
-            claim_ids=step_data["claim_ids"],
-            step_status=StepStatus.FAILED,
+                step_id=step_data["step_id"],
+                claim_ids=step_data["claim_ids"],
+                statement=step_data["statement"],
+                step_status=StepStatus.FAILED,
             status_reason=step_data.get("status_reason"),
         )
         assert step.status_reason == "Verification failed: missing required data source"
@@ -814,6 +925,7 @@ class TestGC7AdversarialDelta:
             DerivationStep(
                 step_id=step_data["step_id"],
                 claim_ids=step_data["claim_ids"],
+                statement=step_data["statement"],
                 step_status=StepStatus.FAILED,
                 status_reason=step_data.get("status_reason"),
             )
@@ -829,6 +941,7 @@ class TestGC7AdversarialDelta:
             DerivationStep(
                 step_id=step_data["step_id"],
                 claim_ids=step_data["claim_ids"],
+                statement=step_data["statement"],
                 step_status=StepStatus.CHECKED,
                 status_reason=step_data.get("status_reason"),
             )
@@ -844,6 +957,7 @@ class TestGC7AdversarialDelta:
             DerivationStep(
                 step_id=step_data["step_id"],
                 claim_ids=step_data["claim_ids"],
+                statement=step_data["statement"],
                 step_status=StepStatus.UNCHECKED,
                 status_reason=step_data.get("status_reason"),
             )
@@ -859,6 +973,7 @@ class TestGC7AdversarialDelta:
             DerivationStep(
                 step_id=step_data["step_id"],
                 claim_ids=step_data["claim_ids"],
+                statement=step_data["statement"],
                 step_status=StepStatus.INDETERMINATE,
                 status_reason=step_data.get("status_reason"),
             )
@@ -874,6 +989,7 @@ class TestGC7AdversarialDelta:
             DerivationStep(
                 step_id=step_data["step_id"],
                 claim_ids=step_data["claim_ids"],
+                statement=step_data["statement"],
                 step_status=StepStatus.INDETERMINATE,
                 status_reason=step_data.get("status_reason"),
             )
@@ -891,6 +1007,7 @@ class TestGC7AdversarialDelta:
             steps.append(DerivationStep(
                 step_id=s["step_id"],
                 claim_ids=s["claim_ids"],
+                statement=s["statement"],
                 step_status=step_status,
                 status_reason=status_reason,
             ))
@@ -918,6 +1035,7 @@ class TestGC7AdversarialDelta:
             DerivationStep(
                 step_id=step_data["step_id"],
                 claim_ids=step_data["claim_ids"],
+                statement=step_data["statement"],
                 step_status=StepStatus.CHECKED,
                 status_reason=step_data.get("status_reason"),
             )

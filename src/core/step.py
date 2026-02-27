@@ -28,25 +28,44 @@ class StepStatus(Enum):
 @dataclass
 class DerivationStep:
     """
-    GC-3: Derivation step linking to claims.
+    GC-3/GC-8: Derivation step linking to claims.
     
     A step represents a logical unit in a derivation that references one or more claims.
     Every step MUST reference at least one claim (claim_ids non-empty).
+    Every step MUST have a non-empty statement describing the derivation action.
     
     Fields:
     - step_id: Unique identifier for this step
-    - claim_ids: List of claim IDs referenced by this step (REQUIRED, NON-EMPTY)
+    - claim_ids: List of claim IDs referenced by this step (REQUIRED, NON-EMPTY - GC-3/GC-8)
+    - statement: Description of the derivation action (REQUIRED, NON-EMPTY - GC-8)
     - depends_on: Optional list of step IDs this step depends on
-    - step_status: Current verification status
-    - status_reason: Required explanation if step_status is INDETERMINATE
+    - step_status: Current verification status (GC-7)
+    - status_reason: Required explanation if step_status is INDETERMINATE (GC-7)
     """
     step_id: str
     claim_ids: list[str]
+    statement: str
     step_status: StepStatus = StepStatus.UNCHECKED
     depends_on: list[str] = field(default_factory=list)
     status_reason: Optional[str] = None
     
     def __post_init__(self):
+        # GC-8: statement must be non-empty (type check)
+        if self.statement is None:
+            raise ValueError(f"Step {self.step_id}: statement cannot be None (GC-8: DERIVATION_STEP_EMPTY_STATEMENT)")
+        if not isinstance(self.statement, str):
+            raise TypeError(f"Step {self.step_id}: statement must be string, got {type(self.statement).__name__} (GC-8: DERIVATION_STEP_STATEMENT_INVALID_TYPE)")
+        
+        # GC-8: statement must be non-empty (emptiness check with invisible character detection)
+        trimmed_statement = self.statement.strip()
+        # Check for invisible-only content after ASCII whitespace trim
+        if trimmed_statement:
+            invisible_chars = {'\u200b', '\u00a0', '\ufeff', '\u2060', '\u200c', '\u200d'}
+            if all(c in invisible_chars for c in trimmed_statement):
+                trimmed_statement = ""
+        if not trimmed_statement:
+            raise ValueError(f"Step {self.step_id}: statement is empty, whitespace-only, or invisible-only (GC-8: DERIVATION_STEP_EMPTY_STATEMENT)")
+        
         # V4: claim_ids must be non-empty
         if not self.claim_ids:
             raise ValueError(f"Step {self.step_id}: claim_ids cannot be empty (GC-3 V4: EMPTY_CLAIM_IDS)")
@@ -119,6 +138,7 @@ class DerivationStep:
     @staticmethod
     def create(
         claim_ids: list[str],
+        statement: str,
         step_status: StepStatus = StepStatus.UNCHECKED,
         depends_on: Optional[list[str]] = None,
         status_reason: Optional[str] = None,
@@ -127,6 +147,7 @@ class DerivationStep:
         return DerivationStep(
             step_id=str(uuid4()),
             claim_ids=claim_ids,
+            statement=statement,
             step_status=step_status,
             depends_on=depends_on or [],
             status_reason=status_reason,
