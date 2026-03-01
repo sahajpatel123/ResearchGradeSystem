@@ -1,0 +1,23 @@
+{
+  "spec": {
+    "check_id": "check-004",
+    "property_tested": "Test property",
+    "domain_constraints": "",
+    "sampling_strategy": {
+      "deterministic_points": [{"x": 0.5}],
+      "edge_case_points": [],
+      "random_points_count": 0,
+      "seed": null
+    },
+    "tolerance_abs": 1e-6,
+    "tolerance_rel": 1e-6,
+    "strong_params": {"N": 20, "M": 0},
+    "solver_settings": {},
+    "payload_ref": "logs/check-004.json"
+  },
+  "_test_metadata": {
+    "category": "FAIL",
+    "error_category": "NUMERIC_SPEC_MISSING_DOMAIN",
+    "purpose": "GC-9: domain_constraints is empty string (required non-empty)"
+  }
+}

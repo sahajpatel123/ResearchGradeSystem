@@ -1,0 +1,23 @@
+{
+  "spec": {
+    "check_id": "check-003",
+    "property_tested": "",
+    "domain_constraints": "x in [0, 1]",
+    "sampling_strategy": {
+      "deterministic_points": [{"x": 0.5}],
+      "edge_case_points": [],
+      "random_points_count": 0,
+      "seed": null
+    },
+    "tolerance_abs": 1e-6,
+    "tolerance_rel": 1e-6,
+    "strong_params": {"N": 20, "M": 0},
+    "solver_settings": {},
+    "payload_ref": "logs/check-003.json"
+  },
+  "_test_metadata": {
+    "category": "FAIL",
+    "error_category": "NUMERIC_SPEC_MISSING_PROPERTY",
+    "purpose": "GC-9: property_tested is empty string (required non-empty)"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "spec": {
+    "check_id": "check-001",
+    "property_tested": "f(x) = x^2 is convex on R",
+    "domain_constraints": "x in [-10, 10]",
+    "sampling_strategy": {
+      "deterministic_points": [
+        {"x": 0.0},
+        {"x": 1.0},
+        {"x": -1.0}
+      ],
+      "edge_case_points": [
+        {"x": -10.0},
+        {"x": 10.0}
+      ],
+      "random_points_count": 25,
+      "seed": 42
+    },
+    "tolerance_abs": 1e-6,
+    "tolerance_rel": 1e-6,
+    "strong_params": {
+      "N": 20,
+      "M": 0
+    },
+    "solver_settings": {
+      "method": "numerical_derivative",
+      "step_size": 1e-5
+    },
+    "payload_ref": "logs/check-001.json"
+  },
+  "result": {
+    "status": "pass",
+    "pass_count": 30,
+    "fail_count": 0,
+    "indeterminate_count": 0,
+    "strong_agreement": true
+  },
+  "log": {
+    "points": [
+      {"x": 0.0},
+      {"x": 1.0},
+      {"x": -1.0},
+      {"x": -10.0},
+      {"x": 10.0},
+      {"x": 2.5},
+      {"x": -3.7},
+      {"x": 4.2},
+      {"x": -5.1},
+      {"x": 6.8},
+      {"x": -7.3},
+      {"x": 8.9},
+      {"x": -9.2},
+      {"x": 1.5},
+      {"x": -2.3},
+      {"x": 3.8},
+      {"x": -4.6},
+      {"x": 5.7},
+      {"x": -6.4},
+      {"x": 7.1},
+      {"x": -8.5},
+      {"x": 9.6},
+      {"x": 0.5},
+      {"x": -1.8},
+      {"x": 2.9},
+      {"x": -3.2},
+      {"x": 4.7},
+      {"x": -5.9},
+      {"x": 6.3},
+      {"x": -7.8}
+    ],
+    "outputs": [0.0, 1.0, 1.0, 100.0, 100.0, 6.25, 13.69, 17.64, 26.01, 46.24, 53.29, 79.21, 84.64, 2.25, 5.29, 14.44, 21.16, 32.49, 40.96, 50.41, 72.25, 92.16, 0.25, 3.24, 8.41, 10.24, 22.09, 34.81, 39.69, 60.84],
+    "per_point_status": ["pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass"],
+    "seed": 42,
+    "solver_settings": {
+      "method": "numerical_derivative",
+      "step_size": 1e-5
+    },
+    "tolerance_abs": 1e-6,
+    "tolerance_rel": 1e-6,
+    "runtime_notes": "All checks passed within tolerance"
+  },
+  "_test_metadata": {
+    "category": "PASS",
+    "purpose": "GC-9: Strong agreement satisfied (all deterministic pass, random >= N=20, fail=0, indeterminate <= M=0)",
+    "gc9_validation": {
+      "deterministic_count": 3,
+      "edge_case_count": 2,
+      "random_count": 25,
+      "total_points": 30,
+      "strong_agreement_expected": true,
+      "N": 20,
+      "M": 0
+    }
+  }
+}

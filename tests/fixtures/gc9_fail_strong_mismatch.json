@@ -1,0 +1,51 @@
+{
+  "spec": {
+    "check_id": "check-009",
+    "property_tested": "Test property",
+    "domain_constraints": "x in [0, 1]",
+    "sampling_strategy": {
+      "deterministic_points": [{"x": 0.5}],
+      "edge_case_points": [],
+      "random_points_count": 10,
+      "seed": 42
+    },
+    "tolerance_abs": 1e-6,
+    "tolerance_rel": 1e-6,
+    "strong_params": {"N": 20, "M": 0},
+    "solver_settings": {},
+    "payload_ref": "logs/check-009.json"
+  },
+  "result": {
+    "status": "pass",
+    "pass_count": 11,
+    "fail_count": 0,
+    "indeterminate_count": 0,
+    "strong_agreement": true
+  },
+  "log": {
+    "points": [
+      {"x": 0.5},
+      {"x": 0.1},
+      {"x": 0.2},
+      {"x": 0.3},
+      {"x": 0.4},
+      {"x": 0.6},
+      {"x": 0.7},
+      {"x": 0.8},
+      {"x": 0.9},
+      {"x": 0.15},
+      {"x": 0.85}
+    ],
+    "outputs": [0.25, 0.01, 0.04, 0.09, 0.16, 0.36, 0.49, 0.64, 0.81, 0.0225, 0.7225],
+    "per_point_status": ["pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass"],
+    "seed": 42,
+    "solver_settings": {},
+    "tolerance_abs": 1e-6,
+    "tolerance_rel": 1e-6
+  },
+  "_test_metadata": {
+    "category": "FAIL",
+    "error_category": "NUMERIC_STRONG_AGREEMENT_MISMATCH",
+    "purpose": "GC-9: strong_agreement claims true but random_pass_count (10) < N (20)"
+  }
+}

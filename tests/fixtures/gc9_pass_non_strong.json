@@ -1,0 +1,68 @@
+{
+  "spec": {
+    "check_id": "check-002",
+    "property_tested": "f(x) = sin(x) is bounded by [-1, 1]",
+    "domain_constraints": "x in [0, 2*pi]",
+    "sampling_strategy": {
+      "deterministic_points": [
+        {"x": 0.0},
+        {"x": 1.5708}
+      ],
+      "edge_case_points": [],
+      "random_points_count": 10,
+      "seed": 123
+    },
+    "tolerance_abs": 1e-6,
+    "tolerance_rel": 1e-6,
+    "strong_params": {
+      "N": 20,
+      "M": 0
+    },
+    "solver_settings": {},
+    "payload_ref": "logs/check-002.json"
+  },
+  "result": {
+    "status": "pass",
+    "pass_count": 12,
+    "fail_count": 0,
+    "indeterminate_count": 0,
+    "strong_agreement": false
+  },
+  "log": {
+    "points": [
+      {"x": 0.0},
+      {"x": 1.5708},
+      {"x": 0.5},
+      {"x": 1.2},
+      {"x": 2.3},
+      {"x": 3.1},
+      {"x": 4.0},
+      {"x": 5.2},
+      {"x": 6.0},
+      {"x": 0.8},
+      {"x": 2.8},
+      {"x": 4.5}
+    ],
+    "outputs": [0.0, 1.0, 0.479, 0.932, 0.746, 0.042, -0.757, -0.883, -0.279, 0.717, 0.335, -0.978],
+    "per_point_status": ["pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass"],
+    "seed": 123,
+    "solver_settings": {},
+    "tolerance_abs": 1e-6,
+    "tolerance_rel": 1e-6,
+    "runtime_notes": "All checks passed but random_count < N"
+  },
+  "_test_metadata": {
+    "category": "PASS",
+    "purpose": "GC-9: Non-strong pass (deterministic pass, but random_count=10 < N=20)",
+    "gc9_validation": {
+      "deterministic_count": 2,
+      "edge_case_count": 0,
+      "random_count": 10,
+      "total_points": 12,
+      "strong_agreement_expected": false,
+      "reason": "random_pass_count (10) < N (20)",
+      "N": 20,
+      "M": 0
+    }
+  }
+}
