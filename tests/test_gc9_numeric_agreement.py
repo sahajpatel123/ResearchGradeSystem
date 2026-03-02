@@ -35,6 +35,7 @@ from src.core.gc9_validators import (
     validate_log_payload,
     validate_strong_agreement,
     validate_numeric_check,
+    validate_instability_never_passes,
     get_step_status_from_numeric_result,
 )
 
@@ -317,6 +318,7 @@ class TestLogPayload:
                 points=[{"x": 0.5}, {"x": 1.0}],
                 outputs=[0.25],  # Mismatched length
                 per_point_status=["pass", "pass"],
+                point_kind=["deterministic", "deterministic"],
                 seed=None,
                 solver_settings={},
                 tolerance_abs=1e-6,
@@ -330,6 +332,7 @@ class TestLogPayload:
                 points=[{"x": 0.5}],
                 outputs=[0.25],
                 per_point_status=["PASS"],  # Wrong case
+                point_kind=["deterministic"],
                 seed=None,
                 solver_settings={},
                 tolerance_abs=1e-6,
@@ -371,6 +374,7 @@ class TestStrongAgreementComputation:
             points=[{"x": i/10} for i in range(28)],
             outputs=[i/10 for i in range(28)],
             per_point_status=["pass"] * 28,
+            point_kind=["deterministic"] * 3 + ["edge"] * 2 + ["random"] * 23,
             seed=42,
             solver_settings={},
             tolerance_abs=1e-6,
@@ -411,6 +415,7 @@ class TestStrongAgreementComputation:
             points=[{"x": i/10} for i in range(11)],
             outputs=[i/10 for i in range(11)],
             per_point_status=["pass"] * 11,
+            point_kind=["deterministic"] + ["random"] * 10,
             seed=42,
             solver_settings={},
             tolerance_abs=1e-6,
@@ -451,6 +456,7 @@ class TestStrongAgreementComputation:
             points=[{"x": i/10} for i in range(26)],
             outputs=[i/10 for i in range(26)],
             per_point_status=["pass"] * 24 + ["indeterminate"] * 2,
+            point_kind=["deterministic"] + ["random"] * 25,
             seed=42,
             solver_settings={},
             tolerance_abs=1e-6,
@@ -479,6 +485,7 @@ class TestCountsMatchLog:
             points=[{"x": i/10} for i in range(8)],
             outputs=[i/10 for i in range(8)],
             per_point_status=["pass"] * 5 + ["fail"] * 2 + ["indeterminate"],
+            point_kind=["deterministic"] * 8,
             seed=None,
             solver_settings={},
             tolerance_abs=1e-6,
@@ -502,6 +509,7 @@ class TestCountsMatchLog:
             points=[{"x": i/10} for i in range(5)],
             outputs=[i/10 for i in range(5)],
             per_point_status=["pass"] * 5,  # Actually 5
+            point_kind=["deterministic"] * 5,
             seed=None,
             solver_settings={},
             tolerance_abs=1e-6,
@@ -510,6 +518,149 @@ class TestCountsMatchLog:
         
         with pytest.raises(ValueError, match="NUMERIC_RESULT_COUNT_MISMATCH"):
             validate_counts_match_log(result, log)
+
+
+class TestGC91FreezeBlockers:
+    """Test GC-9.1 freeze blockers."""
+    
+    def test_point_kind_enables_robust_random_pass_count(self):
+        """GC-9.1: point_kind enables robust random_pass_count computation (Option A)."""
+        spec = NumericCheckSpec(
+            check_id="check-001",
+            property_tested="Test",
+            domain_constraints="x in [0, 1]",
+            sampling_strategy=SamplingStrategy(
+                deterministic_points=[{"x": 0.0}, {"x": 0.5}, {"x": 1.0}],
+                random_points_count=10,
+                seed=42
+            ),
+            tolerance_abs=1e-6,
+            tolerance_rel=1e-6,
+            strong_params=StrongParams(N=20, M=0),
+            solver_settings={},
+            payload_ref="logs/check.json"
+        )
+        
+        result = NumericCheckResult(
+            status=NumericCheckStatus.PASS,
+            pass_count=13,  # 3 deterministic + 10 random
+            fail_count=0,
+            indeterminate_count=0,
+            strong_agreement=True  # Claims strong agreement
+        )
+        
+        log = LogPayload(
+            points=[{"x": i/10} for i in range(13)],
+            outputs=[i/10 for i in range(13)],
+            per_point_status=["pass"] * 13,
+            point_kind=["deterministic", "deterministic", "deterministic"] + ["random"] * 10,
+            seed=42,
+            solver_settings={},
+            tolerance_abs=1e-6,
+            tolerance_rel=1e-6
+        )
+        
+        # Should raise strong agreement mismatch (random_pass_count=10 < N=20)
+        with pytest.raises(ValueError, match="NUMERIC_STRONG_AGREEMENT_MISMATCH"):
+            validate_strong_agreement(spec, result, log)
+    
+    def test_instability_nan_never_passes(self):
+        """GC-9.1: NaN output cannot be marked as pass."""
+        log = LogPayload(
+            points=[{"x": 0.5}],
+            outputs=[float('nan')],
+            per_point_status=["pass"],  # Invalid: NaN should not be pass
+            point_kind=["deterministic"],
+            seed=None,
+            solver_settings={},
+            tolerance_abs=1e-6,
+            tolerance_rel=1e-6
+        )
+        
+        with pytest.raises(ValueError, match="INSTABILITY_TREATED_AS_PASS"):
+            validate_instability_never_passes(log)
+    
+    def test_instability_inf_never_passes(self):
+        """GC-9.1: Infinity output cannot be marked as pass."""
+        log = LogPayload(
+            points=[{"x": 0.5}],
+            outputs=[float('inf')],
+            per_point_status=["pass"],  # Invalid: Infinity should not be pass
+            point_kind=["deterministic"],
+            seed=None,
+            solver_settings={},
+            tolerance_abs=1e-6,
+            tolerance_rel=1e-6
+        )
+        
+        with pytest.raises(ValueError, match="INSTABILITY_TREATED_AS_PASS"):
+            validate_instability_never_passes(log)
+    
+    def test_instability_missing_never_passes(self):
+        """GC-9.1: Missing/null output cannot be marked as pass."""
+        log = LogPayload(
+            points=[{"x": 0.5}],
+            outputs=[None],  # Missing output
+            per_point_status=["pass"],  # Invalid: missing should not be pass
+            point_kind=["deterministic"],
+            seed=None,
+            solver_settings={},
+            tolerance_abs=1e-6,
+            tolerance_rel=1e-6
+        )
+        
+        with pytest.raises(ValueError, match="INSTABILITY_TREATED_AS_PASS"):
+            validate_instability_never_passes(log)
+    
+    def test_instability_runtime_notes_timeout(self):
+        """GC-9.1: Runtime notes timeout prevents pass status."""
+        log = LogPayload(
+            points=[{"x": 0.5}, {"x": 0.6}],
+            outputs=[0.25, 0.36],
+            per_point_status=["pass", "pass"],  # Invalid: timeout should not be pass
+            point_kind=["deterministic", "deterministic"],
+            seed=None,
+            solver_settings={},
+            tolerance_abs=1e-6,
+            tolerance_rel=1e-6,
+            runtime_notes="Solver timeout occurred during evaluation"
+        )
+        
+        with pytest.raises(ValueError, match="INSTABILITY_TREATED_AS_PASS"):
+            validate_instability_never_passes(log)
+    
+    def test_point_kind_validation(self):
+        """GC-9.1: point_kind must be valid and match spec structure."""
+        spec = NumericCheckSpec(
+            check_id="check-001",
+            property_tested="Test",
+            domain_constraints="x in [0, 1]",
+            sampling_strategy=SamplingStrategy(
+                deterministic_points=[{"x": 0.5}],
+                random_points_count=5,
+                seed=42
+            ),
+            tolerance_abs=1e-6,
+            tolerance_rel=1e-6,
+            strong_params=StrongParams(),
+            solver_settings={},
+            payload_ref="logs/check.json"
+        )
+        
+        # Mismatch point_kind counts
+        log = LogPayload(
+            points=[{"x": i/10} for i in range(6)],
+            outputs=[i/10 for i in range(6)],
+            per_point_status=["pass"] * 6,
+            point_kind=["deterministic"] * 2 + ["random"] * 4,  # Wrong: should be 1 deterministic, 5 random
+            seed=42,
+            solver_settings={},
+            tolerance_abs=1e-6,
+            tolerance_rel=1e-6
+        )
+        
+        with pytest.raises(ValueError, match="point_kind deterministic count mismatch"):
+            validate_log_payload(spec, log)
 
 
 class TestGC9Fixtures:
@@ -635,6 +786,82 @@ class TestGC9Fixtures:
         
         with pytest.raises(ValueError, match="NUMERIC_SPEC_SOLVER_SETTINGS_MISSING"):
             parse_numeric_check_spec(data["spec"])
+    
+    def test_fixture_fail_instability_nan_pass(self):
+        """FAIL fixture: NaN output marked as pass."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc9_fail_instability_nan_pass.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        spec = parse_numeric_check_spec(data["spec"])
+        result = parse_numeric_check_result(data["result"])
+        
+        # Manually construct log with actual NaN (JSON doesn't support NaN)
+        log = LogPayload(
+            points=data["log"]["points"],
+            outputs=[float('nan')],  # Actual NaN value
+            per_point_status=data["log"]["per_point_status"],
+            point_kind=data["log"]["point_kind"],
+            seed=data["log"]["seed"],
+            solver_settings=data["log"]["solver_settings"],
+            tolerance_abs=data["log"]["tolerance_abs"],
+            tolerance_rel=data["log"]["tolerance_rel"],
+            runtime_notes=data["log"]["runtime_notes"]
+        )
+        
+        with pytest.raises(ValueError, match="INSTABILITY_TREATED_AS_PASS"):
+            validate_numeric_check(spec, result, log)
+    
+    def test_fixture_fail_instability_inf_pass(self):
+        """FAIL fixture: Infinity output marked as pass."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc9_fail_instability_inf_pass.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        spec = parse_numeric_check_spec(data["spec"])
+        result = parse_numeric_check_result(data["result"])
+        
+        # Manually construct log with actual Infinity (JSON doesn't support Infinity)
+        log = LogPayload(
+            points=data["log"]["points"],
+            outputs=[float('inf')],  # Actual Infinity value
+            per_point_status=data["log"]["per_point_status"],
+            point_kind=data["log"]["point_kind"],
+            seed=data["log"]["seed"],
+            solver_settings=data["log"]["solver_settings"],
+            tolerance_abs=data["log"]["tolerance_abs"],
+            tolerance_rel=data["log"]["tolerance_rel"],
+            runtime_notes=data["log"]["runtime_notes"]
+        )
+        
+        with pytest.raises(ValueError, match="INSTABILITY_TREATED_AS_PASS"):
+            validate_numeric_check(spec, result, log)
+    
+    def test_fixture_fail_instability_missing_pass(self):
+        """FAIL fixture: Missing/null output marked as pass."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc9_fail_instability_missing_pass.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        spec = parse_numeric_check_spec(data["spec"])
+        result = parse_numeric_check_result(data["result"])
+        log = parse_log_payload(data["log"])
+        
+        with pytest.raises(ValueError, match="INSTABILITY_TREATED_AS_PASS"):
+            validate_numeric_check(spec, result, log)
+    
+    def test_fixture_fail_random_pass_conflation(self):
+        """FAIL fixture: strong_agreement claims true but random_pass_count < N."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc9_fail_random_pass_conflation.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        spec = parse_numeric_check_spec(data["spec"])
+        result = parse_numeric_check_result(data["result"])
+        log = parse_log_payload(data["log"])
+        
+        with pytest.raises(ValueError, match="NUMERIC_STRONG_AGREEMENT_MISMATCH"):
+            validate_numeric_check(spec, result, log)
 
 
 class TestStepStatusMapping:

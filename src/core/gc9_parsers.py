@@ -448,6 +448,8 @@ def parse_log_payload(wire: dict) -> LogPayload:
     """
     Parse LogPayload at wire boundary.
     
+    GC-9.1: Also parses point_kind field for robust random_pass_count computation.
+    
     Args:
         wire: Log payload dict from wire
     
@@ -479,6 +481,29 @@ def parse_log_payload(wire: dict) -> LogPayload:
             f"Invalid per_point_status: must be list, got {type(per_point_status).__name__} (GC-9: NUMERIC_LOG_MISSING_FIELDS)"
         )
     
+    # GC-9.1: Parse point_kind
+    point_kind = wire.get("point_kind")
+    if point_kind is None:
+        raise ValueError(
+            "point_kind is required (GC-9.1: NUMERIC_LOG_MISSING_FIELDS)"
+        )
+    if not isinstance(point_kind, list):
+        raise TypeError(
+            f"Invalid point_kind: must be list, got {type(point_kind).__name__} (GC-9.1: NUMERIC_LOG_MISSING_FIELDS)"
+        )
+    
+    # Validate point_kind values
+    valid_kinds = {"deterministic", "edge", "random"}
+    for i, kind in enumerate(point_kind):
+        if not isinstance(kind, str):
+            raise TypeError(
+                f"Invalid point_kind[{i}]: must be string, got {type(kind).__name__} (GC-9.1: NUMERIC_WRONG_TYPE)"
+            )
+        if kind not in valid_kinds:
+            raise ValueError(
+                f"Invalid point_kind[{i}]: must be 'deterministic', 'edge', or 'random', got '{kind}' (GC-9.1: NUMERIC_WRONG_TYPE)"
+            )
+    
     # Parse seed (optional)
     seed = wire.get("seed")
     if seed is not None and (not isinstance(seed, int) or isinstance(seed, bool)):
@@ -504,6 +529,7 @@ def parse_log_payload(wire: dict) -> LogPayload:
         points=points,
         outputs=outputs,
         per_point_status=per_point_status,
+        point_kind=point_kind,
         seed=seed,
         solver_settings=solver_settings,
         tolerance_abs=tolerance_abs,

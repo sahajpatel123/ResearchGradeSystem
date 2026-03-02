@@ -45,6 +45,7 @@
     ],
     "outputs": [0.0, 1.0, 0.479, 0.932, 0.746, 0.042, -0.757, -0.883, -0.279, 0.717, 0.335, -0.978],
     "per_point_status": ["pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass"],
+    "point_kind": ["deterministic", "deterministic", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random"],
     "seed": 123,
     "solver_settings": {},
     "tolerance_abs": 1e-6,

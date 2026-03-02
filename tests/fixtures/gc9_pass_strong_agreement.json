@@ -70,6 +70,7 @@
     ],
     "outputs": [0.0, 1.0, 1.0, 100.0, 100.0, 6.25, 13.69, 17.64, 26.01, 46.24, 53.29, 79.21, 84.64, 2.25, 5.29, 14.44, 21.16, 32.49, 40.96, 50.41, 72.25, 92.16, 0.25, 3.24, 8.41, 10.24, 22.09, 34.81, 39.69, 60.84],
     "per_point_status": ["pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass", "pass"],
+    "point_kind": ["deterministic", "deterministic", "deterministic", "edge", "edge", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random", "random"],
     "seed": 42,
     "solver_settings": {
       "method": "numerical_derivative",

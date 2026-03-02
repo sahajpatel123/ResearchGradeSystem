@@ -22,6 +22,8 @@ def compute_strong_agreement(
     """
     Compute strong agreement (COMPUTED ONLY, never trust wire).
     
+    GC-9.1: Uses point_kind for robust random_pass_count computation (Option A).
+    
     Strong agreement requires:
     1. All deterministic points pass (deterministic_passed_all == True)
     2. At least N random points pass (random_pass_count >= N)
@@ -34,7 +36,7 @@ def compute_strong_agreement(
     Args:
         spec: Numeric check specification
         result: Numeric check result
-        log: Log payload with per-point statuses
+        log: Log payload with per-point statuses and point_kind
     
     Returns:
         True if strong agreement satisfied, False otherwise
@@ -43,20 +45,18 @@ def compute_strong_agreement(
     N = spec.strong_params.N
     M = spec.strong_params.M
     
-    # Count deterministic points
-    num_deterministic = len(spec.sampling_strategy.deterministic_points)
+    # GC-9.1: Use point_kind for robust computation (Option A)
+    deterministic_passed_all = True
+    random_pass_count = 0
     
-    # Identify which points are deterministic (first num_deterministic points in log)
-    deterministic_statuses = log.per_point_status[:num_deterministic]
-    
-    # Check if all deterministic points passed
-    deterministic_passed_all = all(status == "pass" for status in deterministic_statuses)
-    
-    # Count random passes (points after deterministic + edge cases)
-    num_edge = len(spec.sampling_strategy.edge_case_points)
-    random_start_idx = num_deterministic + num_edge
-    random_statuses = log.per_point_status[random_start_idx:]
-    random_pass_count = sum(1 for status in random_statuses if status == "pass")
+    for i, (status, kind) in enumerate(zip(log.per_point_status, log.point_kind)):
+        if kind == "deterministic":
+            if status != "pass":
+                deterministic_passed_all = False
+        elif kind == "random":
+            if status == "pass":
+                random_pass_count += 1
+        # edge points don't affect strong agreement computation
     
     # Strong agreement formula
     strong_agreement = (
@@ -102,14 +102,69 @@ def validate_counts_match_log(result: NumericCheckResult, log: LogPayload) -> No
         )
 
 
+def validate_instability_never_passes(log: LogPayload) -> None:
+    """
+    GC-9.1: Instability never maps to pass (FREEZE BLOCKER #2).
+    
+    Enforces that unstable outputs cannot be marked as pass:
+    - NaN output => per_point_status MUST NOT be "pass"
+    - Infinity output => per_point_status MUST NOT be "pass"
+    - Missing/null output => per_point_status MUST NOT be "pass"
+    - Timeout/tool_error in runtime_notes => per_point_status MUST NOT be "pass"
+    
+    Args:
+        log: Log payload to validate
+    
+    Raises:
+        ValueError: If instability is treated as pass
+    """
+    import math
+    
+    for i, (output, status) in enumerate(zip(log.outputs, log.per_point_status)):
+        # Check for NaN output
+        if isinstance(output, (int, float)) and math.isnan(output):
+            if status == "pass":
+                raise ValueError(
+                    f"Log output[{i}] is NaN but per_point_status is 'pass' (GC-9.1: INSTABILITY_TREATED_AS_PASS)"
+                )
+        
+        # Check for Infinity output
+        if isinstance(output, (int, float)) and math.isinf(output):
+            if status == "pass":
+                raise ValueError(
+                    f"Log output[{i}] is Infinity but per_point_status is 'pass' (GC-9.1: INSTABILITY_TREATED_AS_PASS)"
+                )
+        
+        # Check for missing/null output
+        if output is None:
+            if status == "pass":
+                raise ValueError(
+                    f"Log output[{i}] is missing/null but per_point_status is 'pass' (GC-9.1: INSTABILITY_TREATED_AS_PASS)"
+                )
+    
+    # Check runtime_notes for timeout/tool_error
+    if log.runtime_notes:
+        runtime_lower = log.runtime_notes.lower()
+        if any(keyword in runtime_lower for keyword in ["timeout", "tool_error", "error", "failed"]):
+            # If runtime notes indicate problems, check if any points are marked pass
+            if any(status == "pass" for status in log.per_point_status):
+                raise ValueError(
+                    f"Log runtime_notes indicate instability but some points marked 'pass' (GC-9.1: INSTABILITY_TREATED_AS_PASS)"
+                )
+
+
 def validate_log_payload(spec: NumericCheckSpec, log: LogPayload) -> None:
     """
     Validate log payload against spec.
     
+    GC-9.1: Also validates point_kind and enforces instability never maps to pass.
+    
     Checks:
-    - Aligned lengths (points, outputs, per_point_status)
+    - Aligned lengths (points, outputs, per_point_status, point_kind)
     - Total points match spec (deterministic + edge + random)
     - Seed present if random_points_count > 0
+    - point_kind values are valid and match spec structure
+    - Instability never maps to pass (GC-9.1 freeze blocker #2)
     
     Args:
         spec: Numeric check specification
@@ -138,6 +193,33 @@ def validate_log_payload(spec: NumericCheckSpec, log: LogPayload) -> None:
         raise ValueError(
             "Log missing seed when random_points_count > 0 (GC-9: NUMERIC_LOG_MISSING_FIELDS)"
         )
+    
+    # GC-9.1: Validate point_kind matches spec structure
+    expected_deterministic = len(spec.sampling_strategy.deterministic_points)
+    expected_edge = len(spec.sampling_strategy.edge_case_points)
+    expected_random = spec.sampling_strategy.random_points_count
+    
+    actual_deterministic = sum(1 for kind in log.point_kind if kind == "deterministic")
+    actual_edge = sum(1 for kind in log.point_kind if kind == "edge")
+    actual_random = sum(1 for kind in log.point_kind if kind == "random")
+    
+    if actual_deterministic != expected_deterministic:
+        raise ValueError(
+            f"point_kind deterministic count mismatch: expected {expected_deterministic}, got {actual_deterministic} (GC-9.1: NUMERIC_LOG_MISSING_FIELDS)"
+        )
+    
+    if actual_edge != expected_edge:
+        raise ValueError(
+            f"point_kind edge count mismatch: expected {expected_edge}, got {actual_edge} (GC-9.1: NUMERIC_LOG_MISSING_FIELDS)"
+        )
+    
+    if actual_random != expected_random:
+        raise ValueError(
+            f"point_kind random count mismatch: expected {expected_random}, got {actual_random} (GC-9.1: NUMERIC_LOG_MISSING_FIELDS)"
+        )
+    
+    # GC-9.1: Enforce instability never maps to pass
+    validate_instability_never_passes(log)
 
 
 def validate_strong_agreement(

@@ -248,16 +248,19 @@ class LogPayload:
     - points: all sampled points (deterministic + edge + random)
     - outputs: evaluation results aligned with points
     - per_point_status: pass/fail/indeterminate for each point
+    - point_kind: "deterministic", "edge", or "random" for each point (GC-9.1)
     - seed: random seed if random_points_count > 0
     - solver_settings: solver configuration used
     - tolerances: abs/rel tolerances used
     - runtime_notes: optional notes for NaN/timeout/etc.
     
     All lists must have aligned lengths.
+    point_kind allows robust random_pass_count computation (GC-9.1 freeze patch).
     """
     points: list[Point]
     outputs: list  # Type depends on property (float, vector, etc.)
     per_point_status: list[str]  # "pass", "fail", or "indeterminate"
+    point_kind: list[str]  # "deterministic", "edge", or "random" (GC-9.1)
     seed: Optional[int]
     solver_settings: dict
     tolerance_abs: float
@@ -265,7 +268,7 @@ class LogPayload:
     runtime_notes: Optional[str] = None
     
     def __post_init__(self):
-        # Validate aligned lengths
+        # Validate aligned lengths (including point_kind)
         if len(self.points) != len(self.outputs):
             raise ValueError(
                 f"LogPayload: points and outputs must have same length, got {len(self.points)} vs {len(self.outputs)} (GC-9: NUMERIC_LOG_LENGTH_MISMATCH)"
@@ -274,11 +277,23 @@ class LogPayload:
             raise ValueError(
                 f"LogPayload: points and per_point_status must have same length, got {len(self.points)} vs {len(self.per_point_status)} (GC-9: NUMERIC_LOG_LENGTH_MISMATCH)"
             )
+        if len(self.points) != len(self.point_kind):
+            raise ValueError(
+                f"LogPayload: points and point_kind must have same length, got {len(self.points)} vs {len(self.point_kind)} (GC-9: NUMERIC_LOG_LENGTH_MISMATCH)"
+            )
         
-        # Validate per_point_status values are strict enum strings
+        # Validate per_point_status values are strict enum
         valid_statuses = {"pass", "fail", "indeterminate"}
         for i, status in enumerate(self.per_point_status):
             if status not in valid_statuses:
                 raise ValueError(
                     f"LogPayload.per_point_status[{i}] must be 'pass', 'fail', or 'indeterminate', got '{status}'"
+                )
+        
+        # Validate point_kind values are strict enum (GC-9.1)
+        valid_kinds = {"deterministic", "edge", "random"}
+        for i, kind in enumerate(self.point_kind):
+            if kind not in valid_kinds:
+                raise ValueError(
+                    f"LogPayload.point_kind[{i}] must be 'deterministic', 'edge', or 'random', got '{kind}' (GC-9.1: NUMERIC_LOG_MISSING_FIELDS)"
                 )
