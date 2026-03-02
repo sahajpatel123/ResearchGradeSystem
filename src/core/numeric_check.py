@@ -279,8 +279,16 @@ class LogPayload:
             )
         if len(self.points) != len(self.point_kind):
             raise ValueError(
-                f"LogPayload: points and point_kind must have same length, got {len(self.points)} vs {len(self.point_kind)} (GC-9: NUMERIC_LOG_LENGTH_MISMATCH)"
+                f"LogPayload: points and point_kind must have same length, got {len(self.points)} vs {len(self.point_kind)} (GC-9.2: NUMERIC_LOG_KIND_LENGTH_MISMATCH)"
             )
+        
+        # GC-9.2: Validate outputs are numeric (reject string "NaN"/"Inf")
+        for i, output in enumerate(self.outputs):
+            if isinstance(output, str):
+                # Reject string outputs (especially "NaN", "Inf", etc.)
+                raise TypeError(
+                    f"LogPayload.outputs[{i}] must be numeric, got string '{output}' (GC-9.2: NUMERIC_OUTPUT_WRONG_TYPE)"
+                )
         
         # Validate per_point_status values are strict enum
         valid_statuses = {"pass", "fail", "indeterminate"}

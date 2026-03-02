@@ -1,0 +1,41 @@
+{
+  "spec": {
+    "check_id": "check-018",
+    "property_tested": "Test property",
+    "domain_constraints": "x in [0, 1]",
+    "sampling_strategy": {
+      "deterministic_points": [{"x": 0.5}],
+      "edge_case_points": [],
+      "random_points_count": 0,
+      "seed": null
+    },
+    "tolerance_abs": 1e-6,
+    "tolerance_rel": 1e-6,
+    "strong_params": {"N": 20, "M": 0},
+    "solver_settings": {},
+    "payload_ref": "logs/check-018.json"
+  },
+  "result": {
+    "status": "indeterminate",
+    "pass_count": 0,
+    "fail_count": 0,
+    "indeterminate_count": 1,
+    "strong_agreement": false
+  },
+  "log": {
+    "points": [{"x": 0.5}],
+    "outputs": ["NaN"],
+    "per_point_status": ["indeterminate"],
+    "point_kind": ["deterministic"],
+    "seed": null,
+    "solver_settings": {},
+    "tolerance_abs": 1e-6,
+    "tolerance_rel": 1e-6,
+    "runtime_notes": null
+  },
+  "_test_metadata": {
+    "category": "FAIL",
+    "error_category": "NUMERIC_OUTPUT_WRONG_TYPE",
+    "purpose": "GC-9.2: outputs contains string 'NaN' instead of numeric - must reject (outputs must be numeric)"
+  }
+}

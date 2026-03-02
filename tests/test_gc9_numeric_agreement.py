@@ -663,6 +663,65 @@ class TestGC91FreezeBlockers:
             validate_log_payload(spec, log)
 
 
+class TestGC92MicroHardening:
+    """Test GC-9.2 micro-hardening: point_kind length + output type policy."""
+    
+    def test_point_kind_length_alignment_enforced(self):
+        """GC-9.2: point_kind length must match points/outputs/per_point_status."""
+        with pytest.raises(ValueError, match="NUMERIC_LOG_KIND_LENGTH_MISMATCH"):
+            LogPayload(
+                points=[{"x": 0.5}, {"x": 0.6}],
+                outputs=[0.25, 0.36],
+                per_point_status=["pass", "pass"],
+                point_kind=["deterministic"],  # Only 1 element, should be 2
+                seed=None,
+                solver_settings={},
+                tolerance_abs=1e-6,
+                tolerance_rel=1e-6
+            )
+    
+    def test_rejects_string_nan_inf_outputs(self):
+        """GC-9.2: Outputs must be numeric, reject string 'NaN'/'Inf'."""
+        # Reject string "NaN"
+        with pytest.raises(TypeError, match="NUMERIC_OUTPUT_WRONG_TYPE"):
+            LogPayload(
+                points=[{"x": 0.5}],
+                outputs=["NaN"],  # String, not float('nan')
+                per_point_status=["indeterminate"],
+                point_kind=["deterministic"],
+                seed=None,
+                solver_settings={},
+                tolerance_abs=1e-6,
+                tolerance_rel=1e-6
+            )
+        
+        # Reject string "Infinity"
+        with pytest.raises(TypeError, match="NUMERIC_OUTPUT_WRONG_TYPE"):
+            LogPayload(
+                points=[{"x": 0.5}],
+                outputs=["Infinity"],  # String, not float('inf')
+                per_point_status=["indeterminate"],
+                point_kind=["deterministic"],
+                seed=None,
+                solver_settings={},
+                tolerance_abs=1e-6,
+                tolerance_rel=1e-6
+            )
+        
+        # Reject any string output
+        with pytest.raises(TypeError, match="NUMERIC_OUTPUT_WRONG_TYPE"):
+            LogPayload(
+                points=[{"x": 0.5}],
+                outputs=["0.25"],  # String "0.25" instead of float 0.25
+                per_point_status=["pass"],
+                point_kind=["deterministic"],
+                seed=None,
+                solver_settings={},
+                tolerance_abs=1e-6,
+                tolerance_rel=1e-6
+            )
+
+
 class TestGC9Fixtures:
     """Test GC-9 fixtures."""
     
@@ -862,6 +921,42 @@ class TestGC9Fixtures:
         
         with pytest.raises(ValueError, match="NUMERIC_STRONG_AGREEMENT_MISMATCH"):
             validate_numeric_check(spec, result, log)
+    
+    def test_fixture_fail_point_kind_length_mismatch(self):
+        """FAIL fixture: point_kind length does not match points length."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc9_fail_point_kind_length_mismatch.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        spec = parse_numeric_check_spec(data["spec"])
+        result = parse_numeric_check_result(data["result"])
+        
+        with pytest.raises(ValueError, match="NUMERIC_LOG_KIND_LENGTH_MISMATCH"):
+            parse_log_payload(data["log"])
+    
+    def test_fixture_fail_string_nan_output(self):
+        """FAIL fixture: output contains string 'NaN' instead of numeric."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc9_fail_string_nan_output.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        spec = parse_numeric_check_spec(data["spec"])
+        result = parse_numeric_check_result(data["result"])
+        
+        with pytest.raises(TypeError, match="NUMERIC_OUTPUT_WRONG_TYPE"):
+            parse_log_payload(data["log"])
+    
+    def test_fixture_fail_string_inf_output(self):
+        """FAIL fixture: output contains string 'Infinity' instead of numeric."""
+        fixture_path = Path(__file__).parent / "fixtures" / "gc9_fail_string_inf_output.json"
+        with open(fixture_path, 'r') as f:
+            data = json.load(f)
+        
+        spec = parse_numeric_check_spec(data["spec"])
+        result = parse_numeric_check_result(data["result"])
+        
+        with pytest.raises(TypeError, match="NUMERIC_OUTPUT_WRONG_TYPE"):
+            parse_log_payload(data["log"])
 
 
 class TestStepStatusMapping:
