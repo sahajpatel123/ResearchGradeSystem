@@ -4,20 +4,30 @@
       "claim_id": "claim-001",
       "statement": "Claim with mix of valid and dangling evidence_ids",
       "claim_label": "DERIVED",
-      "evidence_ids": ["evidence-001", "evidence-DANGLING", "evidence-002"]
+      "evidence_ids": [
+        "evidence-001",
+        "evidence-DANGLING",
+        "evidence-002"
+      ]
     },
     {
       "claim_id": "claim-002",
       "statement": "Claim with all valid evidence",
       "claim_label": "COMPUTED",
-      "evidence_ids": ["evidence-001"]
+      "evidence_ids": [
+        "evidence-001"
+      ]
     }
   ],
   "steps": [
     {
       "step_id": "step-001",
-      "claim_ids": ["claim-001", "claim-002"],
-      "step_status": "CHECKED"
+      "claim_ids": [
+        "claim-001",
+        "claim-002"
+      ],
+      "step_status": "CHECKED",
+      "statement": "Test derivation step"
     }
   ],
   "evidence": [
@@ -56,7 +66,9 @@
       "unsupported_non_spec_claims": 1,
       "total_non_spec_claims": 2,
       "unsupported_claim_rate": 0.5,
-      "unsupported_claim_ids": ["claim-001"]
+      "unsupported_claim_ids": [
+        "claim-001"
+      ]
     },
     "purpose": "Verify Option A strict: ANY dangling evidence_id makes claim unsupported (even if some are valid)"
   }

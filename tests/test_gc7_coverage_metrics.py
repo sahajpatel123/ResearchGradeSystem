@@ -668,6 +668,7 @@ class TestGC7Fixtures:
             DerivationStep(
                 step_id=data["steps"][0]["step_id"],
                 claim_ids=data["steps"][0]["claim_ids"],
+                statement="Test derivation step",
                 step_status=StepStatus.CHECKED,
             )
         ]
@@ -687,6 +688,7 @@ class TestGC7Fixtures:
             DerivationStep(
                 step_id=data["steps"][0]["step_id"],
                 claim_ids=data["steps"][0]["claim_ids"],
+                statement="Test derivation step",
                 step_status=StepStatus.CHECKED,
             )
         ]
@@ -706,6 +708,7 @@ class TestGC7Fixtures:
             DerivationStep(
                 step_id=data["steps"][0]["step_id"],
                 claim_ids=data["steps"][0]["claim_ids"],
+                statement="Test derivation step",
                 step_status=StepStatus.CHECKED,
             )
         ]
@@ -725,6 +728,7 @@ class TestGC7Fixtures:
             DerivationStep(
                 step_id=data["steps"][0]["step_id"],
                 claim_ids=data["steps"][0]["claim_ids"],
+                statement="Test derivation step",
                 step_status=StepStatus.CHECKED,
             )
         ]
@@ -744,6 +748,7 @@ class TestGC7Fixtures:
             DerivationStep(
                 step_id=data["steps"][0]["step_id"],
                 claim_ids=data["steps"][0]["claim_ids"],
+                statement="Test derivation step",
                 step_status=StepStatus.CHECKED,
             )
         ]

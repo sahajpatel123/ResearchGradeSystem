@@ -24,6 +24,18 @@ from src.core.gc6_validators import (
 from src.core.gc5_wire_parsers import parse_evidence_object
 
 
+def _make_step_from_fixture(s: dict) -> DerivationStep:
+    """Helper to construct DerivationStep from fixture data with default statement."""
+    return DerivationStep(
+        step_id=s["step_id"],
+        claim_ids=s["claim_ids"],
+        statement=s.get("statement", "Test derivation step"),
+        step_status=StepStatus[s.get("step_status", "UNCHECKED")],
+        depends_on=s.get("depends_on", []),
+        status_reason=s.get("status_reason"),
+    )
+
+
 class TestIntegrityMetricsSchema:
     """Test IntegrityMetrics schema validation"""
     
@@ -434,7 +446,7 @@ class TestComputedOnlyEnforcement:
             claims=[
                 Claim(claim_id="claim-001", statement="Test", claim_label=ClaimLabel.DERIVED, evidence_ids=[])
             ],
-            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001"])],
+            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")],
             evidence=[],
             integrity_metrics=IntegrityMetrics(
                 unsupported_non_spec_claims=0,
@@ -456,7 +468,7 @@ class TestComputedOnlyEnforcement:
             claims=[
                 Claim(claim_id="claim-001", statement="Test", claim_label=ClaimLabel.DERIVED, evidence_ids=[])
             ],
-            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001"])],
+            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")],
             evidence=[],
             integrity_metrics=IntegrityMetrics(
                 unsupported_non_spec_claims=1,
@@ -478,7 +490,7 @@ class TestComputedOnlyEnforcement:
             claims=[
                 Claim(claim_id="claim-001", statement="Test", claim_label=ClaimLabel.DERIVED, evidence_ids=[])
             ],
-            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001"])],
+            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")],
             evidence=[],
             integrity_metrics=IntegrityMetrics(
                 unsupported_non_spec_claims=1,
@@ -519,7 +531,7 @@ class TestComputedOnlyEnforcement:
             claims=[
                 Claim(claim_id="claim-001", statement="Test", claim_label=ClaimLabel.DERIVED, evidence_ids=["evidence-001"])
             ],
-            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001"])],
+            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")],
             evidence=[evidence],
             integrity_metrics=None,
         )
@@ -583,7 +595,7 @@ class TestSpeculativeFloodWarning:
                 Claim(claim_id="claim-002", statement="Spec", claim_label=ClaimLabel.SPECULATIVE, verify_falsify="Test"),
                 Claim(claim_id="claim-003", statement="Derived", claim_label=ClaimLabel.DERIVED, evidence_ids=["evidence-001"]),
             ],
-            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001", "claim-002", "claim-003"])],
+            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001", "claim-002", "claim-003"], statement="Test derivation step")],
             evidence=[evidence],
         )
         
@@ -614,7 +626,7 @@ class TestValidationOrder:
             claims=[
                 Claim(claim_id="claim-001", statement="Test", claim_label=ClaimLabel.DERIVED, evidence_ids=["evidence-001"])
             ],
-            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001"])],
+            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")],
             evidence=[evidence],
         )
         
@@ -634,7 +646,7 @@ class TestFinalization:
             claims=[
                 Claim(claim_id="claim-001", statement="Test", claim_label=ClaimLabel.DERIVED, evidence_ids=[])
             ],
-            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001"])],
+            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")],
             evidence=[],
         )
         
@@ -659,7 +671,7 @@ class TestFinalization:
             claims=[
                 Claim(claim_id="claim-001", statement="Test", claim_label=ClaimLabel.DERIVED, evidence_ids=["evidence-001"])
             ],
-            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001"])],
+            steps=[DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")],
             evidence=[evidence],
         )
         
@@ -689,14 +701,7 @@ class TestGC6Fixtures:
             for c in data["claims"]
         ]
         
-        steps = [
-            DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
-            )
-            for s in data["steps"]
-        ]
+        steps = [_make_step_from_fixture(s) for s in data["steps"]]
         
         evidence = [parse_evidence_object(e) for e in data["evidence"]]
         
@@ -726,14 +731,7 @@ class TestGC6Fixtures:
             for c in data["claims"]
         ]
         
-        steps = [
-            DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
-            )
-            for s in data["steps"]
-        ]
+        steps = [_make_step_from_fixture(s) for s in data["steps"]]
         
         evidence = [parse_evidence_object(e) for e in data["evidence"]]
         
@@ -764,14 +762,7 @@ class TestGC6Fixtures:
             for c in data["claims"]
         ]
         
-        steps = [
-            DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
-            )
-            for s in data["steps"]
-        ]
+        steps = [_make_step_from_fixture(s) for s in data["steps"]]
         
         report = ScientificReport(claims=claims, steps=steps, evidence=[])
         is_valid, errors = validate_report_with_integrity(report)
@@ -797,14 +788,7 @@ class TestGC6Fixtures:
             for c in data["claims"]
         ]
         
-        steps = [
-            DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
-            )
-            for s in data["steps"]
-        ]
+        steps = [_make_step_from_fixture(s) for s in data["steps"]]
         
         metrics_data = data["integrity_metrics"]
         metrics = IntegrityMetrics(
@@ -836,14 +820,7 @@ class TestGC6Fixtures:
             for c in data["claims"]
         ]
         
-        steps = [
-            DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
-            )
-            for s in data["steps"]
-        ]
+        steps = [_make_step_from_fixture(s) for s in data["steps"]]
         
         metrics_data = data["integrity_metrics"]
         metrics = IntegrityMetrics(

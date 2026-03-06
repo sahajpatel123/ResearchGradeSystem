@@ -11,6 +11,7 @@
     {
       "step_id": "step-001",
       "claim_ids": ["claim-001"],
+      "statement": "Unsupported claim derivation",
       "step_status": "CHECKED"
     }
   ],

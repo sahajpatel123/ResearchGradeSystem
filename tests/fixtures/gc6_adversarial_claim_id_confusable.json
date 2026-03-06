@@ -1,8 +1,8 @@
 {
   "claims": [
     {
-      "claim_id": "clаim-001",
-      "statement": "This claim_id contains Cyrillic 'а' (U+0430) instead of Latin 'a' - confusable homoglyph",
+      "claim_id": "cl\u0430im-001",
+      "statement": "This claim_id contains Cyrillic '\u0430' (U+0430) instead of Latin 'a' - confusable homoglyph",
       "claim_label": "DERIVED",
       "evidence_ids": []
     }
@@ -10,15 +10,18 @@
   "steps": [
     {
       "step_id": "step-001",
-      "claim_ids": ["clаim-001"],
-      "step_status": "CHECKED"
+      "claim_ids": [
+        "cl\u0430im-001"
+      ],
+      "step_status": "CHECKED",
+      "statement": "Test derivation step"
     }
   ],
   "evidence": [],
   "_test_metadata": {
     "category": "FAIL",
     "expected_failure": "parse_claim_id",
-    "failure_reason": "non-ASCII character (Cyrillic 'а' U+0430)",
+    "failure_reason": "non-ASCII character (Cyrillic '\u0430' U+0430)",
     "attack_type": "homoglyph_confusable",
     "purpose": "Verify parse_claim_id rejects non-ASCII confusables that look like ASCII"
   }

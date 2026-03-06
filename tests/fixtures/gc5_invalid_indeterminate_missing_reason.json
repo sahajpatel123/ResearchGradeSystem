@@ -8,7 +8,9 @@
       "statement": "Test claim",
       "claim_label": "COMPUTED",
       "step_id": null,
-      "evidence_ids": ["evidence-001"],
+      "evidence_ids": [
+        "evidence-001"
+      ],
       "claim_span": null,
       "verify_falsify": null
     }
@@ -16,10 +18,13 @@
   "steps": [
     {
       "step_id": "step-001",
-      "claim_ids": ["claim-001"],
+      "claim_ids": [
+        "claim-001"
+      ],
       "step_status": "UNCHECKED",
       "depends_on": [],
-      "status_reason": null
+      "status_reason": null,
+      "statement": "Test derivation step"
     }
   ],
   "evidence": [

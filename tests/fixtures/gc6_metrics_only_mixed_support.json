@@ -29,6 +29,7 @@
     {
       "step_id": "step-001",
       "claim_ids": ["claim-001", "claim-002", "claim-003", "claim-004"],
+      "statement": "Mixed support derivation step",
       "step_status": "CHECKED"
     }
   ],

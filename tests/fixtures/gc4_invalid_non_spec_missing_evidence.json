@@ -17,6 +17,7 @@
     {
       "step_id": "step-001",
       "claim_ids": ["claim-001"],
+      "statement": "Derive energy conservation",
       "step_status": "UNCHECKED",
       "depends_on": [],
       "status_reason": null

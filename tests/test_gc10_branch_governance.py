@@ -25,8 +25,12 @@ from src.core.branch_governance import (
 )
 from src.core.gc10_validators import (
     BranchEventLogger,
+    ProofArtifact,
+    ProofRegistry,
+    ProofStatus,
     can_merge,
     compute_branch_score,
+    insert_branch,
     rank_branches_for_prune,
     select_prune_candidates,
 )
@@ -651,7 +655,7 @@ class TestPassFixtures:
         branch_a = parse_branch_state_summary(data["branch_a"])
         branch_b = parse_branch_state_summary(data["branch_b"])
 
-        result = can_merge(branch_a, branch_b, data["proof_type"], data["proof_ref"])
+        result, _ = can_merge(branch_a, branch_b, data["proof_type"], data["proof_ref"])
         assert result == data["expected"]
 
     def test_fixture_merge_allowed_with_strong_numeric(self):
@@ -663,5 +667,310 @@ class TestPassFixtures:
         branch_a = parse_branch_state_summary(data["branch_a"])
         branch_b = parse_branch_state_summary(data["branch_b"])
 
-        result = can_merge(branch_a, branch_b, data["proof_type"], data["proof_ref"])
+        result, _ = can_merge(branch_a, branch_b, data["proof_type"], data["proof_ref"])
         assert result == data["expected"]
+
+
+class TestInsertBranchOrchestration:
+    """Test insert_branch orchestration function for cap enforcement E2E."""
+
+    def _make_policy(self, max_active: int = 3) -> BranchPolicy:
+        return BranchPolicy(
+            max_active_branches=max_active,
+            weights=BranchWeights(w1=0.4, w2=0.3, w3=0.2, w4=0.1),
+            normalization=BranchNormalization(K=10, C=100.0),
+            prune_strategy="lowest_score_first",
+            merge_rules=["CAS_EQUIV", "STRONG_NUMERIC_AGREEMENT"],
+            tie_break=["failed_checks", "cost", "branch_id"],
+        )
+
+    def _make_branch(self, branch_id: str, coverage: float = 0.8, failed_checks: int = 0, cost: float = 10.0) -> BranchStateSummary:
+        return BranchStateSummary(
+            branch_id=branch_id,
+            coverage=coverage,
+            sanity_pass_rate=0.9,
+            failed_checks=failed_checks,
+            cost=cost,
+            created_seq=0,
+        )
+
+    def test_branch_insert_adds_under_cap_and_logs_created(self):
+        """E2E: Insert under cap adds branch and emits BRANCH_CREATED."""
+        policy = self._make_policy(max_active=3)
+        event_log = BranchEventLogger()
+        
+        active = [self._make_branch("branch-001"), self._make_branch("branch-002")]
+        incoming = self._make_branch("branch-003")
+        
+        result = insert_branch(active, incoming, policy, event_log)
+        
+        assert len(result) == 3
+        assert any(b.branch_id == "branch-003" for b in result)
+        assert len(event_log.events) == 1
+        assert event_log.events[0].event_type == BranchEventType.BRANCH_CREATED
+        assert event_log.events[0].branch_ids == ["branch-003"]
+
+    def test_branch_insert_at_cap_prunes_worst_deterministically_and_logs_prune_and_create(self):
+        """E2E: Insert at cap prunes worst, emits BRANCH_PRUNED then BRANCH_CREATED."""
+        policy = self._make_policy(max_active=2)
+        event_log = BranchEventLogger()
+        
+        # branch-001 has lowest score (low coverage)
+        active = [
+            self._make_branch("branch-001", coverage=0.3),
+            self._make_branch("branch-002", coverage=0.9),
+        ]
+        incoming = self._make_branch("branch-003", coverage=0.8)
+        
+        result = insert_branch(active, incoming, policy, event_log)
+        
+        # branch-001 should be pruned (lowest score)
+        assert len(result) == 2
+        assert not any(b.branch_id == "branch-001" for b in result)
+        assert any(b.branch_id == "branch-002" for b in result)
+        assert any(b.branch_id == "branch-003" for b in result)
+        
+        # Should have PRUNED then CREATED events
+        assert len(event_log.events) == 2
+        assert event_log.events[0].event_type == BranchEventType.BRANCH_PRUNED
+        assert "branch-001" in event_log.events[0].branch_ids
+        assert event_log.events[1].event_type == BranchEventType.BRANCH_CREATED
+        assert event_log.events[1].branch_ids == ["branch-003"]
+
+    def test_branch_insert_same_input_same_output_twice(self):
+        """E2E: Determinism - same input produces same output across runs."""
+        policy = self._make_policy(max_active=2)
+        
+        active = [
+            self._make_branch("branch-001", coverage=0.3),
+            self._make_branch("branch-002", coverage=0.9),
+        ]
+        incoming = self._make_branch("branch-003", coverage=0.8)
+        
+        # Run twice
+        event_log1 = BranchEventLogger()
+        result1 = insert_branch(list(active), incoming, policy, event_log1)
+        
+        event_log2 = BranchEventLogger()
+        result2 = insert_branch(list(active), incoming, policy, event_log2)
+        
+        # Results must be identical
+        result1_ids = sorted(b.branch_id for b in result1)
+        result2_ids = sorted(b.branch_id for b in result2)
+        assert result1_ids == result2_ids
+        
+        # Events must be identical
+        assert len(event_log1.events) == len(event_log2.events)
+        for e1, e2 in zip(event_log1.events, event_log2.events):
+            assert e1.event_type == e2.event_type
+            assert e1.branch_ids == e2.branch_ids
+
+
+class TestMergeProofResolution:
+    """Test merge proof resolution against ProofRegistry."""
+
+    def _make_branch(self, branch_id: str) -> BranchStateSummary:
+        return BranchStateSummary(
+            branch_id=branch_id,
+            coverage=0.8,
+            sanity_pass_rate=0.9,
+            failed_checks=0,
+            cost=10.0,
+            created_seq=0,
+        )
+
+    def test_merge_requires_proof_ref_resolves(self):
+        """Merge fails if proof_ref does not resolve in registry."""
+        registry = ProofRegistry()
+        branch_a = self._make_branch("branch-001")
+        branch_b = self._make_branch("branch-002")
+        
+        with pytest.raises(ValueError, match="BRANCH_MERGE_PROOF_REF_NOT_FOUND"):
+            can_merge(branch_a, branch_b, "CAS_EQUIV", "proof-missing", registry)
+
+    def test_merge_rejects_proof_type_mismatch(self):
+        """Merge fails if resolved proof_type doesn't match requested."""
+        registry = ProofRegistry()
+        artifact = ProofArtifact(
+            proof_type="CAS_EQUIV",
+            status=ProofStatus.PASS,
+            created_seq=0,
+        )
+        registry.register("proof-001", artifact)
+        
+        branch_a = self._make_branch("branch-001")
+        branch_b = self._make_branch("branch-002")
+        
+        with pytest.raises(ValueError, match="BRANCH_MERGE_PROOF_TYPE_MISMATCH"):
+            can_merge(branch_a, branch_b, "STRONG_NUMERIC_AGREEMENT", "proof-001", registry)
+
+    def test_merge_rejects_non_pass_proof_status(self):
+        """Merge fails if resolved proof status is not PASS."""
+        registry = ProofRegistry()
+        artifact = ProofArtifact(
+            proof_type="CAS_EQUIV",
+            status=ProofStatus.FAIL,
+            created_seq=0,
+        )
+        registry.register("proof-001", artifact)
+        
+        branch_a = self._make_branch("branch-001")
+        branch_b = self._make_branch("branch-002")
+        
+        with pytest.raises(ValueError, match="BRANCH_MERGE_PROOF_STATUS_NOT_PASS"):
+            can_merge(branch_a, branch_b, "CAS_EQUIV", "proof-001", registry)
+
+    def test_merge_accepts_cas_equiv_pass(self):
+        """Merge succeeds with CAS_EQUIV and PASS status."""
+        registry = ProofRegistry()
+        artifact = ProofArtifact(
+            proof_type="CAS_EQUIV",
+            status=ProofStatus.PASS,
+            created_seq=0,
+            payload_ref="log-001",
+        )
+        registry.register("proof-001", artifact)
+        
+        branch_a = self._make_branch("branch-001")
+        branch_b = self._make_branch("branch-002")
+        
+        result, resolved = can_merge(branch_a, branch_b, "CAS_EQUIV", "proof-001", registry)
+        
+        assert result is True
+        assert resolved is artifact
+        assert resolved.proof_type == "CAS_EQUIV"
+        assert resolved.status == ProofStatus.PASS
+
+    def test_merge_accepts_strong_numeric_pass_only_from_registry(self):
+        """STRONG_NUMERIC_AGREEMENT merge only accepts PASS from registry (not wire claims)."""
+        registry = ProofRegistry()
+        artifact = ProofArtifact(
+            proof_type="STRONG_NUMERIC_AGREEMENT",
+            status=ProofStatus.PASS,
+            created_seq=1,
+            payload_ref="gc9-log-001",
+        )
+        registry.register("proof-strong-001", artifact)
+        
+        branch_a = self._make_branch("branch-001")
+        branch_b = self._make_branch("branch-002")
+        
+        result, resolved = can_merge(branch_a, branch_b, "STRONG_NUMERIC_AGREEMENT", "proof-strong-001", registry)
+        
+        assert result is True
+        assert resolved.proof_type == "STRONG_NUMERIC_AGREEMENT"
+        assert resolved.status == ProofStatus.PASS
+
+
+class TestAuditLogAssertions:
+    """Test audit log event content and structure assertions."""
+
+    def _make_policy(self, max_active: int = 2) -> BranchPolicy:
+        return BranchPolicy(
+            max_active_branches=max_active,
+            weights=BranchWeights(w1=0.4, w2=0.3, w3=0.2, w4=0.1),
+            normalization=BranchNormalization(K=10, C=100.0),
+            prune_strategy="lowest_score_first",
+            merge_rules=["CAS_EQUIV", "STRONG_NUMERIC_AGREEMENT"],
+            tie_break=["failed_checks", "cost", "branch_id"],
+        )
+
+    def _make_branch(self, branch_id: str, coverage: float = 0.8) -> BranchStateSummary:
+        return BranchStateSummary(
+            branch_id=branch_id,
+            coverage=coverage,
+            sanity_pass_rate=0.9,
+            failed_checks=0,
+            cost=10.0,
+            created_seq=0,
+        )
+
+    def test_prune_event_contains_snapshot_and_reason(self):
+        """BRANCH_PRUNED event contains victim_branch_id, candidate snapshots, prune_key."""
+        policy = self._make_policy(max_active=2)
+        event_log = BranchEventLogger()
+        
+        active = [
+            self._make_branch("branch-001", coverage=0.3),
+            self._make_branch("branch-002", coverage=0.9),
+        ]
+        incoming = self._make_branch("branch-003", coverage=0.8)
+        
+        insert_branch(active, incoming, policy, event_log)
+        
+        prune_event = event_log.events[0]
+        assert prune_event.event_type == BranchEventType.BRANCH_PRUNED
+        
+        # Required fields for PRUNED
+        assert "branch-001" in prune_event.branch_ids  # victim_branch_id
+        assert "ranked_candidates" in prune_event.snapshot
+        assert "policy_max_active_branches" in prune_event.snapshot
+        assert "prune_count" in prune_event.snapshot
+        
+        # Each candidate should have score snapshot
+        for candidate in prune_event.snapshot["ranked_candidates"]:
+            assert "branch_id" in candidate
+            assert "coverage" in candidate
+            assert "score" in candidate
+            assert "prune_key" in candidate
+        
+        # Reason should include prune_strategy and tie_break
+        assert "prune_strategy" in prune_event.reason
+        assert "prune_key" in prune_event.reason
+        assert "tie_break" in prune_event.reason
+
+    def test_merge_event_contains_proof_ref_and_resolution(self):
+        """BRANCH_MERGED event contains proof_type, proof_ref, resolved artifact summary."""
+        event_log = BranchEventLogger()
+        registry = ProofRegistry()
+        
+        artifact = ProofArtifact(
+            proof_type="CAS_EQUIV",
+            status=ProofStatus.PASS,
+            created_seq=0,
+            payload_ref="log-001",
+        )
+        registry.register("proof-001", artifact)
+        
+        branch_a = self._make_branch("branch-001")
+        branch_b = self._make_branch("branch-002")
+        
+        merge_event = event_log.log_branch_merged(branch_a, branch_b, "CAS_EQUIV", "proof-001", registry)
+        
+        assert merge_event.event_type == BranchEventType.BRANCH_MERGED
+        assert merge_event.branch_ids == ["branch-001", "branch-002"]
+        
+        # Required fields for MERGED
+        assert "proof_type" in merge_event.reason
+        assert merge_event.reason["proof_type"] == "CAS_EQUIV"
+        assert "proof_ref" in merge_event.reason
+        assert merge_event.reason["proof_ref"] == "proof-001"
+        
+        # Resolved proof artifact summary
+        assert "proof_artifact" in merge_event.reason
+        assert merge_event.reason["proof_artifact"]["proof_type"] == "CAS_EQUIV"
+        assert merge_event.reason["proof_artifact"]["status"] == "pass"
+        
+        # Score snapshots for branches
+        assert "branch_a" in merge_event.snapshot
+        assert "branch_b" in merge_event.snapshot
+
+    def test_created_event_emitted_on_insert(self):
+        """BRANCH_CREATED event emitted when branch is inserted."""
+        policy = self._make_policy(max_active=5)
+        event_log = BranchEventLogger()
+        
+        active = []
+        incoming = self._make_branch("branch-001")
+        
+        insert_branch(active, incoming, policy, event_log)
+        
+        assert len(event_log.events) == 1
+        created_event = event_log.events[0]
+        
+        assert created_event.event_type == BranchEventType.BRANCH_CREATED
+        assert created_event.branch_ids == ["branch-001"]
+        assert "branch" in created_event.snapshot
+        assert created_event.snapshot["branch"]["branch_id"] == "branch-001"
+        assert "score" in created_event.snapshot["branch"]
+        assert "reason" in created_event.reason

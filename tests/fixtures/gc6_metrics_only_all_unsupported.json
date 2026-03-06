@@ -10,14 +10,20 @@
       "claim_id": "claim-002",
       "statement": "Unsupported claim - dangling evidence",
       "claim_label": "COMPUTED",
-      "evidence_ids": ["evidence-999"]
+      "evidence_ids": [
+        "evidence-999"
+      ]
     }
   ],
   "steps": [
     {
       "step_id": "step-001",
-      "claim_ids": ["claim-001", "claim-002"],
-      "step_status": "CHECKED"
+      "claim_ids": [
+        "claim-001",
+        "claim-002"
+      ],
+      "step_status": "CHECKED",
+      "statement": "Test derivation step"
     }
   ],
   "evidence": []

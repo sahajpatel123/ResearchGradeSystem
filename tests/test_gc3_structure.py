@@ -38,6 +38,7 @@ class TestDerivationStepSchema:
             DerivationStep(
                 step_id="step-001",
                 claim_ids=[],
+                statement="Test derivation step",
                 step_status=StepStatus.UNCHECKED,
             )
     
@@ -97,6 +98,7 @@ class TestDerivationStepSchema:
         """GC-3: Step.create factory generates step_id"""
         step = DerivationStep.create(
             claim_ids=["claim-001", "claim-002"],
+            statement="Test derivation step",
             step_status=StepStatus.CHECKED,
         )
         assert step.step_id is not None
@@ -114,6 +116,7 @@ class TestScientificReportSchema:
         step = DerivationStep(
             step_id="step-001",
             claim_ids=[claim.claim_id],
+            statement="Test derivation step",
         )
         report = ScientificReport(claims=[claim], steps=[step])
         assert len(report.claims) == 1
@@ -141,10 +144,12 @@ class TestScientificReportSchema:
         step1 = DerivationStep(
             step_id="step-001",
             claim_ids=[claim.claim_id],
+            statement="Test derivation step",
         )
         step2 = DerivationStep(
             step_id="step-001",  # Duplicate
             claim_ids=[claim.claim_id],
+            statement="Test derivation step",
         )
         
         with pytest.raises(ValueError, match="STEP_ID_COLLISION"):
@@ -160,6 +165,7 @@ class TestStructuralValidation:
         step = DerivationStep(
             step_id="step-001",
             claim_ids=[claim.claim_id],
+            statement="Test derivation step",
         )
         report = ScientificReport(claims=[claim], steps=[step])
         
@@ -173,6 +179,7 @@ class TestStructuralValidation:
         step = DerivationStep(
             step_id="step-001",
             claim_ids=[claim.claim_id, "non-existent-claim"],
+            statement="Test derivation step",
         )
         report = ScientificReport(claims=[claim], steps=[step])
         
@@ -189,6 +196,7 @@ class TestStructuralValidation:
         step = DerivationStep(
             step_id="step-001",
             claim_ids=[claim1.claim_id],  # Only references claim1
+            statement="Test derivation step",
         )
         report = ScientificReport(claims=[claim1, claim2], steps=[step])
         
@@ -204,10 +212,12 @@ class TestStructuralValidation:
         step1 = DerivationStep(
             step_id="step-001",
             claim_ids=[claim.claim_id],
+            statement="Test derivation step",
         )
         step2 = DerivationStep(
             step_id="step-002",
             claim_ids=[claim.claim_id],  # Same claim in different step
+            statement="Test derivation step",
         )
         report = ScientificReport(claims=[claim], steps=[step1, step2])
         
@@ -226,6 +236,7 @@ class TestStructuralValidation:
         step = DerivationStep(
             step_id="step-001",
             claim_ids=[claim1.claim_id, claim2.claim_id],
+            statement="Test derivation step",
         )
         report = ScientificReport(claims=[claim1, claim2], steps=[step])
         
@@ -239,6 +250,7 @@ class TestStructuralValidation:
         step = DerivationStep(
             step_id="step-001",
             claim_ids=[claim.claim_id],
+            statement="Test derivation step",
             depends_on=["non-existent-step"],
         )
         report = ScientificReport(claims=[claim], steps=[step])
@@ -256,10 +268,12 @@ class TestStructuralValidation:
         step1 = DerivationStep(
             step_id="step-001",
             claim_ids=[claim1.claim_id],
+            statement="Test derivation step",
         )
         step2 = DerivationStep(
             step_id="step-002",
             claim_ids=[claim2.claim_id],
+            statement="Test derivation step",
             depends_on=["step-001"],
         )
         report = ScientificReport(claims=[claim1, claim2], steps=[step1, step2])
@@ -559,6 +573,7 @@ class TestValidationErrorReporting:
         step = DerivationStep(
             step_id="step-001",
             claim_ids=[claim1.claim_id, "non-existent"],
+            statement="Test derivation step",
         )
         
         report = ScientificReport(claims=[claim1, claim2], steps=[step])

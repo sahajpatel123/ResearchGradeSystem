@@ -10,8 +10,11 @@
   "steps": [
     {
       "step_id": "step-001",
-      "claim_ids": ["claim 001"],
-      "step_status": "CHECKED"
+      "claim_ids": [
+        "claim 001"
+      ],
+      "step_status": "CHECKED",
+      "statement": "Test derivation step"
     }
   ],
   "evidence": []

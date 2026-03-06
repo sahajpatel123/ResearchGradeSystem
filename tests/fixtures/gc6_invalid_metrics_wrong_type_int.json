@@ -4,14 +4,19 @@
       "claim_id": "claim-001",
       "statement": "Supported claim",
       "claim_label": "DERIVED",
-      "evidence_ids": ["evidence-001"]
+      "evidence_ids": [
+        "evidence-001"
+      ]
     }
   ],
   "steps": [
     {
       "step_id": "step-001",
-      "claim_ids": ["claim-001"],
-      "step_status": "CHECKED"
+      "claim_ids": [
+        "claim-001"
+      ],
+      "step_status": "CHECKED",
+      "statement": "Test derivation step"
     }
   ],
   "evidence": [

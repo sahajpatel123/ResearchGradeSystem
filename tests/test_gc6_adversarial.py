@@ -21,6 +21,18 @@ from src.core.gc6_validators import validate_and_compute_integrity_metrics, vali
 from src.core.id_parsers import parse_claim_id, parse_step_id, parse_tool_run_id, parse_citation_id
 
 
+def _make_step_from_fixture(s: dict) -> DerivationStep:
+    """Helper to construct DerivationStep from fixture data with default statement."""
+    return DerivationStep(
+        step_id=s["step_id"],
+        claim_ids=s["claim_ids"],
+        statement=s.get("statement", "Test derivation step"),
+        step_status=StepStatus[s.get("step_status", "UNCHECKED")],
+        depends_on=s.get("depends_on", []),
+        status_reason=s.get("status_reason"),
+    )
+
+
 class TestAdversarialComputeOnInvalid:
     """
     ATTACK VECTOR 1: "GC-6 disappears when GC-4 fails"
@@ -188,14 +200,7 @@ class TestAdversarialFixtureSemantics:
             for c in data["claims"]
         ]
         
-        steps = [
-            DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
-            )
-            for s in data["steps"]
-        ]
+        steps = [_make_step_from_fixture(s) for s in data["steps"]]
         
         evidence = []  # Intentionally empty to trigger GC-4 failure
         
@@ -232,14 +237,7 @@ class TestAdversarialFixtureSemantics:
             for c in data["claims"]
         ]
         
-        steps = [
-            DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
-            )
-            for s in data["steps"]
-        ]
+        steps = [_make_step_from_fixture(s) for s in data["steps"]]
         
         from src.core.gc5_wire_parsers import parse_evidence_object
         evidence = [parse_evidence_object(e) for e in data["evidence"]]

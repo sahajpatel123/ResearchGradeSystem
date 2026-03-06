@@ -23,6 +23,7 @@
     {
       "step_id": "step-001",
       "claim_ids": ["claim-001", "claim-002", "claim-003"],
+      "statement": "Derive theorem and compute result",
       "step_status": "CHECKED"
     }
   ],

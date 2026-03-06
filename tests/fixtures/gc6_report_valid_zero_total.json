@@ -17,6 +17,7 @@
     {
       "step_id": "step-001",
       "claim_ids": ["claim-001", "claim-002"],
+      "statement": "Speculative claims derivation",
       "step_status": "CHECKED"
     }
   ],

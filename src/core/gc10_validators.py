@@ -7,6 +7,7 @@ audit event logging.
 """
 
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any
 
 from src.core.branch_governance import (
@@ -18,6 +19,78 @@ from src.core.branch_governance import (
     BranchStateSummary,
     parse_branch_id,
 )
+
+
+class ProofStatus(Enum):
+    """Status of a proof artifact."""
+    PASS = "pass"
+    FAIL = "fail"
+    INDETERMINATE = "indeterminate"
+
+
+@dataclass
+class ProofArtifact:
+    """
+    Minimal schema for resolved proof artifacts.
+
+    Fields:
+    - proof_type: CAS_EQUIV | STRONG_NUMERIC_AGREEMENT
+    - status: pass | fail | indeterminate
+    - payload_ref: optional reference to payload/log
+    - created_seq: sequence number for ordering
+    """
+    proof_type: str
+    status: ProofStatus
+    created_seq: int
+    payload_ref: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.proof_type not in ALLOWED_MERGE_RULES:
+            raise ValueError(
+                f"Invalid proof_type '{self.proof_type}' "
+                "(GC-10: PROOF_ARTIFACT_INVALID_TYPE)"
+            )
+        if not isinstance(self.status, ProofStatus):
+            raise TypeError(
+                f"status must be ProofStatus enum, got {type(self.status).__name__} "
+                "(GC-10: PROOF_ARTIFACT_INVALID_STATUS)"
+            )
+        if not isinstance(self.created_seq, int) or self.created_seq < 0:
+            raise ValueError(
+                f"created_seq must be non-negative int, got {self.created_seq} "
+                "(GC-10: PROOF_ARTIFACT_INVALID_SEQ)"
+            )
+
+    def to_summary(self) -> dict[str, Any]:
+        """Return summary dict for audit logs."""
+        return {
+            "proof_type": self.proof_type,
+            "status": self.status.value,
+            "created_seq": self.created_seq,
+            "payload_ref": self.payload_ref,
+        }
+
+
+@dataclass
+class ProofRegistry:
+    """
+    In-memory registry for proof artifacts.
+
+    Provides resolve(proof_ref) -> ProofArtifact | None.
+    """
+    artifacts: dict[str, ProofArtifact] = field(default_factory=dict)
+
+    def register(self, proof_ref: str, artifact: ProofArtifact) -> None:
+        """Register a proof artifact."""
+        if not proof_ref or not isinstance(proof_ref, str):
+            raise ValueError("proof_ref must be non-empty string")
+        if proof_ref != proof_ref.strip():
+            raise ValueError("proof_ref cannot have leading/trailing whitespace")
+        self.artifacts[proof_ref] = artifact
+
+    def resolve(self, proof_ref: str) -> ProofArtifact | None:
+        """Resolve proof_ref to ProofArtifact or None if not found."""
+        return self.artifacts.get(proof_ref)
 
 
 def compute_branch_score(summary: BranchStateSummary, policy: BranchPolicy) -> float:
@@ -127,15 +200,23 @@ def can_merge(
     branch_b: BranchStateSummary | str,
     proof_type: str,
     proof_ref: str,
-) -> bool:
+    registry: ProofRegistry | None = None,
+) -> tuple[bool, ProofArtifact | None]:
     """
     Determine merge eligibility under GC-10 objective proof rules.
 
     Merge is allowed ONLY if:
     - proof_type in {CAS_EQUIV, STRONG_NUMERIC_AGREEMENT}
     - proof_ref is present (non-empty string)
+    - proof_ref resolves in registry (if provided)
+    - resolved proof_type matches requested proof_type
+    - resolved status == PASS
 
     Never trust wire booleans such as merge=true.
+    For STRONG_NUMERIC_AGREEMENT, only accept ProofArtifact status from validated GC-9 output.
+
+    Returns (eligible: bool, artifact: ProofArtifact | None).
+    Raises ValueError on validation failures (fail-closed).
     """
     if isinstance(branch_a, BranchStateSummary):
         parse_branch_id(branch_a.branch_id)
@@ -165,7 +246,29 @@ def can_merge(
             "(GC-10: BRANCH_MERGE_PROOF_REF_MISSING)"
         )
 
-    return True
+    if registry is None:
+        return (True, None)
+
+    artifact = registry.resolve(proof_ref)
+    if artifact is None:
+        raise ValueError(
+            f"proof_ref '{proof_ref}' does not resolve "
+            "(GC-10: BRANCH_MERGE_PROOF_REF_NOT_FOUND)"
+        )
+
+    if artifact.proof_type != proof_type:
+        raise ValueError(
+            f"proof_type mismatch: requested '{proof_type}' but artifact has '{artifact.proof_type}' "
+            "(GC-10: BRANCH_MERGE_PROOF_TYPE_MISMATCH)"
+        )
+
+    if artifact.status != ProofStatus.PASS:
+        raise ValueError(
+            f"proof status is '{artifact.status.value}', must be 'pass' "
+            "(GC-10: BRANCH_MERGE_PROOF_STATUS_NOT_PASS)"
+        )
+
+    return (True, artifact)
 
 
 def _branch_snapshot(branch: BranchStateSummary) -> dict[str, Any]:
@@ -268,17 +371,66 @@ class BranchEventLogger:
         branch_b: BranchStateSummary,
         proof_type: str,
         proof_ref: str,
+        registry: ProofRegistry | None = None,
     ) -> BranchEventLogEntry:
-        can_merge(branch_a, branch_b, proof_type, proof_ref)
+        _, artifact = can_merge(branch_a, branch_b, proof_type, proof_ref, registry)
+        reason_payload = {
+            "proof_type": proof_type,
+            "proof_ref": proof_ref,
+        }
+        if artifact is not None:
+            reason_payload["proof_artifact"] = artifact.to_summary()
         return self._append(
             event_type=BranchEventType.BRANCH_MERGED,
             branch_ids=[branch_a.branch_id, branch_b.branch_id],
             snapshot={
-                "branch_a": branch_a.branch_id,
-                "branch_b": branch_b.branch_id,
+                "branch_a": _branch_snapshot(branch_a),
+                "branch_b": _branch_snapshot(branch_b),
             },
-            reason={
-                "proof_type": proof_type,
-                "proof_ref": proof_ref,
-            },
+            reason=reason_payload,
         )
+
+
+def insert_branch(
+    active_branches: list[BranchStateSummary],
+    incoming_branch: BranchStateSummary,
+    policy: BranchPolicy,
+    event_log: BranchEventLogger,
+) -> list[BranchStateSummary]:
+    """
+    Orchestrate branch insertion with deterministic cap enforcement.
+
+    Behavior:
+    A) If len(active) < max_active_branches:
+       - Add incoming
+       - Emit BRANCH_CREATED event
+
+    B) If len(active) == max_active_branches:
+       - Compute scores deterministically across (active + incoming)
+       - Prune exactly one "worst" branch using frozen ordering
+       - Emit BRANCH_PRUNED event (includes victim_id, full snapshot, prune key)
+       - Add incoming
+       - Emit BRANCH_CREATED event
+
+    C) Determinism: same input -> same output across runs
+
+    Returns updated list of active branches.
+    """
+    candidates = list(active_branches) + [incoming_branch]
+
+    if len(candidates) <= policy.max_active_branches:
+        event_log.log_branch_created(incoming_branch, policy)
+        return candidates
+
+    ranked = rank_branches_for_prune(candidates, policy)
+    overflow = len(candidates) - policy.max_active_branches
+    to_prune_ids = {branch.branch_id for branch in ranked[:overflow]}
+
+    event_log.log_branch_pruned(active_branches, incoming_branch, policy)
+
+    surviving = [branch for branch in candidates if branch.branch_id not in to_prune_ids]
+
+    if incoming_branch.branch_id not in to_prune_ids:
+        event_log.log_branch_created(incoming_branch, policy)
+
+    return surviving

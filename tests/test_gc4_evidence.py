@@ -26,6 +26,18 @@ from src.core.evidence_validators import (
 from src.core.gc5_wire_parsers import parse_evidence_object
 
 
+def _make_step_from_fixture(s: dict) -> DerivationStep:
+    """Helper to construct DerivationStep from fixture data with default statement."""
+    return DerivationStep(
+        step_id=s["step_id"],
+        claim_ids=s["claim_ids"],
+        statement=s.get("statement", "Test derivation step"),
+        step_status=StepStatus[s.get("step_status", "UNCHECKED")],
+        depends_on=s.get("depends_on", []),
+        status_reason=s.get("status_reason"),
+    )
+
+
 class TestEvidenceObjectSchema:
     """Test EvidenceObject schema validation"""
     
@@ -206,7 +218,7 @@ class TestEvidenceValidation:
             claim_label=ClaimLabel.DERIVED,
             evidence_ids=[],
         )
-        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"])
+        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")
         report = ScientificReport(claims=[claim], steps=[step], evidence=[])
         
         is_valid, errors = validate_evidence_attachment(report)
@@ -228,7 +240,7 @@ class TestEvidenceValidation:
             claim_label=ClaimLabel.DERIVED,
             evidence_ids=["evidence-001"],
         )
-        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"])
+        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")
         report = ScientificReport(claims=[claim], steps=[step], evidence=[evidence])
         
         is_valid, errors = validate_evidence_attachment(report)
@@ -243,7 +255,7 @@ class TestEvidenceValidation:
             claim_label=ClaimLabel.COMPUTED,
             evidence_ids=[],
         )
-        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"])
+        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")
         report = ScientificReport(claims=[claim], steps=[step], evidence=[])
         
         is_valid, errors = validate_evidence_attachment(report)
@@ -258,7 +270,7 @@ class TestEvidenceValidation:
             claim_label=ClaimLabel.CITED,
             evidence_ids=[],
         )
-        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"])
+        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")
         report = ScientificReport(claims=[claim], steps=[step], evidence=[])
         
         is_valid, errors = validate_evidence_attachment(report)
@@ -274,7 +286,7 @@ class TestEvidenceValidation:
             evidence_ids=[],
             verify_falsify=None,
         )
-        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"])
+        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")
         report = ScientificReport(claims=[claim], steps=[step], evidence=[])
         
         is_valid, errors = validate_evidence_attachment(report)
@@ -290,7 +302,7 @@ class TestEvidenceValidation:
             evidence_ids=[],
             verify_falsify="   ",
         )
-        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"])
+        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")
         report = ScientificReport(claims=[claim], steps=[step], evidence=[])
         
         is_valid, errors = validate_evidence_attachment(report)
@@ -306,7 +318,7 @@ class TestEvidenceValidation:
             evidence_ids=[],
             verify_falsify="Could test by running experiment X",
         )
-        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"])
+        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")
         report = ScientificReport(claims=[claim], steps=[step], evidence=[])
         
         is_valid, errors = validate_evidence_attachment(report)
@@ -328,7 +340,7 @@ class TestEvidenceValidation:
             claim_label=ClaimLabel.DERIVED,
             evidence_ids=["evidence-001", "evidence-999"],
         )
-        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"])
+        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")
         report = ScientificReport(claims=[claim], steps=[step], evidence=[evidence])
         
         is_valid, errors = validate_evidence_attachment(report)
@@ -350,7 +362,7 @@ class TestEvidenceValidation:
             claim_label=ClaimLabel.COMPUTED,
             evidence_ids=["evidence-001", "evidence-001"],
         )
-        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"])
+        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")
         report = ScientificReport(claims=[claim], steps=[step], evidence=[evidence])
         
         is_valid, errors = validate_evidence_attachment(report)
@@ -379,7 +391,7 @@ class TestEvidenceValidation:
             claim_label=ClaimLabel.DERIVED,
             evidence_ids=["evidence-001", "evidence-002"],
         )
-        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"])
+        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")
         report = ScientificReport(
             claims=[claim],
             steps=[step],
@@ -412,15 +424,7 @@ class TestGC4Fixtures:
             for c in data["claims"]
         ]
         
-        steps = [
-            DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
-                depends_on=s.get("depends_on", []),
-            )
-            for s in data["steps"]
-        ]
+        steps = [_make_step_from_fixture(s) for s in data["steps"]]
         
         evidence = [
             parse_evidence_object(e)
@@ -449,14 +453,7 @@ class TestGC4Fixtures:
             for c in data["claims"]
         ]
         
-        steps = [
-            DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
-            )
-            for s in data["steps"]
-        ]
+        steps = [_make_step_from_fixture(s) for s in data["steps"]]
         
         evidence = [
             parse_evidence_object(e)
@@ -486,14 +483,7 @@ class TestGC4Fixtures:
             for c in data["claims"]
         ]
         
-        steps = [
-            DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
-            )
-            for s in data["steps"]
-        ]
+        steps = [_make_step_from_fixture(s) for s in data["steps"]]
         
         report = ScientificReport(claims=claims, steps=steps, evidence=[])
         is_valid, errors = validate_evidence_attachment(report)
@@ -517,14 +507,7 @@ class TestGC4Fixtures:
             for c in data["claims"]
         ]
         
-        steps = [
-            DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
-            )
-            for s in data["steps"]
-        ]
+        steps = [_make_step_from_fixture(s) for s in data["steps"]]
         
         evidence = [
             parse_evidence_object(e)
@@ -553,14 +536,7 @@ class TestGC4Fixtures:
             for c in data["claims"]
         ]
         
-        steps = [
-            DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
-            )
-            for s in data["steps"]
-        ]
+        steps = [_make_step_from_fixture(s) for s in data["steps"]]
         
         evidence = [
             parse_evidence_object(e)
@@ -619,14 +595,7 @@ class TestGC4Fixtures:
             for c in data["claims"]
         ]
         
-        steps = [
-            DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
-            )
-            for s in data["steps"]
-        ]
+        steps = [_make_step_from_fixture(s) for s in data["steps"]]
         
         report = ScientificReport(claims=claims, steps=steps, evidence=[])
         is_valid, errors = validate_evidence_attachment(report)
@@ -690,14 +659,7 @@ class TestGC4Fixtures:
             for c in data["claims"]
         ]
         
-        steps = [
-            DerivationStep(
-                step_id=s["step_id"],
-                claim_ids=s["claim_ids"],
-                step_status=StepStatus[s["step_status"]],
-            )
-            for s in data["steps"]
-        ]
+        steps = [_make_step_from_fixture(s) for s in data["steps"]]
         
         evidence = [
             parse_evidence_object(e)
@@ -733,7 +695,7 @@ class TestScientificReportEvidence:
             claim_label=ClaimLabel.DERIVED,
             evidence_ids=["evidence-001"],
         )
-        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"])
+        step = DerivationStep(step_id="step-001", claim_ids=["claim-001"], statement="Test derivation step")
         
         report = ScientificReport(claims=[claim], steps=[step], evidence=[evidence])
         assert len(report.evidence) == 1

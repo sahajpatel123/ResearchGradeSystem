@@ -43,6 +43,7 @@
     {
       "step_id": "step-001",
       "claim_ids": ["claim-001", "claim-002"],
+      "statement": "Derive Schrödinger equation and verify via simulation",
       "step_status": "CHECKED",
       "depends_on": [],
       "status_reason": null
@@ -50,6 +51,7 @@
     {
       "step_id": "step-002",
       "claim_ids": ["claim-003", "claim-004"],
+      "statement": "Reference Feynman and propose extension",
       "step_status": "CHECKED",
       "depends_on": ["step-001"],
       "status_reason": null

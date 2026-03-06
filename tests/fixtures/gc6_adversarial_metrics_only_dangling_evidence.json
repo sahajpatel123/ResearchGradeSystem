@@ -4,13 +4,17 @@
       "claim_id": "claim-001",
       "statement": "This claim references non-existent evidence (GC-4 FAIL)",
       "claim_label": "DERIVED",
-      "evidence_ids": ["evidence-DOES-NOT-EXIST"]
+      "evidence_ids": [
+        "evidence-DOES-NOT-EXIST"
+      ]
     },
     {
       "claim_id": "claim-002",
       "statement": "This claim has valid evidence",
       "claim_label": "COMPUTED",
-      "evidence_ids": ["evidence-001"]
+      "evidence_ids": [
+        "evidence-001"
+      ]
     },
     {
       "claim_id": "claim-003",
@@ -21,8 +25,13 @@
   "steps": [
     {
       "step_id": "step-001",
-      "claim_ids": ["claim-001", "claim-002", "claim-003"],
-      "step_status": "CHECKED"
+      "claim_ids": [
+        "claim-001",
+        "claim-002",
+        "claim-003"
+      ],
+      "step_status": "CHECKED",
+      "statement": "Test derivation step"
     }
   ],
   "evidence": [
@@ -48,7 +57,9 @@
       "unsupported_non_spec_claims": 1,
       "total_non_spec_claims": 2,
       "unsupported_claim_rate": 0.5,
-      "unsupported_claim_ids": ["claim-001"]
+      "unsupported_claim_ids": [
+        "claim-001"
+      ]
     },
     "purpose": "Verify compute_integrity_metrics works even when GC-4 fails (dangling evidence_id)"
   }

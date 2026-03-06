@@ -1,7 +1,7 @@
 {
   "claims": [
     {
-      "claim_id": "‮claim-001",
+      "claim_id": "\u202eclaim-001",
       "statement": "This claim_id starts with RTL Override (U+202E) to reverse visual display",
       "claim_label": "DERIVED",
       "evidence_ids": []
@@ -10,8 +10,11 @@
   "steps": [
     {
       "step_id": "step-001",
-      "claim_ids": ["‮claim-001"],
-      "step_status": "CHECKED"
+      "claim_ids": [
+        "\u202eclaim-001"
+      ],
+      "step_status": "CHECKED",
+      "statement": "Test derivation step"
     }
   ],
   "evidence": [],
