@@ -1,0 +1,26 @@
+{
+  "description": "ADVERSARIAL: merge with non-empty proof_ref that does not resolve in registry",
+  "attack_vector": "PROOF_REF_NOT_FOUND",
+  "expected_outcome": "FAIL",
+  "error_category": "BRANCH_MERGE_PROOF_REF_NOT_FOUND",
+  "branch_a": {
+    "branch_id": "branch-001",
+    "coverage": 0.8,
+    "sanity_pass_rate": 0.9,
+    "failed_checks": 0,
+    "cost": 10.0,
+    "created_seq": 0
+  },
+  "branch_b": {
+    "branch_id": "branch-002",
+    "coverage": 0.85,
+    "sanity_pass_rate": 0.95,
+    "failed_checks": 1,
+    "cost": 15.0,
+    "created_seq": 1
+  },
+  "proof_type": "CAS_EQUIV",
+  "proof_ref": "proof-does-not-exist-in-registry",
+  "registry_contents": {},
+  "drift_scenario": "devs revert to 'non-empty proof_ref only' without registry resolution"
+}

@@ -1,0 +1,33 @@
+{
+  "description": "ADVERSARIAL: merge with heuristic rule not in allowed list",
+  "attack_vector": "HEURISTIC_MERGE_RULE",
+  "expected_outcome": "FAIL",
+  "error_category": "BRANCH_MERGE_PROOF_TYPE_INVALID",
+  "branch_a": {
+    "branch_id": "branch-001",
+    "coverage": 0.8,
+    "sanity_pass_rate": 0.9,
+    "failed_checks": 0,
+    "cost": 10.0,
+    "created_seq": 0
+  },
+  "branch_b": {
+    "branch_id": "branch-002",
+    "coverage": 0.85,
+    "sanity_pass_rate": 0.95,
+    "failed_checks": 1,
+    "cost": 15.0,
+    "created_seq": 1
+  },
+  "proof_type": "HEURISTIC_SIMILARITY",
+  "proof_ref": "proof-heuristic-001",
+  "registry_contents": {
+    "proof-heuristic-001": {
+      "proof_type": "HEURISTIC_SIMILARITY",
+      "status": "pass",
+      "created_seq": 0,
+      "payload_ref": null
+    }
+  },
+  "drift_scenario": "devs allow heuristic merge rules like HEURISTIC_SIMILARITY or COSINE_MATCH"
+}

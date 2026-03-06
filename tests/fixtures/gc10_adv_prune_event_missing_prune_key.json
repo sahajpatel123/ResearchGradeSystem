@@ -1,0 +1,44 @@
+{
+  "description": "ADVERSARIAL: prune event candidates missing prune_key in snapshot",
+  "attack_vector": "AUDIT_LOG_INCOMPLETE",
+  "expected_outcome": "FAIL",
+  "error_category": "AUDIT_LOG_MISSING_PRUNE_KEY",
+  "required_candidate_fields": [
+    "branch_id",
+    "coverage",
+    "sanity_pass_rate",
+    "failed_checks",
+    "cost",
+    "failed_checks_norm",
+    "cost_norm",
+    "score",
+    "prune_key"
+  ],
+  "required_prune_key_fields": [
+    "score",
+    "failed_checks_desc",
+    "cost_desc",
+    "branch_id_desc"
+  ],
+  "malformed_event": {
+    "event_type": "BRANCH_PRUNED",
+    "branch_ids": ["branch-001"],
+    "snapshot": {
+      "policy_max_active_branches": 2,
+      "candidate_count": 3,
+      "prune_count": 1,
+      "ranked_candidates": [
+        {
+          "branch_id": "branch-001",
+          "coverage": 0.3,
+          "score": 0.12
+        }
+      ]
+    },
+    "reason": {
+      "prune_strategy": "lowest_score_first",
+      "tie_break": ["failed_checks", "cost", "branch_id"]
+    }
+  },
+  "drift_scenario": "devs remove prune_key from snapshot to reduce log size"
+}

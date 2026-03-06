@@ -1,0 +1,30 @@
+{
+  "description": "ADVERSARIAL: merge event missing proof_artifact in reason when registry provided",
+  "attack_vector": "AUDIT_LOG_INCOMPLETE",
+  "expected_outcome": "FAIL",
+  "error_category": "AUDIT_LOG_MISSING_PROOF_ARTIFACT",
+  "required_reason_fields": [
+    "proof_type",
+    "proof_ref",
+    "proof_artifact"
+  ],
+  "required_proof_artifact_fields": [
+    "proof_type",
+    "status",
+    "created_seq",
+    "payload_ref"
+  ],
+  "malformed_event": {
+    "event_type": "BRANCH_MERGED",
+    "branch_ids": ["branch-001", "branch-002"],
+    "snapshot": {
+      "branch_a": {"branch_id": "branch-001"},
+      "branch_b": {"branch_id": "branch-002"}
+    },
+    "reason": {
+      "proof_type": "CAS_EQUIV",
+      "proof_ref": "proof-001"
+    }
+  },
+  "drift_scenario": "devs omit proof_artifact from merge event to save space"
+}

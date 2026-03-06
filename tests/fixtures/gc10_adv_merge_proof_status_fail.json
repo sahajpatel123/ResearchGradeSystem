@@ -1,0 +1,33 @@
+{
+  "description": "ADVERSARIAL: merge with resolved proof artifact but status=fail",
+  "attack_vector": "PROOF_STATUS_NOT_PASS",
+  "expected_outcome": "FAIL",
+  "error_category": "BRANCH_MERGE_PROOF_STATUS_NOT_PASS",
+  "branch_a": {
+    "branch_id": "branch-001",
+    "coverage": 0.8,
+    "sanity_pass_rate": 0.9,
+    "failed_checks": 0,
+    "cost": 10.0,
+    "created_seq": 0
+  },
+  "branch_b": {
+    "branch_id": "branch-002",
+    "coverage": 0.85,
+    "sanity_pass_rate": 0.95,
+    "failed_checks": 1,
+    "cost": 15.0,
+    "created_seq": 1
+  },
+  "proof_type": "CAS_EQUIV",
+  "proof_ref": "proof-001",
+  "registry_contents": {
+    "proof-001": {
+      "proof_type": "CAS_EQUIV",
+      "status": "fail",
+      "created_seq": 0,
+      "payload_ref": "log-001"
+    }
+  },
+  "drift_scenario": "devs allow merge when proof exists but don't check status"
+}

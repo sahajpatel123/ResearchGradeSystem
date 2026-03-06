@@ -1,0 +1,31 @@
+{
+  "description": "ADVERSARIAL: created event missing score in branch snapshot",
+  "attack_vector": "AUDIT_LOG_INCOMPLETE",
+  "expected_outcome": "FAIL",
+  "error_category": "AUDIT_LOG_MISSING_SCORE",
+  "required_branch_snapshot_fields": [
+    "branch_id",
+    "coverage",
+    "sanity_pass_rate",
+    "failed_checks",
+    "cost",
+    "failed_checks_norm",
+    "cost_norm",
+    "score",
+    "prune_key"
+  ],
+  "malformed_event": {
+    "event_type": "BRANCH_CREATED",
+    "branch_ids": ["branch-001"],
+    "snapshot": {
+      "branch": {
+        "branch_id": "branch-001",
+        "coverage": 0.8
+      }
+    },
+    "reason": {
+      "reason": "branch_inserted"
+    }
+  },
+  "drift_scenario": "devs skip score computation in created events"
+}

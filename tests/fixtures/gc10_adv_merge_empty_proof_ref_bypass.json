@@ -1,0 +1,28 @@
+{
+  "description": "ADVERSARIAL: merge with empty proof_ref but wire claims merge=true",
+  "attack_vector": "EMPTY_PROOF_REF_BYPASS",
+  "expected_outcome": "FAIL",
+  "error_category": "BRANCH_MERGE_PROOF_REF_MISSING",
+  "branch_a": {
+    "branch_id": "branch-001",
+    "coverage": 0.8,
+    "sanity_pass_rate": 0.9,
+    "failed_checks": 0,
+    "cost": 10.0,
+    "created_seq": 0
+  },
+  "branch_b": {
+    "branch_id": "branch-002",
+    "coverage": 0.85,
+    "sanity_pass_rate": 0.95,
+    "failed_checks": 1,
+    "cost": 15.0,
+    "created_seq": 1
+  },
+  "wire_payload": {
+    "merge": true,
+    "proof_type": "CAS_EQUIV",
+    "proof_ref": ""
+  },
+  "drift_scenario": "devs allow empty proof_ref when wire merge=true"
+}

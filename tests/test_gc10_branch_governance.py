@@ -974,3 +974,331 @@ class TestAuditLogAssertions:
         assert created_event.snapshot["branch"]["branch_id"] == "branch-001"
         assert "score" in created_event.snapshot["branch"]
         assert "reason" in created_event.reason
+
+
+class TestAdversarialMergeProofResolution:
+    """
+    GC-10.1 ADVERSARIAL: Freeze enforcement for proof_ref resolution.
+    
+    Attack vectors:
+    - PROOF_REF_NOT_FOUND: non-empty proof_ref that doesn't resolve
+    - PROOF_STATUS_NOT_PASS: resolved proof with status != pass
+    - PROOF_TYPE_MISMATCH: resolved proof_type != requested
+    - WIRE_BOOLEAN_BYPASS: wire claims merge=true but registry proof is fail
+    - HEURISTIC_MERGE_RULE: proof_type not in allowed list
+    - EMPTY_PROOF_REF_BYPASS: empty proof_ref with wire merge=true
+    
+    Expected: All must FAIL with specific error categories.
+    """
+
+    def _make_branch(self, branch_id: str) -> BranchStateSummary:
+        return BranchStateSummary(
+            branch_id=branch_id,
+            coverage=0.8,
+            sanity_pass_rate=0.9,
+            failed_checks=0,
+            cost=10.0,
+            created_seq=0,
+        )
+
+    def test_adv_merge_proof_ref_not_found(self):
+        """
+        ATTACK: merge with non-empty proof_ref that does not resolve in registry.
+        EXPECTED: FAIL with BRANCH_MERGE_PROOF_REF_NOT_FOUND.
+        DRIFT: devs revert to 'non-empty proof_ref only' without registry resolution.
+        """
+        fixture_path = Path(__file__).parent / "fixtures" / "gc10_adv_merge_proof_ref_not_found.json"
+        with open(fixture_path, "r") as f:
+            data = json.load(f)
+
+        registry = ProofRegistry()  # Empty registry
+        branch_a = self._make_branch(data["branch_a"]["branch_id"])
+        branch_b = self._make_branch(data["branch_b"]["branch_id"])
+
+        with pytest.raises(ValueError, match=data["error_category"]):
+            can_merge(branch_a, branch_b, data["proof_type"], data["proof_ref"], registry)
+
+    def test_adv_merge_proof_status_fail(self):
+        """
+        ATTACK: merge with resolved proof artifact but status=fail.
+        EXPECTED: FAIL with BRANCH_MERGE_PROOF_STATUS_NOT_PASS.
+        DRIFT: devs allow merge when proof exists but don't check status.
+        """
+        fixture_path = Path(__file__).parent / "fixtures" / "gc10_adv_merge_proof_status_fail.json"
+        with open(fixture_path, "r") as f:
+            data = json.load(f)
+
+        registry = ProofRegistry()
+        for ref, artifact_data in data["registry_contents"].items():
+            artifact = ProofArtifact(
+                proof_type=artifact_data["proof_type"],
+                status=ProofStatus(artifact_data["status"]),
+                created_seq=artifact_data["created_seq"],
+                payload_ref=artifact_data.get("payload_ref"),
+            )
+            registry.register(ref, artifact)
+
+        branch_a = self._make_branch(data["branch_a"]["branch_id"])
+        branch_b = self._make_branch(data["branch_b"]["branch_id"])
+
+        with pytest.raises(ValueError, match=data["error_category"]):
+            can_merge(branch_a, branch_b, data["proof_type"], data["proof_ref"], registry)
+
+    def test_adv_merge_proof_status_indeterminate(self):
+        """
+        ATTACK: merge with resolved proof artifact but status=indeterminate.
+        EXPECTED: FAIL with BRANCH_MERGE_PROOF_STATUS_NOT_PASS.
+        DRIFT: devs treat indeterminate as 'good enough' for merge.
+        """
+        fixture_path = Path(__file__).parent / "fixtures" / "gc10_adv_merge_proof_status_indeterminate.json"
+        with open(fixture_path, "r") as f:
+            data = json.load(f)
+
+        registry = ProofRegistry()
+        for ref, artifact_data in data["registry_contents"].items():
+            artifact = ProofArtifact(
+                proof_type=artifact_data["proof_type"],
+                status=ProofStatus(artifact_data["status"]),
+                created_seq=artifact_data["created_seq"],
+                payload_ref=artifact_data.get("payload_ref"),
+            )
+            registry.register(ref, artifact)
+
+        branch_a = self._make_branch(data["branch_a"]["branch_id"])
+        branch_b = self._make_branch(data["branch_b"]["branch_id"])
+
+        with pytest.raises(ValueError, match=data["error_category"]):
+            can_merge(branch_a, branch_b, data["proof_type"], data["proof_ref"], registry)
+
+    def test_adv_merge_proof_type_mismatch(self):
+        """
+        ATTACK: merge with proof_type mismatch (requested vs resolved).
+        EXPECTED: FAIL with BRANCH_MERGE_PROOF_TYPE_MISMATCH.
+        DRIFT: devs skip proof_type validation assuming proof_ref is enough.
+        """
+        fixture_path = Path(__file__).parent / "fixtures" / "gc10_adv_merge_proof_type_mismatch.json"
+        with open(fixture_path, "r") as f:
+            data = json.load(f)
+
+        registry = ProofRegistry()
+        for ref, artifact_data in data["registry_contents"].items():
+            artifact = ProofArtifact(
+                proof_type=artifact_data["proof_type"],
+                status=ProofStatus(artifact_data["status"]),
+                created_seq=artifact_data["created_seq"],
+                payload_ref=artifact_data.get("payload_ref"),
+            )
+            registry.register(ref, artifact)
+
+        branch_a = self._make_branch(data["branch_a"]["branch_id"])
+        branch_b = self._make_branch(data["branch_b"]["branch_id"])
+
+        with pytest.raises(ValueError, match=data["error_category"]):
+            can_merge(branch_a, branch_b, data["proof_type"], data["proof_ref"], registry)
+
+    def test_adv_merge_wire_strong_agreement_true_but_registry_fail(self):
+        """
+        ATTACK: wire claims strong_agreement=true but registry proof is fail.
+        EXPECTED: FAIL with BRANCH_MERGE_PROOF_STATUS_NOT_PASS.
+        DRIFT: devs trust wire booleans like merge=true or strong_agreement=true.
+        """
+        fixture_path = Path(__file__).parent / "fixtures" / "gc10_adv_merge_wire_strong_agreement_true.json"
+        with open(fixture_path, "r") as f:
+            data = json.load(f)
+
+        registry = ProofRegistry()
+        for ref, artifact_data in data["registry_contents"].items():
+            artifact = ProofArtifact(
+                proof_type=artifact_data["proof_type"],
+                status=ProofStatus(artifact_data["status"]),
+                created_seq=artifact_data["created_seq"],
+                payload_ref=artifact_data.get("payload_ref"),
+            )
+            registry.register(ref, artifact)
+
+        branch_a = self._make_branch(data["branch_a"]["branch_id"])
+        branch_b = self._make_branch(data["branch_b"]["branch_id"])
+
+        # Wire payload claims merge=true, strong_agreement=true - MUST be ignored
+        wire = data["wire_payload"]
+        with pytest.raises(ValueError, match=data["error_category"]):
+            can_merge(branch_a, branch_b, wire["proof_type"], wire["proof_ref"], registry)
+
+    def test_adv_merge_heuristic_rule_rejected(self):
+        """
+        ATTACK: merge with heuristic rule not in allowed list.
+        EXPECTED: FAIL with BRANCH_MERGE_PROOF_TYPE_INVALID.
+        DRIFT: devs allow heuristic merge rules like HEURISTIC_SIMILARITY.
+        """
+        fixture_path = Path(__file__).parent / "fixtures" / "gc10_adv_merge_heuristic_rule.json"
+        with open(fixture_path, "r") as f:
+            data = json.load(f)
+
+        branch_a = self._make_branch(data["branch_a"]["branch_id"])
+        branch_b = self._make_branch(data["branch_b"]["branch_id"])
+
+        # Heuristic proof_type must be rejected before registry lookup
+        with pytest.raises(ValueError, match=data["error_category"]):
+            can_merge(branch_a, branch_b, data["proof_type"], data["proof_ref"])
+
+    def test_adv_merge_empty_proof_ref_bypass_rejected(self):
+        """
+        ATTACK: merge with empty proof_ref but wire claims merge=true.
+        EXPECTED: FAIL with BRANCH_MERGE_PROOF_REF_MISSING.
+        DRIFT: devs allow empty proof_ref when wire merge=true.
+        """
+        fixture_path = Path(__file__).parent / "fixtures" / "gc10_adv_merge_empty_proof_ref_bypass.json"
+        with open(fixture_path, "r") as f:
+            data = json.load(f)
+
+        branch_a = self._make_branch(data["branch_a"]["branch_id"])
+        branch_b = self._make_branch(data["branch_b"]["branch_id"])
+
+        wire = data["wire_payload"]
+        with pytest.raises(ValueError, match=data["error_category"]):
+            can_merge(branch_a, branch_b, wire["proof_type"], wire["proof_ref"])
+
+
+class TestAdversarialAuditLogCompleteness:
+    """
+    GC-10.1 ADVERSARIAL: Freeze enforcement for audit log completeness.
+    
+    Attack vectors:
+    - AUDIT_LOG_MISSING_SNAPSHOT: prune event missing required snapshot fields
+    - AUDIT_LOG_MISSING_PRUNE_KEY: candidates missing prune_key
+    - AUDIT_LOG_MISSING_PROOF_ARTIFACT: merge event missing proof_artifact
+    - AUDIT_LOG_MISSING_SCORE: created event missing score
+    
+    Expected: All must FAIL audit-log assertion tests.
+    """
+
+    def _make_policy(self, max_active: int = 2) -> BranchPolicy:
+        return BranchPolicy(
+            max_active_branches=max_active,
+            weights=BranchWeights(w1=0.4, w2=0.3, w3=0.2, w4=0.1),
+            normalization=BranchNormalization(K=10, C=100.0),
+            prune_strategy="lowest_score_first",
+            merge_rules=["CAS_EQUIV", "STRONG_NUMERIC_AGREEMENT"],
+            tie_break=["failed_checks", "cost", "branch_id"],
+        )
+
+    def _make_branch(self, branch_id: str, coverage: float = 0.8) -> BranchStateSummary:
+        return BranchStateSummary(
+            branch_id=branch_id,
+            coverage=coverage,
+            sanity_pass_rate=0.9,
+            failed_checks=0,
+            cost=10.0,
+            created_seq=0,
+        )
+
+    def test_adv_prune_event_has_all_required_snapshot_fields(self):
+        """
+        FREEZE ENFORCEMENT: prune event MUST contain all required snapshot fields.
+        DRIFT: devs stop logging snapshot for performance.
+        """
+        fixture_path = Path(__file__).parent / "fixtures" / "gc10_adv_prune_event_missing_snapshot.json"
+        with open(fixture_path, "r") as f:
+            data = json.load(f)
+
+        policy = self._make_policy(max_active=2)
+        event_log = BranchEventLogger()
+
+        active = [
+            self._make_branch("branch-001", coverage=0.3),
+            self._make_branch("branch-002", coverage=0.9),
+        ]
+        incoming = self._make_branch("branch-003", coverage=0.8)
+
+        insert_branch(active, incoming, policy, event_log)
+
+        prune_event = event_log.events[0]
+        assert prune_event.event_type == BranchEventType.BRANCH_PRUNED
+
+        # Verify all required snapshot fields are present
+        for field in data["required_snapshot_fields"]:
+            assert field in prune_event.snapshot, f"Missing required snapshot field: {field}"
+
+    def test_adv_prune_event_candidates_have_prune_key(self):
+        """
+        FREEZE ENFORCEMENT: each candidate in ranked_candidates MUST have prune_key.
+        DRIFT: devs remove prune_key from snapshot to reduce log size.
+        """
+        fixture_path = Path(__file__).parent / "fixtures" / "gc10_adv_prune_event_missing_prune_key.json"
+        with open(fixture_path, "r") as f:
+            data = json.load(f)
+
+        policy = self._make_policy(max_active=2)
+        event_log = BranchEventLogger()
+
+        active = [
+            self._make_branch("branch-001", coverage=0.3),
+            self._make_branch("branch-002", coverage=0.9),
+        ]
+        incoming = self._make_branch("branch-003", coverage=0.8)
+
+        insert_branch(active, incoming, policy, event_log)
+
+        prune_event = event_log.events[0]
+        for candidate in prune_event.snapshot["ranked_candidates"]:
+            for field in data["required_candidate_fields"]:
+                assert field in candidate, f"Missing required candidate field: {field}"
+            for field in data["required_prune_key_fields"]:
+                assert field in candidate["prune_key"], f"Missing required prune_key field: {field}"
+
+    def test_adv_merge_event_has_proof_artifact_when_registry_provided(self):
+        """
+        FREEZE ENFORCEMENT: merge event MUST contain proof_artifact when registry provided.
+        DRIFT: devs omit proof_artifact from merge event to save space.
+        """
+        fixture_path = Path(__file__).parent / "fixtures" / "gc10_adv_merge_event_missing_proof_artifact.json"
+        with open(fixture_path, "r") as f:
+            data = json.load(f)
+
+        event_log = BranchEventLogger()
+        registry = ProofRegistry()
+
+        artifact = ProofArtifact(
+            proof_type="CAS_EQUIV",
+            status=ProofStatus.PASS,
+            created_seq=0,
+            payload_ref="log-001",
+        )
+        registry.register("proof-001", artifact)
+
+        branch_a = self._make_branch("branch-001")
+        branch_b = self._make_branch("branch-002")
+
+        merge_event = event_log.log_branch_merged(branch_a, branch_b, "CAS_EQUIV", "proof-001", registry)
+
+        # Verify all required reason fields are present
+        for field in data["required_reason_fields"]:
+            assert field in merge_event.reason, f"Missing required reason field: {field}"
+
+        # Verify proof_artifact has all required fields
+        for field in data["required_proof_artifact_fields"]:
+            assert field in merge_event.reason["proof_artifact"], f"Missing required proof_artifact field: {field}"
+
+    def test_adv_created_event_has_score_in_snapshot(self):
+        """
+        FREEZE ENFORCEMENT: created event MUST contain score in branch snapshot.
+        DRIFT: devs skip score computation in created events.
+        """
+        fixture_path = Path(__file__).parent / "fixtures" / "gc10_adv_created_event_missing_score.json"
+        with open(fixture_path, "r") as f:
+            data = json.load(f)
+
+        policy = self._make_policy(max_active=5)
+        event_log = BranchEventLogger()
+
+        active = []
+        incoming = self._make_branch("branch-001")
+
+        insert_branch(active, incoming, policy, event_log)
+
+        created_event = event_log.events[0]
+        assert created_event.event_type == BranchEventType.BRANCH_CREATED
+
+        # Verify all required branch snapshot fields are present
+        for field in data["required_branch_snapshot_fields"]:
+            assert field in created_event.snapshot["branch"], f"Missing required branch snapshot field: {field}"
