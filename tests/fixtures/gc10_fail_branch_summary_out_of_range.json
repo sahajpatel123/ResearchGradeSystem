@@ -1,0 +1,15 @@
+{
+  "branch": {
+    "branch_id": "branch-invalid",
+    "coverage": 1.5,
+    "sanity_pass_rate": 0.9,
+    "failed_checks": 0,
+    "cost": 10.0,
+    "created_seq": 1
+  },
+  "_test_metadata": {
+    "category": "FAIL",
+    "error_category": "BRANCH_SUMMARY_INVALID_RANGE",
+    "purpose": "GC-10 coverage must be in [0,1]"
+  }
+}

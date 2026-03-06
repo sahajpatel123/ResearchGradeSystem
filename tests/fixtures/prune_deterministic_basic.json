@@ -1,0 +1,58 @@
+{
+  "policy": {
+    "max_active_branches": 2,
+    "weights": {
+      "w1": 1.0,
+      "w2": 0.0,
+      "w3": 0.0,
+      "w4": 0.0
+    },
+    "normalization": {
+      "K": 10,
+      "C": 100.0
+    },
+    "prune_strategy": "lowest_score_first",
+    "merge_rules": [
+      "CAS_EQUIV",
+      "STRONG_NUMERIC_AGREEMENT"
+    ],
+    "tie_break": [
+      "failed_checks",
+      "cost",
+      "branch_id"
+    ]
+  },
+  "active_branches": [
+    {
+      "branch_id": "branch-high",
+      "coverage": 0.9,
+      "sanity_pass_rate": 0.7,
+      "failed_checks": 1,
+      "cost": 20.0,
+      "created_seq": 1
+    },
+    {
+      "branch_id": "branch-low",
+      "coverage": 0.4,
+      "sanity_pass_rate": 0.8,
+      "failed_checks": 2,
+      "cost": 20.0,
+      "created_seq": 2
+    }
+  ],
+  "incoming_branch": {
+    "branch_id": "branch-mid",
+    "coverage": 0.7,
+    "sanity_pass_rate": 0.5,
+    "failed_checks": 2,
+    "cost": 25.0,
+    "created_seq": 3
+  },
+  "expected_prune": [
+    "branch-low"
+  ],
+  "_test_metadata": {
+    "category": "PASS",
+    "purpose": "GC-10 deterministic prune with distinct scores"
+  }
+}

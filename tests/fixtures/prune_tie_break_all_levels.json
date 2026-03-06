@@ -1,0 +1,69 @@
+{
+  "policy": {
+    "max_active_branches": 2,
+    "weights": {
+      "w1": 1.0,
+      "w2": 0.0,
+      "w3": 0.0,
+      "w4": 0.0
+    },
+    "normalization": {
+      "K": 10,
+      "C": 100.0
+    },
+    "prune_strategy": "lowest_score_first",
+    "merge_rules": [
+      "CAS_EQUIV",
+      "STRONG_NUMERIC_AGREEMENT"
+    ],
+    "tie_break": [
+      "failed_checks",
+      "cost",
+      "branch_id"
+    ]
+  },
+  "branches": [
+    {
+      "branch_id": "branch-alpha",
+      "coverage": 0.5,
+      "sanity_pass_rate": 0.9,
+      "failed_checks": 2,
+      "cost": 10.0,
+      "created_seq": 1
+    },
+    {
+      "branch_id": "branch-beta",
+      "coverage": 0.5,
+      "sanity_pass_rate": 0.8,
+      "failed_checks": 3,
+      "cost": 9.0,
+      "created_seq": 2
+    },
+    {
+      "branch_id": "branch-gamma",
+      "coverage": 0.5,
+      "sanity_pass_rate": 0.7,
+      "failed_checks": 2,
+      "cost": 15.0,
+      "created_seq": 3
+    },
+    {
+      "branch_id": "branch-zeta",
+      "coverage": 0.5,
+      "sanity_pass_rate": 0.6,
+      "failed_checks": 2,
+      "cost": 10.0,
+      "created_seq": 4
+    }
+  ],
+  "expected_prune_order": [
+    "branch-beta",
+    "branch-gamma",
+    "branch-zeta",
+    "branch-alpha"
+  ],
+  "_test_metadata": {
+    "category": "PASS",
+    "purpose": "GC-10 tie break lock: score tie -> failed_checks(desc prune) -> cost(desc prune) -> branch_id(desc prune)"
+  }
+}
