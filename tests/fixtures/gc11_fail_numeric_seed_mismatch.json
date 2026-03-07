@@ -1,0 +1,37 @@
+{
+  "description": "FAIL: Numeric log seed does not match manifest seed (deterministic mode)",
+  "expected_outcome": "FAIL",
+  "error_category": "MANIFEST_SEED_MISMATCH_NUMERIC_LOG",
+  "manifest": {
+    "run_id": "330e8400-e29b-41d4-a716-446655440013",
+    "input_hash": "b8b9b0c1c2c3c4c5c6c7c8c9c0d1d2d3d4d5d6d7d8d9d0e1e2e3e4e5e6e7e8e9",
+    "deterministic_mode": true,
+    "seed": 42,
+    "tolerance_policy": {
+      "absolute": 1e-10
+    },
+    "tool_versions": {
+      "python": "3.11.0",
+      "numpy": "1.24.0"
+    },
+    "commit_hash": "abc123",
+    "dependency_lock_hash": "lock123",
+    "started_at": "2024-01-15T10:00:00Z",
+    "ended_at": "2024-01-15T10:05:00Z",
+    "log_references": [
+      {
+        "log_id": "numeric-log-001",
+        "log_type": "numeric",
+        "payload_ref": "logs/numeric/001.json"
+      }
+    ]
+  },
+  "registry_artifacts": [
+    {
+      "log_id": "numeric-log-001",
+      "log_type": "numeric",
+      "payload_ref": "logs/numeric/001.json",
+      "seed": 99999
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "description": "FAIL: log_reference has invalid shape (missing payload_ref)",
+  "expected_outcome": "FAIL",
+  "error_category": "LOG_REFERENCE_INVALID",
+  "manifest": {
+    "run_id": "ff0e8400-e29b-41d4-a716-446655440010",
+    "input_hash": "e5e6e7e8e9e0f1f2f3f4f5f6f7f8f9f0a1a2a3a4a5a6a7a8a9a0b1b2b3b4b5b6",
+    "deterministic_mode": false,
+    "tool_versions": {
+      "python": "3.11.0"
+    },
+    "commit_hash": "abc123",
+    "dependency_lock_hash": "lock123",
+    "started_at": "2024-01-15T10:00:00Z",
+    "ended_at": "2024-01-15T10:05:00Z",
+    "log_references": [
+      {
+        "log_id": "branch-log-001",
+        "log_type": "branch",
+        "payload_ref": ""
+      }
+    ]
+  }
+}

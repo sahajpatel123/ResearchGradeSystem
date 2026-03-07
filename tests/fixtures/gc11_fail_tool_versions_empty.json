@@ -1,0 +1,22 @@
+{
+  "description": "FAIL: tool_versions is empty dict",
+  "expected_outcome": "FAIL",
+  "error_category": "TOOL_VERSIONS_MISSING",
+  "manifest": {
+    "run_id": "dd0e8400-e29b-41d4-a716-446655440008",
+    "input_hash": "c3c4c5c6c7c8c9c0d1d2d3d4d5d6d7d8d9d0e1e2e3e4e5e6e7e8e9e0f1f2f3f4",
+    "deterministic_mode": false,
+    "tool_versions": {},
+    "commit_hash": "abc123",
+    "dependency_lock_hash": "lock123",
+    "started_at": "2024-01-15T10:00:00Z",
+    "ended_at": "2024-01-15T10:05:00Z",
+    "log_references": [
+      {
+        "log_id": "branch-log-001",
+        "log_type": "branch",
+        "payload_ref": "logs/branch/001.json"
+      }
+    ]
+  }
+}

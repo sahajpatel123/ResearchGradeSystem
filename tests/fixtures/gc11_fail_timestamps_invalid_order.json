@@ -1,0 +1,31 @@
+{
+  "description": "FAIL: ended_at is before started_at",
+  "expected_outcome": "FAIL",
+  "error_category": "TIMESTAMPS_INVALID_ORDER",
+  "manifest": {
+    "run_id": "220e8400-e29b-41d4-a716-446655440012",
+    "input_hash": "a7a8a9a0b1b2b3b4b5b6b7b8b9b0c1c2c3c4c5c6c7c8c9c0d1d2d3d4d5d6d7d8",
+    "deterministic_mode": false,
+    "tool_versions": {
+      "python": "3.11.0"
+    },
+    "commit_hash": "abc123",
+    "dependency_lock_hash": "lock123",
+    "started_at": "2024-01-15T12:00:00Z",
+    "ended_at": "2024-01-15T10:00:00Z",
+    "log_references": [
+      {
+        "log_id": "branch-log-001",
+        "log_type": "branch",
+        "payload_ref": "logs/branch/001.json"
+      }
+    ]
+  },
+  "registry_artifacts": [
+    {
+      "log_id": "branch-log-001",
+      "log_type": "branch",
+      "payload_ref": "logs/branch/001.json"
+    }
+  ]
+}

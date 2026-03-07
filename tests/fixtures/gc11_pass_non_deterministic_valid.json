@@ -1,0 +1,30 @@
+{
+  "description": "PASS: Valid non-deterministic manifest (seed omitted, deterministic_mode=false)",
+  "expected_outcome": "PASS",
+  "manifest": {
+    "run_id": "660e8400-e29b-41d4-a716-446655440001",
+    "input_hash": "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3",
+    "deterministic_mode": false,
+    "tool_versions": {
+      "python": "3.11.0"
+    },
+    "commit_hash": "def456abc789",
+    "dependency_lock_hash": "lockfile_sha256_def456",
+    "started_at": "2024-01-15T11:00:00Z",
+    "ended_at": "2024-01-15T11:02:00Z",
+    "log_references": [
+      {
+        "log_id": "branch-log-001",
+        "log_type": "branch",
+        "payload_ref": "logs/branch/001.json"
+      }
+    ]
+  },
+  "registry_artifacts": [
+    {
+      "log_id": "branch-log-001",
+      "log_type": "branch",
+      "payload_ref": "logs/branch/001.json"
+    }
+  ]
+}

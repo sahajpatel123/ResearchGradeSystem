@@ -1,0 +1,25 @@
+{
+  "description": "FAIL: log_reference does not resolve in registry",
+  "expected_outcome": "FAIL",
+  "error_category": "LOG_REFERENCE_UNRESOLVED",
+  "manifest": {
+    "run_id": "110e8400-e29b-41d4-a716-446655440011",
+    "input_hash": "f6f7f8f9f0a1a2a3a4a5a6a7a8a9a0b1b2b3b4b5b6b7b8b9b0c1c2c3c4c5c6c7",
+    "deterministic_mode": false,
+    "tool_versions": {
+      "python": "3.11.0"
+    },
+    "commit_hash": "abc123",
+    "dependency_lock_hash": "lock123",
+    "started_at": "2024-01-15T10:00:00Z",
+    "ended_at": "2024-01-15T10:05:00Z",
+    "log_references": [
+      {
+        "log_id": "nonexistent-log-001",
+        "log_type": "branch",
+        "payload_ref": "logs/branch/nonexistent.json"
+      }
+    ]
+  },
+  "registry_artifacts": []
+}

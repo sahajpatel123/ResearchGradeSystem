@@ -1,0 +1,24 @@
+{
+  "description": "FAIL: Invalid input_hash (not 64 hex chars)",
+  "expected_outcome": "FAIL",
+  "error_category": "INPUT_HASH_INVALID",
+  "manifest": {
+    "run_id": "aa0e8400-e29b-41d4-a716-446655440005",
+    "input_hash": "tooshort123",
+    "deterministic_mode": false,
+    "tool_versions": {
+      "python": "3.11.0"
+    },
+    "commit_hash": "abc123",
+    "dependency_lock_hash": "lock123",
+    "started_at": "2024-01-15T10:00:00Z",
+    "ended_at": "2024-01-15T10:05:00Z",
+    "log_references": [
+      {
+        "log_id": "branch-log-001",
+        "log_type": "branch",
+        "payload_ref": "logs/branch/001.json"
+      }
+    ]
+  }
+}

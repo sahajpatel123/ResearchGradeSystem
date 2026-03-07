@@ -1,0 +1,31 @@
+{
+  "description": "FAIL: tool_versions missing numpy when numeric logs present",
+  "expected_outcome": "FAIL",
+  "error_category": "TOOL_VERSIONS_INCOMPLETE",
+  "manifest": {
+    "run_id": "ee0e8400-e29b-41d4-a716-446655440009",
+    "input_hash": "d4d5d6d7d8d9d0e1e2e3e4e5e6e7e8e9e0f1f2f3f4f5f6f7f8f9f0a1a2a3a4a5",
+    "deterministic_mode": false,
+    "tool_versions": {
+      "python": "3.11.0"
+    },
+    "commit_hash": "abc123",
+    "dependency_lock_hash": "lock123",
+    "started_at": "2024-01-15T10:00:00Z",
+    "ended_at": "2024-01-15T10:05:00Z",
+    "log_references": [
+      {
+        "log_id": "numeric-log-001",
+        "log_type": "numeric",
+        "payload_ref": "logs/numeric/001.json"
+      }
+    ]
+  },
+  "registry_artifacts": [
+    {
+      "log_id": "numeric-log-001",
+      "log_type": "numeric",
+      "payload_ref": "logs/numeric/001.json"
+    }
+  ]
+}

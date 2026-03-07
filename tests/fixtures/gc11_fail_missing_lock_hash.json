@@ -1,0 +1,24 @@
+{
+  "description": "FAIL: Missing dependency_lock_hash (empty string)",
+  "expected_outcome": "FAIL",
+  "error_category": "LOCK_HASH_MISSING",
+  "manifest": {
+    "run_id": "cc0e8400-e29b-41d4-a716-446655440007",
+    "input_hash": "b2b3b4b5b6b7b8b9b0c1c2c3c4c5c6c7c8c9c0d1d2d3d4d5d6d7d8d9d0e1e2e3",
+    "deterministic_mode": false,
+    "tool_versions": {
+      "python": "3.11.0"
+    },
+    "commit_hash": "abc123",
+    "dependency_lock_hash": "",
+    "started_at": "2024-01-15T10:00:00Z",
+    "ended_at": "2024-01-15T10:05:00Z",
+    "log_references": [
+      {
+        "log_id": "branch-log-001",
+        "log_type": "branch",
+        "payload_ref": "logs/branch/001.json"
+      }
+    ]
+  }
+}

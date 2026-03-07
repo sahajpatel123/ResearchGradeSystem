@@ -1,0 +1,50 @@
+{
+  "description": "PASS: Deterministic manifest with numeric log ref where numeric seed matches manifest seed",
+  "expected_outcome": "PASS",
+  "manifest": {
+    "run_id": "770e8400-e29b-41d4-a716-446655440002",
+    "input_hash": "c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+    "deterministic_mode": true,
+    "seed": 12345,
+    "tolerance_policy": {
+      "absolute": 1e-12,
+      "relative": 1e-10,
+      "ulp": 4
+    },
+    "tool_versions": {
+      "python": "3.11.0",
+      "numpy": "1.24.0"
+    },
+    "commit_hash": "789abc123def",
+    "dependency_lock_hash": "lockfile_sha256_789abc",
+    "started_at": "2024-01-15T12:00:00Z",
+    "ended_at": "2024-01-15T12:10:00Z",
+    "duration_ms": 600000,
+    "log_references": [
+      {
+        "log_id": "numeric-log-002",
+        "log_type": "numeric",
+        "payload_ref": "logs/numeric/002.json"
+      },
+      {
+        "log_id": "numeric-log-003",
+        "log_type": "numeric",
+        "payload_ref": "logs/numeric/003.json"
+      }
+    ]
+  },
+  "registry_artifacts": [
+    {
+      "log_id": "numeric-log-002",
+      "log_type": "numeric",
+      "payload_ref": "logs/numeric/002.json",
+      "seed": 12345
+    },
+    {
+      "log_id": "numeric-log-003",
+      "log_type": "numeric",
+      "payload_ref": "logs/numeric/003.json",
+      "seed": 12345
+    }
+  ]
+}

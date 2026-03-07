@@ -1,0 +1,50 @@
+{
+  "description": "PASS: Valid deterministic manifest with seed, tolerance_policy, and resolvable typed logs",
+  "expected_outcome": "PASS",
+  "manifest": {
+    "run_id": "550e8400-e29b-41d4-a716-446655440000",
+    "input_hash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+    "deterministic_mode": true,
+    "seed": 42,
+    "tolerance_policy": {
+      "absolute": 1e-10,
+      "relative": 1e-8
+    },
+    "tool_versions": {
+      "python": "3.11.0",
+      "numpy": "1.24.0",
+      "sympy": "1.12"
+    },
+    "commit_hash": "abc123def456",
+    "dependency_lock_hash": "lockfile_sha256_abc123",
+    "started_at": "2024-01-15T10:00:00Z",
+    "ended_at": "2024-01-15T10:05:00Z",
+    "duration_ms": 300000,
+    "log_references": [
+      {
+        "log_id": "numeric-log-001",
+        "log_type": "numeric",
+        "payload_ref": "logs/numeric/001.json"
+      },
+      {
+        "log_id": "cas-log-001",
+        "log_type": "cas",
+        "payload_ref": "logs/cas/001.json"
+      }
+    ],
+    "report_ref": "reports/report-001.json"
+  },
+  "registry_artifacts": [
+    {
+      "log_id": "numeric-log-001",
+      "log_type": "numeric",
+      "payload_ref": "logs/numeric/001.json",
+      "seed": 42
+    },
+    {
+      "log_id": "cas-log-001",
+      "log_type": "cas",
+      "payload_ref": "logs/cas/001.json"
+    }
+  ]
+}
