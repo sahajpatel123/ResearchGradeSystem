@@ -1,0 +1,31 @@
+{
+  "description": "PASS: Valid citation with both retrieval_snapshot_id and index_hash",
+  "expected_outcome": "PASS",
+  "corpus_manifest": {
+    "entries": [
+      {
+        "source_id": "source-002",
+        "title": "Advanced Physics Textbook",
+        "license_permission": "MIT",
+        "version_edition": "2nd Edition",
+        "ingested_at": "2024-01-16T12:00:00Z",
+        "content_hash": "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5"
+      }
+    ]
+  },
+  "citations": [
+    {
+      "citation_id": "cit-002",
+      "source_id": "source-002",
+      "location": {
+        "chunk_id": "chunk-002"
+      },
+      "snippet_hash": "e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6",
+      "snapshot_ref": {
+        "retrieval_snapshot_id": "snapshot-2024-01-16-001",
+        "index_hash": "f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1",
+        "created_at": "2024-01-16T12:00:00Z"
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "description": "FAIL: Corpus manifest entry has invalid content_hash",
+  "expected_outcome": "FAIL",
+  "error_category": "CORPUS_SOURCE_HASH_INVALID",
+  "corpus_manifest": {
+    "entries": [
+      {
+        "source_id": "source-001",
+        "title": "Introduction to Mathematics",
+        "license_permission": "CC-BY-4.0",
+        "version_edition": "3rd Edition",
+        "ingested_at": "2024-01-15T10:00:00Z",
+        "content_hash": "invalid-not-64-hex"
+      }
+    ]
+  },
+  "citations": []
+}

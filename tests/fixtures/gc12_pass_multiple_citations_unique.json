@@ -1,0 +1,61 @@
+{
+  "description": "PASS: Multiple citations with unique ids + resolvable sources",
+  "expected_outcome": "PASS",
+  "corpus_manifest": {
+    "entries": [
+      {
+        "source_id": "source-004",
+        "title": "Biology Fundamentals",
+        "license_permission": "CC-BY-SA-4.0",
+        "version_edition": "4th Edition",
+        "ingested_at": "2024-01-18T09:00:00Z",
+        "content_hash": "c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0"
+      },
+      {
+        "source_id": "source-005",
+        "title": "Organic Chemistry",
+        "license_permission": "CC-BY-4.0",
+        "version_edition": "2nd Edition",
+        "ingested_at": "2024-01-18T10:00:00Z",
+        "content_hash": "d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1"
+      }
+    ]
+  },
+  "citations": [
+    {
+      "citation_id": "cit-004",
+      "source_id": "source-004",
+      "location": {
+        "chunk_id": "chunk-004"
+      },
+      "snippet_hash": "e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2",
+      "snapshot_ref": {
+        "index_hash": "f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3"
+      }
+    },
+    {
+      "citation_id": "cit-005",
+      "source_id": "source-005",
+      "location": {
+        "chunk_id": "chunk-005",
+        "page_start": 10
+      },
+      "snippet_hash": "a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4",
+      "snapshot_ref": {
+        "retrieval_snapshot_id": "snapshot-2024-01-18-001",
+        "index_hash": "b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5"
+      }
+    },
+    {
+      "citation_id": "cit-006",
+      "source_id": "source-004",
+      "location": {
+        "chunk_id": "chunk-006"
+      },
+      "snippet_hash": "c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6",
+      "snapshot_ref": {
+        "index_hash": "d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7"
+      }
+    }
+  ]
+}

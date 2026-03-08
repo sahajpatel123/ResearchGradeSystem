@@ -1,0 +1,41 @@
+{
+  "description": "FAIL: Citations have duplicate citation_id",
+  "expected_outcome": "FAIL",
+  "error_category": "CITATION_ID_DUPLICATE",
+  "corpus_manifest": {
+    "entries": [
+      {
+        "source_id": "source-001",
+        "title": "Introduction to Mathematics",
+        "license_permission": "CC-BY-4.0",
+        "version_edition": "3rd Edition",
+        "ingested_at": "2024-01-15T10:00:00Z",
+        "content_hash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+      }
+    ]
+  },
+  "citations": [
+    {
+      "citation_id": "cit-001",
+      "source_id": "source-001",
+      "location": {
+        "chunk_id": "chunk-001"
+      },
+      "snippet_hash": "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3",
+      "snapshot_ref": {
+        "index_hash": "c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4"
+      }
+    },
+    {
+      "citation_id": "cit-001",
+      "source_id": "source-001",
+      "location": {
+        "chunk_id": "chunk-002"
+      },
+      "snippet_hash": "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5",
+      "snapshot_ref": {
+        "index_hash": "e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6"
+      }
+    }
+  ]
+}

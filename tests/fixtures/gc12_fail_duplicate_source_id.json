@@ -1,0 +1,26 @@
+{
+  "description": "FAIL: Corpus manifest has duplicate source_id",
+  "expected_outcome": "FAIL",
+  "error_category": "CORPUS_SOURCE_ID_DUPLICATE",
+  "corpus_manifest": {
+    "entries": [
+      {
+        "source_id": "source-001",
+        "title": "Introduction to Mathematics",
+        "license_permission": "CC-BY-4.0",
+        "version_edition": "3rd Edition",
+        "ingested_at": "2024-01-15T10:00:00Z",
+        "content_hash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+      },
+      {
+        "source_id": "source-001",
+        "title": "Different Title Same ID",
+        "license_permission": "MIT",
+        "version_edition": "1st Edition",
+        "ingested_at": "2024-01-16T10:00:00Z",
+        "content_hash": "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3"
+      }
+    ]
+  },
+  "citations": []
+}

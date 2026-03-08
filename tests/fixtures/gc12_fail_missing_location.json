@@ -1,0 +1,6 @@
+{
+  "description": "FAIL: Citation missing location (will fail at schema level)",
+  "expected_outcome": "FAIL",
+  "error_category": "CITATION_LOCATION_MISSING",
+  "note": "This fixture tests that location is required - will fail at Citation construction"
+}
