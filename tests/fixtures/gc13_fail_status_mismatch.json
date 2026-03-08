@@ -1,0 +1,25 @@
+{
+  "description": "FAIL: Status mismatch (wire FINAL but computed INCOMPLETE)",
+  "expected_outcome": "FAIL",
+  "error_category": "REPORT_STATUS_MISMATCH",
+  "wire_status": "FINAL",
+  "artifacts": {
+    "problem_restatement": "Calculate derivative",
+    "assumption_ledger": [{"assumption_id": "A1", "text": "f is differentiable"}],
+    "derivation_steps": [{"step_id": "S1", "statement": "Apply power rule"}],
+    "claims": [{"claim_id": "C1", "label": "SPEC", "text": "f(x) = x^2"}],
+    "evidence_objects": [{"evidence_id": "E1", "claim_id": "C1", "evidence_type": "derivation"}],
+    "coverage_metrics": null,
+    "conclusion": null,
+    "confidence": "HIGH",
+    "used_rag": false,
+    "task_kind": "derivational",
+    "checks": {
+      "units_check": {"status": "PASS"},
+      "limits_check": {"status": "PASS"},
+      "numeric_check": {"status": "PASS"},
+      "critic_check": {"status": "PASS"},
+      "known_result_check": {"status": "PASS"}
+    }
+  }
+}

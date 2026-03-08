@@ -1,0 +1,23 @@
+{
+  "description": "FAIL: Omit one check field (limits_check missing)",
+  "expected_outcome": "FAIL",
+  "error_category": "CHECK_STATUS_MISSING",
+  "artifacts": {
+    "problem_restatement": "Calculate derivative",
+    "assumption_ledger": [{"assumption_id": "A1", "text": "f is differentiable"}],
+    "derivation_steps": [{"step_id": "S1", "statement": "Apply power rule"}],
+    "claims": [{"claim_id": "C1", "label": "SPEC", "text": "f(x) = x^2"}],
+    "evidence_objects": [{"evidence_id": "E1", "claim_id": "C1", "evidence_type": "derivation"}],
+    "coverage_metrics": {"claims_covered": 1, "claims_total": 1, "coverage_ratio": 1.0},
+    "conclusion": "f'(x) = 2x",
+    "confidence": "HIGH",
+    "used_rag": false,
+    "task_kind": "derivational",
+    "checks": {
+      "units_check": {"status": "PASS"},
+      "numeric_check": {"status": "PASS"},
+      "critic_check": {"status": "PASS"},
+      "known_result_check": {"status": "PASS"}
+    }
+  }
+}

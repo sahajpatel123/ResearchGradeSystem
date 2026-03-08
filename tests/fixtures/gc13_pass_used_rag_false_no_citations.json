@@ -1,0 +1,42 @@
+{
+  "description": "PASS: used_rag=false report with no citations (ok if other requirements satisfied)",
+  "expected_outcome": "PASS",
+  "expected_status": "FINAL",
+  "expected_missing_artifacts": [],
+  "artifacts": {
+    "problem_restatement": "Solve the quadratic equation x^2 - 5x + 6 = 0",
+    "assumption_ledger": [
+      {"assumption_id": "A1", "text": "Coefficients are real numbers"}
+    ],
+    "derivation_steps": [
+      {"step_id": "S1", "statement": "Factor: (x-2)(x-3) = 0"},
+      {"step_id": "S2", "statement": "Solutions: x = 2 or x = 3"}
+    ],
+    "claims": [
+      {"claim_id": "C1", "label": "SPEC", "text": "x^2 - 5x + 6 = 0"},
+      {"claim_id": "C2", "label": "DERIVED", "text": "x = 2 or x = 3"}
+    ],
+    "evidence_objects": [
+      {"evidence_id": "E1", "claim_id": "C1", "evidence_type": "derivation"},
+      {"evidence_id": "E2", "claim_id": "C2", "evidence_type": "derivation"}
+    ],
+    "coverage_metrics": {
+      "claims_covered": 2,
+      "claims_total": 2,
+      "coverage_ratio": 1.0
+    },
+    "conclusion": "The solutions are x = 2 and x = 3",
+    "confidence": "HIGH",
+    "used_rag": false,
+    "citations": null,
+    "task_kind": "derivational",
+    "run_manifest_ref": "manifests/run-002.json",
+    "checks": {
+      "units_check": {"status": "NOT_APPLICABLE", "reason": "Pure algebra, no units"},
+      "limits_check": {"status": "PASS"},
+      "numeric_check": {"status": "PASS"},
+      "critic_check": {"status": "PASS"},
+      "known_result_check": {"status": "PASS"}
+    }
+  }
+}

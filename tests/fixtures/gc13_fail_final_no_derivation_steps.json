@@ -1,0 +1,26 @@
+{
+  "description": "FAIL: Derivation task marked FINAL with no steps ('no derivation possible yet' laundering)",
+  "expected_outcome": "FAIL",
+  "error_category": "REPORT_STATUS_MISMATCH",
+  "wire_status": "FINAL",
+  "note": "Attempting to mark FINAL with no derivation steps for a derivational task",
+  "artifacts": {
+    "problem_restatement": "Prove the Riemann hypothesis",
+    "assumption_ledger": [{"assumption_id": "A1", "text": "Standard axioms"}],
+    "derivation_steps": [],
+    "claims": [{"claim_id": "C1", "label": "SPEC", "text": "All non-trivial zeros have real part 1/2"}],
+    "evidence_objects": [{"evidence_id": "E1", "claim_id": "C1", "evidence_type": "derivation"}],
+    "coverage_metrics": {"claims_covered": 0, "claims_total": 1, "coverage_ratio": 0.0},
+    "conclusion": "No derivation possible yet",
+    "confidence": "LOW",
+    "used_rag": false,
+    "task_kind": "derivational",
+    "checks": {
+      "units_check": {"status": "NOT_APPLICABLE", "reason": "No units"},
+      "limits_check": {"status": "NOT_RUN"},
+      "numeric_check": {"status": "NOT_RUN"},
+      "critic_check": {"status": "NOT_RUN"},
+      "known_result_check": {"status": "NOT_RUN"}
+    }
+  }
+}

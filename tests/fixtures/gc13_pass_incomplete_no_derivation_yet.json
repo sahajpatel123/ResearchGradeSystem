@@ -1,0 +1,38 @@
+{
+  "description": "PASS: INCOMPLETE report with 'no derivation possible yet' note (must remain INCOMPLETE)",
+  "expected_outcome": "PASS",
+  "expected_status": "INCOMPLETE",
+  "expected_missing_artifacts": ["derivation"],
+  "note": "This is a derivational task with no steps yet - must be INCOMPLETE, not FINAL",
+  "artifacts": {
+    "problem_restatement": "Prove the Riemann hypothesis",
+    "assumption_ledger": [
+      {"assumption_id": "A1", "text": "Standard axioms of complex analysis"}
+    ],
+    "derivation_steps": [],
+    "claims": [
+      {"claim_id": "C1", "label": "SPEC", "text": "All non-trivial zeros have real part 1/2"}
+    ],
+    "evidence_objects": [
+      {"evidence_id": "E1", "claim_id": "C1", "evidence_type": "derivation"}
+    ],
+    "coverage_metrics": {
+      "claims_covered": 0,
+      "claims_total": 1,
+      "coverage_ratio": 0.0
+    },
+    "conclusion": "No derivation possible yet - problem remains open",
+    "confidence": "LOW",
+    "used_rag": false,
+    "citations": null,
+    "task_kind": "derivational",
+    "run_manifest_ref": null,
+    "checks": {
+      "units_check": {"status": "NOT_APPLICABLE", "reason": "No units in this problem"},
+      "limits_check": {"status": "NOT_RUN"},
+      "numeric_check": {"status": "NOT_RUN"},
+      "critic_check": {"status": "NOT_RUN"},
+      "known_result_check": {"status": "NOT_RUN"}
+    }
+  }
+}

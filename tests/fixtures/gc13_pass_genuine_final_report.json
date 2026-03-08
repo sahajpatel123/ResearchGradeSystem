@@ -1,0 +1,39 @@
+{
+  "description": "PASS: Genuine FINAL report with all required artifacts + checks present",
+  "expected_outcome": "PASS",
+  "expected_status": "FINAL",
+  "expected_missing_artifacts": [],
+  "artifacts": {
+    "problem_restatement": "Calculate the derivative of f(x) = x^2",
+    "assumption_ledger": [
+      {"assumption_id": "A1", "text": "f is differentiable"}
+    ],
+    "derivation_steps": [
+      {"step_id": "S1", "statement": "f'(x) = 2x by power rule"}
+    ],
+    "claims": [
+      {"claim_id": "C1", "label": "SPEC", "text": "f(x) = x^2"}
+    ],
+    "evidence_objects": [
+      {"evidence_id": "E1", "claim_id": "C1", "evidence_type": "derivation"}
+    ],
+    "coverage_metrics": {
+      "claims_covered": 1,
+      "claims_total": 1,
+      "coverage_ratio": 1.0
+    },
+    "conclusion": "The derivative is f'(x) = 2x",
+    "confidence": "HIGH",
+    "used_rag": false,
+    "citations": null,
+    "task_kind": "derivational",
+    "run_manifest_ref": "manifests/run-001.json",
+    "checks": {
+      "units_check": {"status": "PASS"},
+      "limits_check": {"status": "PASS"},
+      "numeric_check": {"status": "NOT_RUN"},
+      "critic_check": {"status": "PASS"},
+      "known_result_check": {"status": "PASS"}
+    }
+  }
+}

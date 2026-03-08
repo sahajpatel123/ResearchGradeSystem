@@ -1,0 +1,35 @@
+{
+  "description": "PASS: INCOMPLETE report with correct missing_artifacts (at least one missing)",
+  "expected_outcome": "PASS",
+  "expected_status": "INCOMPLETE",
+  "expected_missing_artifacts": ["conclusion", "coverage_metrics"],
+  "artifacts": {
+    "problem_restatement": "Calculate the integral of f(x) = x^2",
+    "assumption_ledger": [
+      {"assumption_id": "A1", "text": "f is integrable"}
+    ],
+    "derivation_steps": [
+      {"step_id": "S1", "statement": "Apply power rule for integration"}
+    ],
+    "claims": [
+      {"claim_id": "C1", "label": "SPEC", "text": "f(x) = x^2"}
+    ],
+    "evidence_objects": [
+      {"evidence_id": "E1", "claim_id": "C1", "evidence_type": "derivation"}
+    ],
+    "coverage_metrics": null,
+    "conclusion": null,
+    "confidence": "MEDIUM",
+    "used_rag": false,
+    "citations": null,
+    "task_kind": "derivational",
+    "run_manifest_ref": null,
+    "checks": {
+      "units_check": {"status": "PASS"},
+      "limits_check": {"status": "NOT_RUN"},
+      "numeric_check": {"status": "NOT_RUN"},
+      "critic_check": {"status": "NOT_RUN"},
+      "known_result_check": {"status": "NOT_RUN"}
+    }
+  }
+}

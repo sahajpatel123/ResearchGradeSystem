@@ -1,0 +1,36 @@
+{
+  "description": "FAIL: Citations present but snapshot_ref missing (GC-12 provenance violation)",
+  "expected_outcome": "FAIL",
+  "error_category": "CITATION_SNAPSHOT_REF_MISSING",
+  "note": "This is validated by GC-12, but GC-13 should catch that citations don't satisfy provenance",
+  "artifacts": {
+    "problem_restatement": "Find the boiling point of water at sea level",
+    "assumption_ledger": [{"assumption_id": "A1", "text": "Standard atmospheric pressure"}],
+    "derivation_steps": [{"step_id": "S1", "statement": "Retrieved from reference"}],
+    "claims": [{"claim_id": "C1", "label": "CITED", "text": "Boiling point is 100°C"}],
+    "evidence_objects": [{"evidence_id": "E1", "claim_id": "C1", "evidence_type": "citation"}],
+    "coverage_metrics": {"claims_covered": 1, "claims_total": 1, "coverage_ratio": 1.0},
+    "conclusion": "Water boils at 100°C at sea level",
+    "confidence": "HIGH",
+    "used_rag": true,
+    "citations": [
+      {
+        "citation_id": "cit-001",
+        "source_id": "source-001",
+        "location": {"chunk_id": "chunk-001"},
+        "snippet_hash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+        "snapshot_ref": {
+          "created_at": "2024-01-15T10:00:00Z"
+        }
+      }
+    ],
+    "task_kind": "derivational",
+    "checks": {
+      "units_check": {"status": "PASS"},
+      "limits_check": {"status": "PASS"},
+      "numeric_check": {"status": "PASS"},
+      "critic_check": {"status": "PASS"},
+      "known_result_check": {"status": "PASS"}
+    }
+  }
+}

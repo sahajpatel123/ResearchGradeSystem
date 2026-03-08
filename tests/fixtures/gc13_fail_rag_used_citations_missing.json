@@ -1,0 +1,25 @@
+{
+  "description": "FAIL: used_rag=true but citations missing",
+  "expected_outcome": "FAIL",
+  "error_category": "RAG_USED_CITATIONS_MISSING",
+  "artifacts": {
+    "problem_restatement": "Find the boiling point of water at sea level",
+    "assumption_ledger": [{"assumption_id": "A1", "text": "Standard atmospheric pressure"}],
+    "derivation_steps": [{"step_id": "S1", "statement": "Retrieved from reference"}],
+    "claims": [{"claim_id": "C1", "label": "CITED", "text": "Boiling point is 100°C"}],
+    "evidence_objects": [{"evidence_id": "E1", "claim_id": "C1", "evidence_type": "citation"}],
+    "coverage_metrics": {"claims_covered": 1, "claims_total": 1, "coverage_ratio": 1.0},
+    "conclusion": "Water boils at 100°C at sea level",
+    "confidence": "HIGH",
+    "used_rag": true,
+    "citations": null,
+    "task_kind": "derivational",
+    "checks": {
+      "units_check": {"status": "PASS"},
+      "limits_check": {"status": "PASS"},
+      "numeric_check": {"status": "PASS"},
+      "critic_check": {"status": "PASS"},
+      "known_result_check": {"status": "PASS"}
+    }
+  }
+}
