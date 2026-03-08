@@ -1,0 +1,19 @@
+{
+  "description": "PASS: Benign snippet with no instruction-like content",
+  "expected_outcome": "PASS",
+  "expected_flags": [],
+  "retrieval_result": {
+    "source_id": "textbook-physics-101",
+    "location": {
+      "chunk_id": "chunk-042",
+      "page_start": 15,
+      "page_end": 15
+    },
+    "snippet_text": "The acceleration due to gravity on Earth's surface is approximately 9.8 m/s². This value varies slightly depending on latitude and altitude.",
+    "snippet_hash": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+    "snapshot_ref": {
+      "retrieval_snapshot_id": "snap-20240115-001",
+      "index_hash": "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3"
+    }
+  }
+}

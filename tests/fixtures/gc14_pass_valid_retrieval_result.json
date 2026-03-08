@@ -1,0 +1,19 @@
+{
+  "description": "PASS: Valid retrieval result with proper typing",
+  "expected_outcome": "PASS",
+  "expected_flags": [],
+  "retrieval_result": {
+    "source_id": "journal-chemistry-2023",
+    "location": {
+      "chunk_id": "chunk-108",
+      "page_start": 42,
+      "page_end": 43
+    },
+    "snippet_text": "The reaction between sodium and chlorine produces sodium chloride (NaCl), commonly known as table salt. This is an exothermic reaction that releases significant energy.",
+    "snippet_hash": "c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+    "snapshot_ref": {
+      "retrieval_snapshot_id": "snap-20240120-002",
+      "index_hash": "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5"
+    }
+  }
+}
