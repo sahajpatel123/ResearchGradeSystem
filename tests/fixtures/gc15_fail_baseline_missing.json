@@ -1,0 +1,23 @@
+{
+  "description": "FAIL: Baseline artifact missing",
+  "expected_outcome": "FAIL",
+  "expected_error": "REGRESSION_BASELINE_MISSING",
+  "baseline": null,
+  "current": {
+    "eval_case_count": 250,
+    "fail_count": 10,
+    "metrics": {
+      "symbolic_correctness": 92.0,
+      "derivation_correctness": 88.0,
+      "unit_consistency_pass_rate": 95.0,
+      "limit_special_case_pass_rate": 90.0,
+      "numeric_agreement_pass_rate": 85.0,
+      "reproducibility_rerun_success": 98.0,
+      "proof_check_success_rate": 87.0,
+      "unsupported_claim_rate": 0.05
+    },
+    "commit_hash": "def789abc012"
+  },
+  "adr_present": false,
+  "adr_id": null
+}

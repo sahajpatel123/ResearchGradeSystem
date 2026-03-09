@@ -1,0 +1,40 @@
+{
+  "description": "FAIL: Post-threshold metric drops by 0.6 (exceeds 0.5 max)",
+  "expected_outcome": "FAIL",
+  "expected_phase": "POST_THRESHOLD",
+  "expected_error": "REGRESSION_METRIC_DROP_EXCEEDED",
+  "baseline": {
+    "baseline_id": "baseline-007",
+    "baseline_commit_hash": "abc123def456",
+    "eval_case_count": 250,
+    "fail_count": 10,
+    "metrics": {
+      "symbolic_correctness": 92.0,
+      "derivation_correctness": 88.0,
+      "unit_consistency_pass_rate": 95.0,
+      "limit_special_case_pass_rate": 90.0,
+      "numeric_agreement_pass_rate": 85.0,
+      "reproducibility_rerun_success": 98.0,
+      "proof_check_success_rate": 87.0,
+      "unsupported_claim_rate": 0.05
+    },
+    "created_at": "2024-01-15T10:00:00Z"
+  },
+  "current": {
+    "eval_case_count": 250,
+    "fail_count": 12,
+    "metrics": {
+      "symbolic_correctness": 91.3,
+      "derivation_correctness": 88.0,
+      "unit_consistency_pass_rate": 95.0,
+      "limit_special_case_pass_rate": 90.0,
+      "numeric_agreement_pass_rate": 85.0,
+      "reproducibility_rerun_success": 98.0,
+      "proof_check_success_rate": 87.0,
+      "unsupported_claim_rate": 0.05
+    },
+    "commit_hash": "def789abc012"
+  },
+  "adr_present": false,
+  "adr_id": null
+}

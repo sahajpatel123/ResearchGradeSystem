@@ -1,0 +1,40 @@
+{
+  "description": "PASS: ADR waiver - post-threshold metric drop >0.5 but ADR present, unsupported rate unchanged",
+  "expected_outcome": "PASS",
+  "expected_phase": "POST_THRESHOLD",
+  "expected_adr_used": true,
+  "baseline": {
+    "baseline_id": "baseline-003",
+    "baseline_commit_hash": "abc123def456",
+    "eval_case_count": 250,
+    "fail_count": 10,
+    "metrics": {
+      "symbolic_correctness": 92.0,
+      "derivation_correctness": 88.0,
+      "unit_consistency_pass_rate": 95.0,
+      "limit_special_case_pass_rate": 90.0,
+      "numeric_agreement_pass_rate": 85.0,
+      "reproducibility_rerun_success": 98.0,
+      "proof_check_success_rate": 87.0,
+      "unsupported_claim_rate": 0.05
+    },
+    "created_at": "2024-01-15T10:00:00Z"
+  },
+  "current": {
+    "eval_case_count": 250,
+    "fail_count": 12,
+    "metrics": {
+      "symbolic_correctness": 91.0,
+      "derivation_correctness": 87.0,
+      "unit_consistency_pass_rate": 94.0,
+      "limit_special_case_pass_rate": 89.0,
+      "numeric_agreement_pass_rate": 84.0,
+      "reproducibility_rerun_success": 97.0,
+      "proof_check_success_rate": 86.0,
+      "unsupported_claim_rate": 0.05
+    },
+    "commit_hash": "def789abc012"
+  },
+  "adr_present": true,
+  "adr_id": "ADR-2024-001"
+}
